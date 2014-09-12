@@ -1,11 +1,11 @@
 <CsoundSynthesizer>
 <CsOptions>
 ; Select audio/midi flags here according to platform
-;-odac     ;;;realtime audio out
+-odac     ;;;realtime audio out
 ;-+skip_seconds=60
 ;-iadc    ;;;uncomment -iadc if RT audio input is needed too
 ;-o sunblind.wav -W ;;; for file output any platform
--o sunblind.ogg --ogg
+;-o sunblind.ogg --ogg
 </CsOptions>
 <CsInstruments>
 
@@ -15,35 +15,10 @@ nchnls = 2
 0dbfs = 4 ; 1 is standard and probably better advised
 
 ; Include the file with all the various tables
-#include "suntables.inc"
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; U S E R - D E F I N E D   O P C O D E S
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-                        
-opcode 	AssignSend, 0, iiii
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-insno,ic,ir,id 	    xin
-inum			        = floor(insno)
-;print                 inum, ic, ir, id
-MixerSetLevel	 	    inum, 200, ic
-MixerSetLevel	 	    inum, 210, ir
-MixerSetLevel	 	    inum, 220, id
-endop
-
-opcode			        SendOut, 0, iaa
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-insno, aleft, aright	xin
-inum                    =                       floor(insno)
-MixerSend               aleft, inum, 200, 0
-MixerSend               aright, inum, 200, 1
-MixerSend               aleft, inum, 210, 0
-MixerSend               aright, inum, 210, 1
-MixerSend               aleft, inum, 220, 0
-MixerSend               aright, inum, 220, 1
-                        ;print                   inum
-                        endop
-
+#include "includes/suntables.inc"
+; Include user-defined opcodes
+#include "includes/sunopcodes.inc"
+                       
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; G L O B A L S
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

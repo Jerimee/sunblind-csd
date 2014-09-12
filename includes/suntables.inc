@@ -9,8 +9,8 @@ gisine   ftgen     2, 0, 65537,    10,     1
 giwtsin   init       gisine
 
 ; for ins moog
-gimandpluk ftgen 0,0,8192,1,"mandpluk.aiff",0,0,0
-giimpuls20 ftgen 0,0,256,1,"impuls20.aiff",0,0,0
+gimandpluk ftgen 0,0,8192,1,"../assets/mandpluk.aiff",0,0,0
+giimpuls20 ftgen 0,0,256,1,"../assets/impuls20.aiff",0,0,0
 
 ; the "marmstk1.wav" audio file for marimba
 gimarmstk1 ftgen 0,0,256,1,"marmstk1.wav",0,0,0
