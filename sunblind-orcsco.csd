@@ -2,7 +2,7 @@
 <CsOptions>
 ; Select audio/midi flags here according to platform
 -odac     ;;;realtime audio out
-;-+skip_seconds=40
+;-+skip_seconds=10
 ;-iadc    ;;;uncomment -iadc if RT audio input is needed too
 ;-o sunblind.wav -W ;;; for file output any platform
 </CsOptions>
@@ -42,6 +42,77 @@ MixerSend               aleft, inum, 220, 0
 MixerSend               aright, inum, 220, 1
                         ;print                   inum
                         endop
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; G L O B A L S
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+giFirstThree = 1
+giSecondThree = 1
+giLastFive = 1
+gitwothreefiveandseven=1
+gievenon = 1
+gioddon  = 1
+	/***********
+	/* inst 1 sco is a simple backup highlight */
+gi01on = 1     *gioddon*giFirstThree
+	
+	/***********
+	/* inst 2 sco is a faint tap percusive 
+	/* in time with i3 */
+gi02on = 1     *gievenon*gitwothreefiveandseven*giFirstThree
+
+	/***********
+	/* inst 3 sco is a repetative rhythm */
+	/* in time with i2 */
+gi03on = 1     *gioddon*gitwothreefiveandseven*giFirstThree 
+
+	/***********
+	/* inst 4 sco is a horn */
+gi04on = 1     *gievenon*giSecondThree
+
+	/***********
+	/* inst 5 sco is */
+gi05on = 1     *gioddon*gitwothreefiveandseven*giSecondThree
+
+	/***********
+	/* inst 6 sco is */
+gi06on = 1     *gievenon*giSecondThree
+
+	/***********
+	/* inst 7 sco is percusive? */
+gi07on = 1     *gioddon*gitwothreefiveandseven*giLastFive
+
+	/***********
+	/* inst 8 sco is flourishy mario paint trill */
+gi08on = 1     *gievenon*giLastFive
+
+	/***********
+	/* inst 9 sco is */
+gi09on = 1     *gioddon*giLastFive
+
+	/***********
+	/* inst 10 sco is rapid drums */
+gi10on = 1     *gievenon*giLastFive
+
+	/***********
+	/* inst 11 sco is */
+gi11on = 1    *gioddon*giLastFive
+
+giamp   = 0.27
+gi01amp = giamp + 0.7
+gi02amp = giamp
+gi03amp = giamp - 0.2
+gi04amp = giamp - 0.22
+gi05amp = giamp + 0.30
+gi06amp = giamp
+gi07amp = giamp + 1.9 ; can we turn it up beyond 1? yes
+gi08amp = giamp - 0.15
+gi09amp = giamp
+gi10amp = giamp + 0.1
+gi11amp = giamp - 0.2
+
+gicount = 0 ; I don't know how to do a counter without a global var
                         
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; I N S T R U M E N T   D E F I N I T I O N S
@@ -57,68 +128,6 @@ instr 100 ; Mixer level
 	igain0=p6
 	MixerSetLevel           isend, ibuss0, igain0
 endin
-
-gievenon = 1
-gioddon  = 1
-	/***********
-	/* inst 1 sco is a simple backup highlight */
-gi01on = 1     *gioddon 
-	
-	/***********
-	/* inst 2 sco is a faint tap percusive 
-	/* in time with i3 */
-gi02on = 1     *gievenon
-
-	/***********
-	/* inst 3 sco is a repetative rhythm */
-	/* in time with i2 */
-gi03on = 1     *gioddon 
-
-	/***********
-	/* inst 4 sco is a horn */
-gi04on = 1     *gievenon
-
-	/***********
-	/* inst 5 sco is */
-gi05on = 1     *gioddon 
-
-	/***********
-	/* inst 6 sco is */
-gi06on = 1     *gievenon
-
-	/***********
-	/* inst 7 sco is */
-gi07on = 1     *gioddon 
-
-	/***********
-	/* inst 8 sco is flourishy mario paint trill */
-gi08on = 1     *gievenon
-
-	/***********
-	/* inst 9 sco is */
-gi09on = 1     *gioddon 
-
-	/***********
-	/* inst 10 sco is rapid drums */
-gi10on = 1     *gievenon
-
-	/***********
-	/* inst 11 sco is */
-gi11on = 1    *gioddon 
-
-giamp   = 0.27
-gi01amp = giamp + 0.5
-gi02amp = giamp
-gi03amp = giamp - 0.17
-gi04amp = giamp - 0.22
-gi05amp = giamp + 0.45
-gi06amp = giamp
-gi07amp = giamp + 1.9 ;can we turn it up beyond 1?
-gi08amp = giamp - 0.25
-gi09amp = giamp
-gi10amp = giamp + 0.1
-gi11amp = giamp - 0.2
-
 
 instr 1 ; moog!
 kfreq  = p4
@@ -193,7 +202,7 @@ instr 3 ; Sweepy
   ain      = kenv * asig  ; output scaled by amp envelope
   ares     reson ain, kfreq, ibw, 1
   aresr    resonr ain, kfreq, ibw, 1
-  iampRrnd random 0, 0.4
+  iampRrnd random 0.1, 0.9
   iampR =   1 - iampRrnd
 
 aoutL init 0
@@ -204,7 +213,7 @@ aoutL = ares * ires
 aoutR = aresr * iresr * iampR
 ;outs asig, asig
 if (gi03on==1) then  
-	AssignSend		        p1, 0.25, 0.15, gi03amp
+	AssignSend		        p1, 25, 0.15, gi03amp
 	SendOut			        p1, aoutL, aoutR
 endif
 endin ; end 3
@@ -259,34 +268,51 @@ instr 5   ; Rhodes elec piano
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 pset           0, 0, 3600, 0, 0, 0, 0, 0, 0, 0, 0
-                        
-; ok this is dumb
-; TODO turn it into a function at least
-; maybe submit the problem to twitter?
-iastep1 = p5 - 80
-iastep2 = 50 - iastep1
-iastep3 = iastep2 - (iastep2*0.96)
-iastep4 = (iastep3/3.7)
-                        
-ikrnd random -2, 8
-kHz = (p4+ikrnd)
-iamplitude = 0.3 ;amp on this has to be turned way down?
-iattack = iastep4
-isustain =  p3
-irelease  = 0.05
-iindex = 4
-icrossfade   =          3
-ivibedepth      =       0.1
-iviberate   =      7
-ifn1  = gisine
-ifn2 =  gicosine
-ifn3=gisine
-ifn4=gicookblank
-ivibefn  =   gisine
+
+;cigoto condition, label 
+cigoto (p5==127), dorand  
+  igoto norand
+
+dorand:
+  ikrnd random -4, 6
+  ivariance = ikrnd * 2
+  iamplitude = 0.4 
+  ;gicount = gicount +1
+  ;String sprintfk "\nnew ikrnd : %d\n", gicount
+  ;puts String, 1
+  goto onward
+                    
+norand:
+  ivariance = 0
+  iamplitude = 0.3 
+  goto onward ;this goto may be redundant
+
+onward:
+kHz = p4 + ivariance
+
+; envelope
+iattratio = 1.05-(p5/127) ; p5 is velocity
+irelratio  = 0.05
+isusratio =  1 - (iattratio + irelratio)
+iatt = p3 * iattratio
+irel = p3 * irelratio
+isus = p3 * isusratio
+aenv linseg 0, iatt, 0.99, isus, 0.99, irel, 0 ; end envelope
+
+iindex = 4.1
+icrossfade = 3.1
+ivibedepth = 0.2
+iviberate  = 6
+ifn1 = gisine
+ifn2 = gicosine
+ifn3 = gisine ;giharpsichord
+ifn4 = gisine ;giSigmoFall
+ivibefn  = gibergeman ;  giSigmoFall;gisine
 asig                 fmrhode                 iamplitude, kHz, iindex, icrossfade, ivibedepth, iviberate, ifn1, ifn2, ifn3, ifn4, ivibefn
 if (gi05on==1) then  
-	AssignSend		        p1, 0.2, 0.23, gi05amp
-	SendOut			        p1, asig, asig
+;note that Reverb is high
+	AssignSend		        p1, 0.2, 3, gi05amp
+	SendOut			        p1, asig*aenv, asig*aenv
 endif
 endin ; end ins 5
 
@@ -729,12 +755,17 @@ endin
 t 0 64
 
 ; EFFECTS MATRIX
+;	isend=p4
+;	ibuss0=p5
+;	igain0=p6
 ; Chorus to Reverb (210)
-i 100 0 0 200 210 0.0
+i100 0 0 200 210 0.0
 ; Chorus to Output (220)
-i 100 0 0 200 220 0.0
+;i100 0 0 200 220 0.0
+i100 0 0 200 220 0.0
 ; Reverb (210) to Output (220)
-i 100 0 0 210 220 0.25
+i100 0 0 210 220 0.28
+
 ; MASTER EFFECT CONTROLS
 ; Chorus.
 ; Insno Start   Dur Delay   Divisor of Delay
@@ -747,7 +778,7 @@ i 210   0       -1      0.74    0.007       17000
 i 220   0       -1      
 
 ; ins 1
-; simple backup highlight
+; simple backup flourish/highlight
 ; 1:1 start 40.3
 
 i1	40.36    	1.10    	554.300  	127
@@ -1091,6 +1122,7 @@ i1	209.454649	0.273016	493.869370	127
 
 ; ins 2
 ; iChan StartTime Dur Pitch Vel
+; 2:1 starts 10.9
 
 i2	10.909070	0.136508	41.2     	127
 i2	11.181859	0.136508	41.2     	123
@@ -1117,8 +1149,8 @@ i2	17.454649	0.136508	61.733671	127
 i2	17.727211	0.136735	61.733671	127
 i2	18.000000	0.273016	61.733671	127
 i2	18.409070	0.136735	55.000000	127
-i2	18.681859	0.136508	55.000000	127
-i2	18.954649	0.136508	55.000000	127
+i2	18.681859	0.137   	55.000000	127
+i2	18.954649	0.137   	55.000000	127
 i2	19.090930	0.273016	55.000000	127
 i2	19.636281	0.136735	41.2     	127
 i2	19.909070	0.136735	41.2     	123
@@ -1773,10 +1805,10 @@ i2	209.182086	0.136508	55.000000	98
 i2	209.318367	0.136508	51.911623	104
 i2	209.454649	0.273016	41.2     	109
 
-; ins 3
-; short repeating melody
-; doo doo DO doo DO doo doo
 ; 3:1 starts 10.9 ends 209 ins 3
+; ins 3
+; short repeating rhythm
+; doo doo DO doo DO doo doo
 
 i3	10.9	0.136508	415.292983	127
 i3	10.9	0.136508	329.6     	127
@@ -4549,7 +4581,7 @@ i4	53.727211	0.273016	554.333990	126
 i4	54.000000	0.273016	493.869370	127
 i4	54.272789	0.545578	554.333990	127
 i4	54.818141	1.363946	493.869370	126
-i4	56.181859	0.545578	740.0       	99
+i4	56.181859	0.545578	740.0     	99
 i4	56.727211	0.818594	659.217924	127
 i4	57.545578	0.272789	554.333990	127
 i4	57.818141	0.273016	659.217924	127
@@ -4816,9 +4848,9 @@ i4	206.182086	0.272789	659.217924	127
 i4	206.454649	0.273016	554.333990	119
 i4	206.727438	0.545578	659.217924	127
 
+; 5:1 start 10.9 ends 209
 ; ins 5
 ; note the chords
-; iChan StartTime Dur Pitch Vel
 
 i5	10.9	0.136508	246.934685	127
 i5	10.9	0.136508	164.804481	127
@@ -4826,19 +4858,19 @@ i5	10.9	0.136508	207.646491	127
 i5	11.181859	0.136508	246.934685	116
 i5	11.181859	0.136508	207.646491	116
 i5	11.181859	0.136508	164.804481	116
-i5	11.454649	0.272789	246.934685	127
-i5	11.454649	0.409297	164.804481	127
-i5	11.454649	0.409297	207.646491	127
+i5	11.44   	0.272789	246.934685	127
+i5	11.45   	0.409297	164.804481	127
+i5	11.455  	0.409297	207.646491	127
 i5	11.727211	0.136735	246.934685	113
 i5	11.863719	0.136508	184.997211	127
 i5	11.863719	0.136508	219.999999	127
 i5	11.863719	0.136508	277.166995	127
-i5	12.136281	0.136735	184.997211	116
-i5	12.136281	0.136735	219.999999	116
-i5	12.136281	0.136735	277.166995	116
-i5	12.409070	0.136735	184.997211	127
-i5	12.409070	0.136735	219.999999	127
-i5	12.545578	0.136508	184.997211	113
+i5	12.136281	0.14    	184.997211	116
+i5	12.136281	0.14    	219.999999	116
+i5	12.136281	0.14    	277.166995	116
+i5	12.409070	0.15    	184.997211	126
+i5	12.409070	0.14    	219.999999	127
+i5	12.545578	0.14    	184.997211	113
 i5	12.409070	0.341270	277.166995	127
 i5	12.545578	0.204762	219.999999	113
 i5	12.681859	0.136508	184.997211	87
@@ -4999,7 +5031,7 @@ i5	25.500000	0.341270	277.166995	127
 i5	25.636281	0.204989	219.999999	113
 i5	25.772789	0.136508	164.804481	87
 i5	25.909070	0.136735	164.804481	125
-i5	25.909070	0.204762	219.999999	125
+i5	25.909070	0.2     	220     	125
 i5	25.909070	0.204762	277.166995	125
 i5	26.045578	0.136508	164.804481	87
 i5	26.181859	0.136508	184.997211	122
@@ -7182,13 +7214,13 @@ i5	208.500227	0.136508	164.804481	93
 i5	208.500227	0.136508	207.646491	93
 i5	208.500227	0.136508	123.467342	93
 i5	208.636508	0.136508	164.804481	127
-i5	208.636508	0.136508	207.646491	127
+i5	208.636508	0.136508	207.646491	124
 i5	208.636508	0.136508	123.467342	127
 i5	208.772789	0.136735	207.646491	87
 i5	208.772789	0.136735	123.467342	87
 i5	208.772789	0.136735	164.804481	87
-i5	208.909297	0.136508	164.804481	127
-i5	208.909297	0.136508	207.646491	127
+i5	208.909297	0.136508	164.804481	123
+i5	208.909297	0.136508	207.646491	123
 i5	208.909297	0.136508	123.467342	127
 i5	209.045578	0.136735	164.804481	93
 i5	209.045578	0.136735	123.467342	93
@@ -7199,12 +7231,13 @@ i5	209.182086	0.136508	123.467342	127
 i5	209.318367	0.136508	123.467342	93
 i5	209.318367	0.136508	164.804481	93
 i5	209.318367	0.136508	207.646491	93
-i5	209.454649	0.273016	164.804481	127
-i5	209.454649	0.273016	207.646491	127
-i5	209.454649	0.273016	123.467342	127
+i5	209.5   	0.273016	164.804481	127
+i5	209.52  	0.273016	207.646491	127
+i5	209.54  	0.273016	123.467342	127
 
 ; ins 6
 ; note the chords
+; 6:1
 
 i6	10.9	0.136508	415.292983	127
 i6	10.9	0.136508	329.608962	127
@@ -14936,10 +14969,10 @@ e
 <bsbPanel>
  <label>Widgets</label>
  <objectName/>
- <x>100</x>
- <y>100</y>
- <width>320</width>
- <height>240</height>
+ <x>1046</x>
+ <y>661</y>
+ <width>643</width>
+ <height>193</height>
  <visible>true</visible>
  <uuid/>
  <bgcolor mode="nobackground">
