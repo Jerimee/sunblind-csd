@@ -2,7 +2,7 @@
 <CsOptions>
 ; Select audio/midi flags here according to platform
 -odac     ;;;realtime audio out
--+skip_seconds=60
+;-+skip_seconds=60
 ;-iadc    ;;;uncomment -iadc if RT audio input is needed too
 ;-o sunblind.wav -W ;;; for file output any platform
 </CsOptions>
@@ -50,8 +50,8 @@ MixerSend               aright, inum, 220, 1
 giFirstThree = 1
 giSecondThree = 1
 giLastFive = 1
-gitwothreefiveandseven=0
-giFourAndNine=0
+gitwothreefiveandseven=1
+giFourAndNine=1
 gievenon = 1
 gioddon  = 1
 	/***********
@@ -69,7 +69,7 @@ gi02on = 1     *gievenon*gitwothreefiveandseven*giFirstThree
 gi03on = 1     *gioddon*gitwothreefiveandseven*giFirstThree 
 
 	/***********
-	/* inst 4 sco is a horn */
+	/* inst 4 sco is a vocal? */
 gi04on = 1     *gievenon*giSecondThree*giFourAndNine
 
 	/***********
@@ -104,7 +104,7 @@ giamp   = 0.27
 gi01amp = giamp + 0.73
 gi02amp = giamp
 gi03amp = giamp - 0.2
-gi04amp = giamp - 0.22
+gi04amp = giamp - 0.10
 gi05amp = giamp + 0.30
 gi06amp = giamp
 gi07amp = giamp + 1.5 ; can we turn it up beyond 1? yes
@@ -656,8 +656,8 @@ idec  = irem * 0.5
 islev = p5/127
 kenv	xadsr iatt, idec, islev, irel
 
-;krnd random -30, 70
-krnd random 0, 4
+krnd random -25, 65
+;krnd random 0, 4
 kcps = p4 + krnd	;freq, random scrntchs up sound a bit
 
 iunwise = (p5*0.01)
