@@ -2,7 +2,7 @@
 <CsOptions>
 ; Select audio/midi flags here according to platform
 -odac     ;;;realtime audio out
-;-+skip_seconds=10
+-+skip_seconds=60
 ;-iadc    ;;;uncomment -iadc if RT audio input is needed too
 ;-o sunblind.wav -W ;;; for file output any platform
 </CsOptions>
@@ -50,7 +50,8 @@ MixerSend               aright, inum, 220, 1
 giFirstThree = 1
 giSecondThree = 1
 giLastFive = 1
-gitwothreefiveandseven=1
+gitwothreefiveandseven=0
+giFourAndNine=0
 gievenon = 1
 gioddon  = 1
 	/***********
@@ -69,7 +70,7 @@ gi03on = 1     *gioddon*gitwothreefiveandseven*giFirstThree
 
 	/***********
 	/* inst 4 sco is a horn */
-gi04on = 1     *gievenon*giSecondThree
+gi04on = 1     *gievenon*giSecondThree*giFourAndNine
 
 	/***********
 	/* inst 5 sco is */
@@ -89,7 +90,7 @@ gi08on = 1     *gievenon*giLastFive
 
 	/***********
 	/* inst 9 sco is */
-gi09on = 1     *gioddon*giLastFive
+gi09on = 1     *gioddon*giLastFive*giFourAndNine
 
 	/***********
 	/* inst 10 sco is rapid drums */
@@ -100,17 +101,17 @@ gi10on = 1     *gievenon*giLastFive
 gi11on = 1    *gioddon*giLastFive
 
 giamp   = 0.27
-gi01amp = giamp + 0.7
+gi01amp = giamp + 0.73
 gi02amp = giamp
 gi03amp = giamp - 0.2
 gi04amp = giamp - 0.22
 gi05amp = giamp + 0.30
 gi06amp = giamp
-gi07amp = giamp + 1.9 ; can we turn it up beyond 1? yes
+gi07amp = giamp + 1.5 ; can we turn it up beyond 1? yes
 gi08amp = giamp - 0.15
 gi09amp = giamp
 gi10amp = giamp + 0.1
-gi11amp = giamp - 0.2
+gi11amp = giamp - 0.22
 
 gicount = 0 ; I don't know how to do a counter without a global var
                         
@@ -218,7 +219,7 @@ if (gi03on==1) then
 endif
 endin ; end 3
 
-instr 4 ; buzzy pluck
+instr 4 ; bzzy
 ;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -229,9 +230,7 @@ instr 4 ; buzzy pluck
 ; it should also influence amplitude
 ;;;;
 idur = p3
-;printks2 "  buzzy p p5 is %f\n", p5
 iastep1 = p5*0.77 ; make the value less than 100
-;printks2 "  buzzy p env step 1 is %f\n", iastep1
 iastep3 = (iastep1*0.01)
 ;printks2 "  buzzy p env step 3 is %f\n ", iastep3
 iastep4 = (1-(iastep3))*2
@@ -245,12 +244,7 @@ iremainingafteratt= (idur-iatt)
 irel  = (iremainingafteratt*0.2) 
 irem = (iremainingafteratt - irel)
 idec  = irem * 0.2  
-;printks2 "  buzzy p release is %f\n\n", (irel)
-;printks2 "  buzzy p total DURATION is %f\n ", (iatt + irel + irem)
-;printks2 "  DURATION should be %f\n\n ", p3
 islev = 1 - iattpr ;irem * 0.7
-;printks2 "\n\n  p5 is %f\n", p5
-;printks2 "  buzzy p level is %f - it should be high when p5 is high\n\n", (islev)
 
 kenv	xadsr iatt, idec, islev, irel
 
@@ -449,8 +443,7 @@ aL = aenv*aout*irando
 aR = aenv*aout*irandoInverted
 
 if (gi07on==1) then  
-        ;note that chorus and reverb are turned up
-        AssignSend		        p1, 0.99, 0.99, gi07amp
+        AssignSend		        p1, 0.09, 0.09, gi07amp
         SendOut			    p1, aL, aR
 endif
 endin ; end ins 7
@@ -461,7 +454,8 @@ instr 8 ; powershape
 	ilineend = (p5/5)
 	itiny =  0.000001
 	ipfo = p4
-	kshapeamt  line        itiny,p3,ilineend
+	;kshapeamt  line        itiny,p3,ilineend
+    kshapeamt  line        1,p3,ilineend
 
 	; if we have a note (ie 7.07) convert to cycles
 	; otherwise we have cycles (ie 670) so do nothing
@@ -476,17 +470,17 @@ instr 8 ; powershape
 	  ifunc = ipulse ;pulse
 	endif
 	
-	aosc       oscili      0.6, ifreq, isine ;ifunc
-	ajjr         oscili      0.6, ifreq, ifunc
-	apreout       powershape  aosc, kshapeamt
-	apreoutjjr       powershape  ajjr, kshapeamt
-	krando = birnd(0.25)+0.35 ; generate a random number from 0.10 to 0.60
-	krandoInverted = 1 - krando
+	aOsc       oscili      0.6, ifreq, isine ;ifunc
+	aSqOrPulse         oscili      0.6, ifreq, ifunc
+	aToOutOsc       powershape  aOsc, kshapeamt
+	aToOutSqOrPulse       powershape  aSqOrPulse, kshapeamt
 	; below we set how much relative influence the 
 	;two oscilis will have and then push them together
-	aout = apreout*krando ;sine
-	aoutjjr = apreoutjjr*krandoInverted ;sq or pulse
-	afinalout = (aout+aoutjjr)*2
+	krando = birnd(0.2)+0.55 ; random number from 0.35 to 0.75
+	krandoInverted = 1 - krando
+	aout      = aToOutOsc*krando ;sine
+	aoutSOP   = aToOutSqOrPulse*krandoInverted ;sq or pulse
+	afinalout = (aout+aoutSOP)*2
 	
 	idurf = p3/10
 	;                                 v,t,v,t,v 
@@ -498,7 +492,7 @@ instr 8 ; powershape
     adone = afinalout * adeclick * imaxamp*afinalenv
 			
 if (gi08on==1) then									
-	AssignSend		        p1, 0.1, 0.2, gi08amp
+	AssignSend		        p1, 0.0, 0.2, gi08amp
 	SendOut			        p1, adone, (adone*0.92)
 endif
 endin ; end ins 8
@@ -662,8 +656,9 @@ idec  = irem * 0.5
 islev = p5/127
 kenv	xadsr iatt, idec, islev, irel
 
-krnd random -30, 70
-kcps = p4 + krnd	;freq, randm scrntchs up sound a bit
+;krnd random -30, 70
+krnd random 0, 4
+kcps = p4 + krnd	;freq, random scrntchs up sound a bit
 
 iunwise = (p5*0.01)
 kmod = iunwise - 0.1
@@ -4508,6 +4503,7 @@ i3	209.39   	0.3     	246.9      127
 i3	209.45  	0.273   	415.3   	125
 i3	209.45   	0.26    	329.6    	127
 
+; 4:1 starts 19.5 vocal melody
 ; start end pitch att
 ; melody is here
 i4	19.500000	0.136508	329.608962	127
@@ -11162,9 +11158,9 @@ i7	209.182086	0.136508	82.402241	127
 i7	209.318367	0.136508	82.402241	69
 i7	209.454649	0.136735	82.402241	115
 
+; 8:1 starts 11.45
 ; ins 8
 ; flourishy mario paint trill
-; 8:1 starts 11.45
 
 i8	11.45   	0.272789	1318.435849	127
 i8	11.45	    0.277324	 659.217924	127
@@ -11465,10 +11461,10 @@ i8	207.750113	0.068481	932.274929	76
 i8	209.454649	0.273016	1318.435849	127
 i8	209.454649	0.273016	2636.871698	127
 
+; 9:1 starts 67.6 compliment to horn
 ; ins 9
-; a horn?
 
-i9	67.636508	0.15    	415.292983	127
+i9	67.6    	0.15    	415.29  	127
 i9	67.636508	0.15    	329.608962	121
 i9	67.909070	0.14      	415.292983	127
 i9	67.909070	0.14      	329.608962	121
@@ -11973,7 +11969,7 @@ i9	167.727438	0.15    	277.166995	127
 i9	167.727438	0.15    	329.608962	127
 
 ; ins 10
-; is this one the drums?
+; rapid drums?
 ; 10:1 starts 2.1 ends 3:30 ins 10
 
 i10	2.181859	0.034240	65.406391	127
@@ -14883,16 +14879,16 @@ i10	208.909297	0.034240	82.402241	127
 i10	208.909297	0.034240	110.000000	94
 i10	209.045578	0.034467	82.402241	113
 i10	209.045578	0.034467	97.993331	91
-i10	209.182086	0.034240	82.402241	127
-i10	209.182086	0.034240	82.402241	127
-i10	209.182086	0.034240	97.993331	88
+i10	209.182  	0.034240	82.402241	127
+i10	209.182 	0.034240	82.402241	127
+i10	209.183 	0.034240	97.993331	88
 i10	209.318367	0.034240	82.402241	104
 i10	209.318367	0.034240	87.304595	85
 i10	209.454649	0.057143	65.406391	127
 i10	209.454649	0.084354	219.999999	107
 i10	209.454649	0.091156	138.583497	99
 
-
+; 11:1 starts 63.2
 ; ins 11
 
 i11	63.272789	0.5     	311.126982	119
@@ -14907,14 +14903,15 @@ i11	71.863719	0.136508	493.869370	109
 i11	72.000000	3.818367	659.217924	113
 i11	75.818141	0.5     	554.333990	119
 i11	76.363719	0.5     	493.869370	115
-i11	111.272789	0.5     	311.126982	119
-i11	111.272789	0.5     	415.292983	119
+; 11:2 111.3
+i11	111.27  	0.5     	311.126982	119
+i11	111.3   	0.5     	415.292983	119
 i11	113.454649	0.5     	277.166995	127
 i11	113.454649	0.5     	369.994421	127
 i11	115.636508	0.5     	311.126982	119
 i11	115.636508	0.5     	415.292983	119
-i11	117.818367	0.545578	277.166995	127
-i11	117.818367	0.545578	369.994421	127
+i11	117.818367	0.6     	277.166995	127
+i11	117.818367	0.5     	369.994421	126
 i11	120.000000	0.545805	311.126982	119
 i11	120.000000	0.545805	415.292983	119
 i11	122.181859	0.545805	277.166995	127
