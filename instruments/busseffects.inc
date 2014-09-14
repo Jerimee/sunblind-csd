@@ -55,9 +55,9 @@ aoutr                   = (a2+ar1r+ar2r+ar3r+ar4r)*.5
 
 instr 210 ; Reverb by Sean Costello / J. Lato
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-idelay =                       p4      
-ipitchmod =                       p5  
-icutoff =                       p6              
+idelay    = p4      
+ipitchmod = p5  
+icutoff   = p6              
 ainL                    MixerReceive            210, 0
 ainR                    MixerReceive            210, 1
 aoutL, aoutR            reverbsc                ainL, ainR, idelay, icutoff, sr, ipitchmod, 0
