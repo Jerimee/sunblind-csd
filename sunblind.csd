@@ -84,19 +84,23 @@ gi10on = 1     *gievenon*giLastFive
 	/* inst 11 sco is */
 gi11on = 1    *gioddon*giLastFive
 
+	/***********
+	/* inst 30 sco is ten 20 second chunks for WavPlayer */
+gi30on = 1    
+
 giamp   = 0.2 ; base volume control
-gi01amp = giamp + 0.73
-gi02amp = giamp + 0.06
-gi03amp = giamp - 0.15
+gi01amp = giamp + 0.53
+gi02amp = giamp + 0.15
+gi03amp = giamp - 0.2
 gi04amp = giamp - 0.10
 gi05amp = giamp + 0.30
 gi06amp = giamp 
 gi07amp = giamp + 1.50 ; can we turn it up beyond 1? yes
-gi08amp = giamp - 0.35
+gi08amp = giamp - 0.1 ; can we turn it down beyond 0? NO, somehow it actually get louder if you do that!
 gi09amp = giamp
 gi10amp = giamp 
-gi11amp = giamp - 0.19
-gi30amp = giamp + 0.6
+gi11amp = giamp - 0.08
+gi30amp = giamp + 0.5
 
 gicount = 0 ; I don't know how to do a counter without a global var
                         
@@ -112,6 +116,9 @@ instr mymarimba
 endin
 instr sine_bass_wave 
 	#include "instruments/sine_bass_wave.inc"
+endin
+instr sweepy 
+	#include "instruments/sweepy.inc"
 endin
 
 instr 1 ; Moog Fleur
@@ -129,43 +136,19 @@ instr 2
 	if (gi02on==1) then  
 								;insno,ic,ir,id 	
 		AssignSendNamed	        p1, 0.3, 0.2, gi02amp
-		SendOutNamed		        p1, aSubOut, aSubOut
+		SendOutNamed	        p1, aSubOut, aSubOut
 	endif
 endin ; end ins 2
 
-instr 3 ; Sweepy 
-  idur     = p3
-  ibegfreq = 1 ; bgng of sweep freq
-  iendfreq = p4*2 ; ending of sweep frequency
-  ibw      = 70  ; bandwidth of filters in Hz
-  ifreq    = 200 ; frequency of gbuzz that is to be filtered
-  iamp     = (p5/127)*2 ; amplitude to scale output by
-  ires     = 1 ; coefficient to scale amount of reson in output
-  iresr    = 1 ; coefficient to scale amount of resonr in output
- ; Frequency envelope for reson cutoff
-  kfreq    linseg ibegfreq, idur * .5, iendfreq, idur * .5, ibegfreq
- ; Amplitude envelope to prevent clicking
-  kenv     linseg 0, .05, iamp, idur - .1, iamp, .05, 0
-  iharms   = (sr*.4)/ifreq  ; Num of harmonics for gbuzz scaled to avoid aliasing
-  asig     gbuzz 1, ifreq, iharms, 1, .9, 1 ; "Sawtooth" waveform
-  ain      = kenv * asig  ; output scaled by amp envelope
-  ares     reson ain, kfreq, ibw, 1
-  aresr    resonr ain, kfreq, ibw, 1
-  iampRrnd random 0.1, 0.9
-  iampR =   1 - iampRrnd
-
-aoutL init 0
-aoutR init 0  
-;reson Left
-aoutL = ares * ires
-;resonr Right 
-aoutR = aresr * iresr * iampR
-;outs asig, asig
-if (gi03on==1) then  
-	AssignSend		        p1, 25, 0.15, gi03amp
-	SendOut			        p1, aoutL, aoutR
-endif
-endin ; end 3
+instr 3 
+	ipitch = p4
+	ivel = p5
+	aSubOutL, aSubOutR subinstr "sweepy", ivel, ipitch
+	if (gi03on==1) then  
+		AssignSend		        p1, 0.25, 0.05, gi03amp
+		SendOut		        p1, aSubOutL, aSubOutR
+	endif
+endin ; end ins 2
 
 instr	30 ; WavPlayer
 	idur	=        p3  
@@ -177,8 +160,10 @@ instr	30 ; WavPlayer
 	; read audio from disk using diskin2 opcode
 	a1,a2     diskin2  "sunblind-justi3.wav", kSpeed, iSkip, iLoop
 	;outs      a1*kenv,a2*kenv          ; send audio to outputs
-	AssignSend		        p1, 0.1, 0.15, gi30amp
-	SendOut		        p1, a1*kenv, a2*kenv
+	if (gi30on==1) then  
+		AssignSend		        p1, 0.1, 0.15, gi30amp
+		SendOut		        p1, a1*kenv, a2*kenv
+	endif
 endin ; end 30
 
 instr 4 ; Buzzy Horn
@@ -1690,17 +1675,17 @@ i2	209.454649	0.273016	41.2     	109
 ; wav file of rendered i3
 ; broken into sections and
 ; then slightly speed up
-i30 0 	 20		1
-i30 20	 20		1
-i30 40	 20		1.05
-i30 60	 20		1.2
-i30 80	  .		1.2
-i30 100	  .		1.1
-i30 120	  .		1.2
-i30 140	  .		1.3
-i30 160	  .		1.2
-i30 180	  .		1.05
-i30 200	  .		1
+i30 0 	 20		1.0
+i30 20	 20		1.0
+i30 40	 20		1.005
+i30 60	 20		1.02
+i30 80	  .		1.0
+i30 100	  .		1.001
+i30 120	  .		1.02
+i30 140	  .		1.03
+i30 160	  .		1.02
+i30 180	  .		1.005
+i30 200	  .		1.0
 
 ; 4:1 starts 19.5 vocal melody
 ; start end pitch att
@@ -8479,14 +8464,14 @@ i8	131.727438	0.136508	1174.625937	119
 i8	131.727438	0.136508	587.312968	119
 i8	131.86  	0.1     	1108.667979	113
 i8	131.87  	0.1     	554.300  	113
-; 8:3
-i8	181.636508	0.273016	1318.435849	127
-i8	181.636508	0.278   	659.217924 	127
+; 8:3 starts 181
+i8	181.6		0.273016	1318.435849	127
+i8	181.6		0.278   	659.217924 	127
 i8	181.909297	0.034240	1244.507929	125
 i8	181.943311	0.034240	1108.667979	108
 i8	181.977324	0.034467	987.738739	92
-i8	182.011565	0.034240	932.274929	76
-i8	182.045578	0.034240	830.585965	59
+i8	182.01		0.034240	932.274929	76
+i8	182.04		0.034240	830.585965	59
 i8	182.454649	0.1     	554.300  	127
 i8	182.454649	0.1     	1108.667979	127
 i8	182.591156	0.1     	1108.667979	116
@@ -8499,8 +8484,8 @@ i8	183.136508	0.1     	1244.507929	127
 i8	183.136508	0.1     	622.253965	127
 i8	183.409297	0.1     	622.253965	127
 i8	183.409297	0.1     	1244.507929	127
-i8	183.681859	0.102721	622.253965	127
-i8	183.681859	0.102721	1244.507929	127
+i8	183.681859	0.1	622.253965	127
+i8	183.681859	0.11	1244.507929	127
 i8	183.818367	0.1     	1244.507929	116
 i8	183.818367	0.1     	622.253965	116
 i8	183.954649	0.1     	1244.507929	127

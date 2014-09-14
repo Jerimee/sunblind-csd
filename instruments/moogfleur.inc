@@ -11,7 +11,8 @@ kpan      linseg     0, p3, 1 ;move left to right
 kpan      =  kpan*$M_PI_2 ;range 0-1 becomes 0-pi/2
 kpanl     =  cos(kpan)
 kpanr     =  sin(kpan)
-outs asig*kpanl, asig*kpanr
+;does not need outs?
+;outs asig*kpanl, asig*kpanr
 
 ;instr 1 ; Moog Fleur
 ;kfreq  = p4

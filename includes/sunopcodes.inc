@@ -26,7 +26,7 @@ opcode AssignSendNamed, 0, iiii
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   insno,ic,ir,id      xin
   inum              = floor(insno)
-  print inum
+  ;print inum
   MixerSetLevel       inum, 200, ic
   MixerSetLevel       inum, 210, ir
   MixerSetLevel       inum, 220, id
@@ -36,7 +36,7 @@ opcode SendOutNamed, 0, iaa
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   insno, aleft, aright    xin
   inum                    = floor(insno)
-  print inum
+  ;print inum
   MixerSend               aleft, inum, 200, 0
   MixerSend               aright, inum, 200, 1
   MixerSend               aleft, inum, 210, 0
