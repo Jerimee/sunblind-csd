@@ -46,7 +46,7 @@ gi03on = 1     *gioddon*giTwoThreeFiveandSeven*giFirstThree 		/* inst 3 sco is a
 gi04on = 1     *gievenon*giSecondThree*giFourAndNine			/* inst 4 sco is a vocal */
 gi05on = 1     *gioddon*giTwoThreeFiveandSeven*giSecondThree		/* inst 5 sco is repetative bass line */
 gi06on = 1     *gievenon*giSecondThree					/* inst 6 sco is */
-gi07on = 1     *gioddon*giTwoThreeFiveandSeven*giLastFive 		/* inst 7 sco is percusive? */
+gi07on = 1     *gioddon*giTwoThreeFiveandSeven*giLastFive 		/* inst 7 sco is a drum rhythm*/
 gi08on = 1     *gievenon*giLastFive					/* inst 8 sco is flourishy mario paint trill */
 gi09on = 1     *gioddon*giLastFive*giFourAndNine			/* inst 9 sco is */
 gi10on = 1     *gievenon*giLastFive					/* inst 10 sco is rapid drums */
@@ -60,8 +60,8 @@ gi03amp = giamp - 0.2
 gi04amp = giamp - 0.10
 gi05amp = giamp + 0.30
 gi06amp = giamp 
-gi07amp = giamp + 1.50 ; can we turn it up beyond 1? yes
-gi08amp = giamp - 0.1 ; can we turn it down beyond 0? NO, somehow it actually get louder if you do that!
+gi07amp = giamp + 0.2 ; can we turn it up beyond 1? yes
+gi08amp = giamp - 0.1 ; can we turn it down beyond 0? NO, somehow it actually gets louder if you do that!
 gi09amp = giamp
 gi10amp = giamp 
 gi11amp = giamp - 0.08
@@ -84,6 +84,9 @@ instr sine_bass_wave
 endin
 instr sweepy 
 	#include "instruments/sweepy.inc"
+endin
+instr x11 
+	#include "instruments/x11.inc"
 endin
 
 instr 1 ; Moog Fleur
@@ -113,7 +116,7 @@ instr 3
 		AssignSend		        p1, 0.25, 0.05, gi03amp
 		SendOut		        p1, aSubOutL, aSubOutR
 	endif
-endin ; end ins 2
+endin ; end ins 3
 
 instr	30 ; WavPlayer
 	idur	=        p3  
@@ -320,43 +323,14 @@ if (gi06on==1) then
 endif
 endin ; end ins 6
 
-instr 7 ; X11
-;A polynomial nonlinear phasor
-;This instrument crossfades between two tables
-
-idur   = p3
-ivelval = p5/127.9 ; turn vel into a value < 1
-iamp   = ivelval 
-ifreq  = p4
-itableA = giffitch3 
-itableB = gitonewheel3
-
-aenv	linseg	0, .001, iamp, idur - .051, iamp, .05, 0	; declicking envelope
-aosc	phasor	ifreq	; create a linear phasor
-aout3	tablei	aosc, itableA, 1 ; read a table without the linear phasor
-apd11	polynomial aosc, 0,0,0,0,0,0,0,0,0,0,0,1 ; distort the phasor with x^11
-aout11	tablei	apd11, itableA, 1	 ; read a table with the nonlinear phasor
-aout3B	tablei	aosc, itableB, 1 ; read a table without the linear phasor
-aout11B	tablei	apd11, itableB, 1	 ; read a table with the nonlinear phasor
-kamount	linseg	1.0, 0.05, 0.9, 1.0, 0.0	 ; crossfade between two outputs
-
-aoA	= aout3*kamount + aout11*(1.0 - kamount)
-aoB = aout3B*kamount + aout11B*(1.0 - kamount)
-aout = (aoA*0.699)+(aoB*0.299)
-
-irando = birnd(0.25)+0.5 ; generate a random number from 0.25 to 0.75
-irandoInverted = 1 - irando
-
-;aL = aenv*aout*iamp*irando
-; take iamp out below because iamp is
-; now in the envelope aenv
-aL = aenv*aout*irando
-aR = aenv*aout*irandoInverted
-
-if (gi07on==1) then  
-        AssignSend		        p1, 0.09, 0.09, gi07amp
-        SendOut			    p1, aL, aR
-endif
+instr 7 
+	ipitch = p4
+	ivel = p5
+	aSubOutL, aSubOutR subinstr "x11", ivel, ipitch
+	if (gi07on==1) then  
+	        AssignSend		        	p1, 0.5, 0.1, gi07amp
+	        SendOut	 		p1, aSubOutL, aSubOutR
+	endif
 endin ; end ins 7
 
 instr 8 ; Sunshape
@@ -4288,19 +4262,19 @@ i7	47.318141	0.273016	219.00    	119
 i7	47.318141	0.273016	246.934685	127
 i7	47.590930	0.136508	164.804481	101
 i7	47.590930	0.136508	246.934685	99
-i7	47.727211	0.136735	246.934685	127
-i7	47.727211	0.273016	164.804481	122
-i7	47.727211	0.273016	219.00    	122
+i7	47.73		0.136735	246.934685	127
+i7	47.73		0.27		164.804481	122
+i7	47.73		0.27		219.00    	122
 i7	47.863719	0.136508	246.934685	94
 i7	48.000000	0.136735	246.934685	127
-i7	48.000000	0.136735	184.997211	125
+i7	48.000000	0.136735	185.0		125
 i7	48.000000	0.136735	246.934685	127
 i7	48.272789	0.136508	246.934685	122
 i7	48.272789	0.136508	184.997211	107
 i7	48.272789	0.136508	246.934685	127
-i7	48.545578	0.272789	246.934685	127
-i7	48.545578	0.409297	184.997211	119
-i7	48.545578	0.409297	246.934685	127
+i7	48.55		0.27		246.9		127
+i7	48.55		0.41		184.9		119
+i7	48.55		0.41		246.9		127
 i7	48.954649	0.136508	164.804481	116
 i7	48.954649	0.136508	219.00    	116
 i7	48.954649	0.136508	246.934685	127
@@ -4727,9 +4701,9 @@ i7	85.636508	0.272789	246.934685	127
 i7	85.636508	0.341043	164.804481	122
 i7	85.636508	0.341043	207.646491	122
 i7	85.909070	0.136735	246.934685	84
-i7	86.045578	0.136508	219.00    	122
-i7	86.045578	0.136508	164.804481	122
-i7	86.045578	0.136508	246.934685	127
+i7	86.0		0.136508	219.00    	122
+i7	86.0		0.136508	164.804481	122
+i7	86.1		0.136508	246.934685	127
 i7	86.318141	0.136735	219.00    	95
 i7	86.318141	0.136735	164.804481	95
 i7	86.318141	0.136735	246.934685	127
@@ -4895,15 +4869,15 @@ i7	100.363719	0.136508	246.934685	127
 i7	100.636508	0.136508	246.934685	122
 i7	100.636508	0.136508	184.997211	107
 i7	100.636508	0.136508	246.934685	127
-i7	100.909070	0.273016	246.934685	127
-i7	100.909070	0.409524	184.997211	119
-i7	100.909070	0.409524	246.934685	127
-i7	101.318367	0.136508	164.804481	116
-i7	101.318367	0.136508	219.00    	116
-i7	101.318367	0.136508	246.934685	127
-i7	101.590930	0.136735	164.804481	107
-i7	101.590930	0.136735	219.00    	107
-i7	101.590930	0.136735	246.934685	127
+i7	100.9		0.273016	246.934685	127
+i7	100.9		0.409524	184.997211	119
+i7	100.91		0.41		246.9		125
+i7	101.31		0.136508	164.804481	116
+i7	101.32		0.136508	219.00    	116
+i7	101.32		0.136508	246.934685	127
+i7	101.59		0.136735	164.804481	107
+i7	101.59		0.136735	219.00    	107
+i7	101.59		0.136735	246.934685	127
 i7	101.863719	0.273016	164.804481	119
 i7	101.863719	0.273016	219.00    	119
 i7	101.863719	0.273016	246.934685	127
@@ -5841,9 +5815,9 @@ i7	200.591156	0.136508	246.934685	94
 i7	200.727438	0.136508	246.934685	127
 i7	200.727438	0.136508	184.997211	125
 i7	200.727438	0.136508	246.934685	127
-i7	201.000227	0.136508	246.934685	122
-i7	201.000227	0.136508	184.997211	107
-i7	201.000227	0.136508	246.934685	127
+i7	201.00		0.137		246.934685	122
+i7	201.00		0.137		184.997211	107
+i7	201.00		0.137		246.934685	127
 i7	201.272789	0.273016	246.934685	127
 i7	201.272789	0.409524	184.997211	119
 i7	201.272789	0.409524	246.934685	127

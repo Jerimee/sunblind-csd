@@ -6,8 +6,8 @@
   ibw      = 70  ; bandwidth of filters in Hz
   ifreq    = 200 ; frequency of gbuzz that is to be filtered
   iamp     = (p5/127)*2 ; amplitude to scale output by
-  ires     = 1 ; coefficient to scale amount of reson in output
-  iresr    = 1 ; coefficient to scale amount of resonr in output
+  ires     = 1 ; coeffcnt to scale amount of reson in output
+  iresr    = 1 ; coeffcnt to scale amount of resonr in output
  ; Frequency envelope for reson cutoff
   kfreq    linseg ibegfreq, idur * .5, iendfreq, idur * .5, ibegfreq
  ; Amplitude envelope to prevent clicking
