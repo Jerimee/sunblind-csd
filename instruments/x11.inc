@@ -24,14 +24,14 @@ aout3B	tablei	aosc, itableB, 1 ; read a table without the linear phasor
 aout11B	tablei	apd11, itableB, 1	 ; read a table with the nonlinear phasor
 kamount	linseg	1.0, 0.05, 0.9, 1.0, 0.0	 ; crossfade between two outputs
 
-aoA	= aout3*kamount + aout11*(1.0 - kamount)
-aoB = aout3B*kamount + aout11B*(1.0 - kamount)
-aout = (aoA*0.699)+(aoB*0.299)
+aoA				= aout3*kamount + aout11*(1.0 - kamount)
+aoB 			= aout3B*kamount + aout11B*(1.0 - kamount)
+aout 			= (aoA*0.699)+(aoB*0.299)
 
-irando = birnd(0.25)+0.5 ; generate a random number from 0.25 to 0.75
-irandoInverted = 1 - irando
+irando 			= birnd(0.25)+0.5 ; generate a random number from 0.25 to 0.75
+irandoInverted 	= 1 - irando
 
-aL = aenv*aout*irando
-aR = aenv*aout*irandoInverted
+aL 				= aenv*aout*irando
+aR 				= aenv*aout*irandoInverted
 
 outs aL, aR
