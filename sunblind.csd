@@ -27,29 +27,29 @@ nchnls = 2
 ; Include user-defined opcodes
 #include "includes/sunopcodes.inc"
                        
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;
 ; G L O B A L S
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;
 
 giFirstThree 				= 1
 giSecondThree				= 1
 giLastFive 				= 1
-giTwoThreeFiveandSeven		= 1
+giTwoThreeFiveandSeven	= 1
 giFourAndNine				= 1
-gievenon				= 1
-gioddon  				= 1
+gievenon					= 1
+gioddon  					= 1
 	
 	
-gi01on = 1     *gioddon*giFirstThree                                              		/* inst 1 sco is a simple backup highlight */
-gi02on = 1     *gievenon*giTwoThreeFiveandSeven*giFirstThree 		/* inst 2 sco is a faint tap percusive in time with i3 */
-gi03on = 1     *gioddon*giTwoThreeFiveandSeven*giFirstThree 		/* inst 3 sco is a repetative rhythm in time with i2 */
-gi04on = 1     *gievenon*giSecondThree*giFourAndNine			/* inst 4 sco is a vocal */
-gi05on = 1     *gioddon*giTwoThreeFiveandSeven*giSecondThree		/* inst 5 sco is repetative bass line */
-gi06on = 1     *gievenon*giSecondThree					/* inst 6 sco is repeated simple melody */
-gi07on = 1     *gioddon*giTwoThreeFiveandSeven*giLastFive 		/* inst 7 sco is a drum rhythm*/
-gi08on = 1     *gievenon*giLastFive					/* inst 8 sco is flourishy mario paint trill */
-gi09on = 1     *gioddon*giLastFive*giFourAndNine			/* inst 9 sco is */
-gi10on = 1     *gievenon*giLastFive					/* inst 10 sco is rapid drums */
+gi01on = 0     *gioddon*giFirstThree                                   		/* inst 1 sco is a simple backup highlight */
+gi02on = 0     *gievenon*giTwoThreeFiveandSeven*giFirstThree 		/* inst 2 sco is a faint tap percusive in time with i3 */
+gi03on = 0     *gioddon*giTwoThreeFiveandSeven*giFirstThree 		/* inst 3 sco is a repetative rhythm in time with i2 */
+gi04on = 0     *gievenon*giSecondThree*giFourAndNine			/* inst 4 sco is a vocal */
+gi05on = 0     *gioddon*giTwoThreeFiveandSeven*giSecondThree		/* inst 5 sco is repetative bass line */
+gi06on = 0     *gievenon*giSecondThree					/* inst 6 sco is repeated simple melody */
+gi07on = 0     *gioddon*giTwoThreeFiveandSeven*giLastFive 		/* inst 7 sco is a drum rhythm*/
+gi08on = 0     *gievenon*giLastFive					/* inst 8 sco is flourishy mario paint trill */
+gi09on = 0     *gioddon*giLastFive*giFourAndNine			/* inst 9 sco is */
+gi10on = 0     *gievenon*giLastFive					/* inst 10 sco is rapid drums */
 gi11on = 1    *gioddon*giLastFive					/* inst 11 sco is */
 gi30on = 1    								/* inst 30 sco is ten 20 second chunks for WavPlayer */
 
@@ -563,13 +563,14 @@ endin ; end ins 9
 instr 11 ; Drillill
 idur = p3
 
-iatt = (idur*0.01)
-iremainingafteratt= (idur-iatt)
-irel  = (iremainingafteratt*0.01) 
-irem = (iremainingafteratt - irel)
-idec  = irem * 0.5  
+iatt 	= (idur*0.05)
+idec  	= (idur*0.15) 
+isus	= (idur*0.30) 
+irel  	= (idur*0.50) 
+
 islev = p5/127
-kenv	xadsr iatt, idec, islev, irel
+;kenv	xadsr iatt, idec, islev, irel
+kenv expseg 0.001, iatt, islev, idec, islev*0.9, isus, islev*0.9, irel, 0.001 
 
 krnd random -25, 65
 kcps = p4 + krnd	;freq, random scrntchs up sound a bit
@@ -581,7 +582,8 @@ asigL foscil iunwise, kcps, 1, kmod, kenv, 1
 asigR	vco2  kenv * iunwise, kcps
 if (gi11on==1) then
 	AssignSend		        p1, 0.9, 0.2, gi11amp
-	SendOut			        p1, asigL, asigR
+	;SendOut			        p1, asigL, asigR	
+	SendOut			        p1, asigR, asigR
 endif
 endin ; end ins 11
 
