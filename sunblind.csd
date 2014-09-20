@@ -10,13 +10,6 @@
 </CsOptions>
 <CsInstruments>
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; N O T E
-; the intent is that this file be the main
-; control file and be primarily a collection
-; of include statements
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
 sr = 44100
 ksmps = 128 ;64 ;32
 nchnls = 2
@@ -27,7 +20,7 @@ nchnls = 2
 ; Include user-defined opcodes
 #include "includes/sunopcodes.inc"
                        
-;;;;;;;;;;;;;;;;;;;;;
+
 ; G L O B A L S
 ;;;;;;;;;;;;;;;;;;;;;
 
@@ -53,25 +46,25 @@ gi10on = 1     *gievenon*giLastFive					/* inst 10 sco is rapid drums */
 gi11on = 1    *gioddon*giLastFive					/* inst 11 sco is */
 gi30on = 1    								/* inst 30 sco is ten 20 second chunks for WavPlayer */
 
-giamp   = 0.21 ; base volume control
-gi01amp = giamp + 0.53
-gi02amp = giamp + 0.155
-gi03amp = giamp - 0.2
-gi04amp = giamp * 0.9
-gi05amp = giamp + 0.22
+giamp   = 0.31 ; base volume control
+gi01amp = giamp + 0.43
+gi02amp = giamp + 0.055
+gi03amp = giamp - 0.25
+gi04amp = giamp + 0.15
+gi05amp = giamp + 0.12
 gi06amp = giamp 
-gi07amp = giamp + 0.2 ; can we turn it up beyond 1? yes
-gi08amp = giamp - 0.1 ; can we turn it down beyond 0? NO, somehow it actually gets louder if you do that!
-gi09amp = giamp * 0.175
+gi07amp = giamp + 0.1 ; can we turn it up beyond 1? yes
+gi08amp = giamp - 0.2 ; can we turn it down beyond 0? NO, somehow it actually gets louder if you do that!
+gi09amp = giamp * 0.15
 gi10amp = giamp 
-gi11amp = giamp - 0.08
-gi30amp = giamp + 0.55
+gi11amp = giamp - 0.18
+gi30amp = giamp + 0.45
 
 gicount = 0 ; I don't know how to do a counter without a global var
                         
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 ; I N S T R U M E N T   D E F I N I T I O N S
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 connect	 "bqdhorn", "Out", "mycomb", "In" 
 
@@ -174,38 +167,30 @@ instr	30 ; WavPlayer
 	endif
 endin ; end 30
 
-instr 4 ; Buzzy Horn
-;;;;;;;;;;;;;;;;;;;;;;;;;
+instr 4 ; vocal
 ;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;;;;
-; What we are trying to do is...
-; velocity should influence
-; attack, and to a lesser extent
-; it should also influence amplitude
-;;;;
-idur = p3
-iastep1 = p5*0.77 ; make the value less than 100
-iastep3 = (iastep1*0.01)
-;printks2 "  buzzy p env step 3 is %f\n ", iastep3
-iastep4 = (1-(iastep3))*2
-;printks2 "  buzzy p env step 4 is %f\n", iastep4
-iattpr = iastep4 ; 87 - 127... 127 is short
-iatt = (idur*iattpr)
-;printks2 "  buzzy p att length for env is %f\n", iatt
-iremainingafteratt= (idur-iatt)
-irel  = (iremainingafteratt*0.2) 
-irem = (iremainingafteratt - irel)
-idec  = irem * 0.2  
-islev = 1 - iattpr ;irem * 0.7
+idur 	= p3
+kcps 	= (p4 > 15 ? p4 : cpspch(p4))
+ivel 	= p5/127
+iatt 	= idur * 0.05
+irel 	= idur * 0.2
+idec 	= idur * 0.2
+islev 	= ivel * 0.5
 
 kenv	xadsr iatt, idec, islev, irel
 
-kcps =  p4 	  ;frequency
-asig	vco2  kenv, kcps
+asig			vco2  kenv, kcps*0.999
+asigLow			vco2  kenv, kcps*0.99
+asigLower		vco2  kenv, kcps*0.9
+adelLow			delay   asigLow , ivel*0.009;
+adelLower		delay   asigLow , ivel*0.011;
+aout 			= asig+adelLow+adelLower
+
+
 if (gi04on==1) then  
-	AssignSend		        p1, 0.2, 0.4, gi04amp
-	SendOut  p1, asig, asig
+	AssignSend		        p1, 20, 0.9, gi04amp
+	SendOut  p1, aout, aout
 endif
 endin ; end ins 4
 
