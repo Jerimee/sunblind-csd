@@ -40,20 +40,20 @@ gievenon					= 1
 gioddon  					= 1
 	
 	
-gi01on = 0     *gioddon*giFirstThree                                   		/* inst 1 sco is a simple backup highlight */
-gi02on = 0     *gievenon*giTwoThreeFiveandSeven*giFirstThree 		/* inst 2 sco is a faint tap percusive in time with i3 */
-gi03on = 0     *gioddon*giTwoThreeFiveandSeven*giFirstThree 		/* inst 3 sco is a repetative rhythm in time with i2 */
-gi04on = 0     *gievenon*giSecondThree*giFourAndNine			/* inst 4 sco is a vocal */
-gi05on = 0     *gioddon*giTwoThreeFiveandSeven*giSecondThree		/* inst 5 sco is repetative bass line */
-gi06on = 0     *gievenon*giSecondThree					/* inst 6 sco is repeated simple melody */
-gi07on = 0     *gioddon*giTwoThreeFiveandSeven*giLastFive 		/* inst 7 sco is a drum rhythm*/
-gi08on = 0     *gievenon*giLastFive					/* inst 8 sco is flourishy mario paint trill */
-gi09on = 0     *gioddon*giLastFive*giFourAndNine			/* inst 9 sco is */
-gi10on = 0     *gievenon*giLastFive					/* inst 10 sco is rapid drums */
+gi01on = 1     *gioddon*giFirstThree                                   		/* inst 1 sco is a simple backup highlight */
+gi02on = 1     *gievenon*giTwoThreeFiveandSeven*giFirstThree 		/* inst 2 sco is a faint tap percusive in time with i3 */
+gi03on = 1     *gioddon*giTwoThreeFiveandSeven*giFirstThree 		/* inst 3 sco is a repetative rhythm in time with i2 */
+gi04on = 1     *gievenon*giSecondThree*giFourAndNine			/* inst 4 sco is a vocal */
+gi05on = 1     *gioddon*giTwoThreeFiveandSeven*giSecondThree		/* inst 5 sco is repetative bass line */
+gi06on = 1     *gievenon*giSecondThree					/* inst 6 sco is repeated simple melody */
+gi07on = 1     *gioddon*giTwoThreeFiveandSeven*giLastFive 		/* inst 7 sco is a drum rhythm*/
+gi08on = 1     *gievenon*giLastFive					/* inst 8 sco is flourishy mario paint trill */
+gi09on = 1     *gioddon*giLastFive*giFourAndNine			/* inst 9 sco is */
+gi10on = 1     *gievenon*giLastFive					/* inst 10 sco is rapid drums */
 gi11on = 1    *gioddon*giLastFive					/* inst 11 sco is */
 gi30on = 1    								/* inst 30 sco is ten 20 second chunks for WavPlayer */
 
-giamp   = 0.2 ; base volume control
+giamp   = 0.21 ; base volume control
 gi01amp = giamp + 0.53
 gi02amp = giamp + 0.155
 gi03amp = giamp - 0.2
@@ -4056,77 +4056,10 @@ i9	167.727438	0.15    	329.608962	127
 ; Include score for i10
 #include "includes/i10sco.sco"
 
-; 11:1 starts 63.2
-; ins 11
-
-i11	63.272789	0.5     	311.126982	119
-i11	63.272789	0.5     	415.292983	119
-i11	65.454649	0.5     	277.166995	127
-i11	65.454649	0.5     	369.994421	127
-i11	67.636508	3.818367	659.217924	110
-i11	71.454649	0.136508	554.333990	124
-i11	71.590930	0.136735	493.869370	104
-i11	71.727438	0.136508	554.333990	124
-i11	71.863719	0.136508	493.869370	109
-i11	72.000000	3.818367	659.217924	113
-i11	75.818141	0.5     	554.333990	119
-i11	76.363719	0.5     	493.869370	115
+; 11:1 starts 63.2 ends 76
 ; 11:2 111.3
-i11	111.27  	0.5     	311.126982	119
-i11	111.3   	0.5     	415.292983	119
-i11	113.454649	0.5     	277.166995	127
-i11	113.454649	0.5     	369.994421	127
-i11	115.636508	0.5     	311.126982	119
-i11	115.636508	0.5     	415.292983	119
-i11	117.818367	0.6     	277.166995	127
-i11	117.818367	0.5     	369.994421	126
-i11	120.000000	0.545805	311.126982	119
-i11	120.000000	0.545805	415.292983	119
-i11	122.181859	0.545805	277.166995	127
-i11	122.181859	0.545805	369.994421	127
-i11	124.363719	3.818367	659.217924	110
-i11	128.181859	0.136735	554.333990	124
-i11	128.318367	0.136508	493.869370	104
-i11	128.454649	0.136508	554.333990	124
-i11	128.590930	0.136735	493.869370	109
-i11	128.727438	3.818367	659.217924	113
-i11	132.545578	0.545578	554.333990	119
-i11	133.090930	0.545805	493.869370	115
-i11	168.000227	0.545578	311.126982	119
-i11	168.000227	0.545578	415.292983	119
-i11	170.181859	0.545805	277.166995	127
-i11	170.181859	0.545805	369.994421	127
-i11	172.363719	0.545805	311.126982	119
-i11	172.363719	0.545805	415.292983	119
-i11	174.545578	0.545805	277.166995	127
-i11	174.545578	0.545805	369.994421	127
-i11	176.727438	0.545578	311.126982	119
-i11	176.727438	0.545578	415.292983	119
-i11	178.909297	0.545578	277.166995	127
-i11	178.909297	0.545578	369.994421	127
-i11	181.091156	3.818367	659.217924	110
-i11	184.909297	0.136508	554.333990	124
-i11	185.045578	0.136508	493.869370	104
-i11	185.181859	0.136735	554.333990	124
-i11	185.318367	0.136508	493.869370	109
-i11	185.454649	3.818367	659.217924	113
-i11	189.272789	0.545805	554.333990	119
-i11	189.818367	3.818367	659.217924	110
-i11	193.636508	0.136508	554.333990	124
-i11	193.772789	0.136735	493.869370	104
-i11	193.909297	0.136508	554.333990	124
-i11	194.045578	0.136735	493.869370	109
-i11	194.182086	3.818367	659.217924	113
-i11	198.000227	0.545578	554.333990	119
-i11	198.545578	3.818367	659.217924	110
-i11	202.363719	0.136735	554.333990	124
-i11	202.500227	0.136508	493.869370	104
-i11	202.636508	0.136508	554.333990	124
-i11	202.772789	0.136735	493.869370	109
-i11	202.909297	3.818367	659.217924	113
-i11	206.727438	0.545578	554.333990	119
-i11	207.272789	2.21     	659.217924	115
-i11	209.454649	0.277551	659.217924	107
+; ins 11
+#include "includes/i11sco.sco"
 
 e
 </CsScore>
