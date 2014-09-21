@@ -1,12 +1,12 @@
 <CsoundSynthesizer>
 <CsOptions>
 ; Select audio/midi flags here according to platform
-; -odac     ;;;realtime audio out
+ -odac     ;;;realtime audio out
 --env:SSDIR+=assets/ ; needed for instrument 30
 ;-+skip_seconds=60
 ;-iadc    ;;;uncomment -iadc if RT audio input is needed too
-;-o sunblind-justi3.wav -W ;;; for file output any platform
--o sunblindnew.ogg --ogg
+;-o sunblind-justi4.wav -W ;;; for file output any platform
+;-o sunblind-justvocals.ogg --ogg
 </CsOptions>
 
 <CsInstruments>
@@ -21,11 +21,8 @@ nchnls = 2
 ; Include user-defined opcodes
 #include "includes/sunopcodes.inc"
 
- 
 ; G L O B A L S
 ;;;;;;;;;;;;;;;;;;;;;
-
-
 giFirstThree 				= 1
 giSecondThree				= 1
 giLastFive 				= 1
@@ -57,7 +54,7 @@ giamp   = 0.31 ; base volume control
 gi01amp = giamp - 0.05
 gi02amp = giamp + 0.055
 gi03amp = giamp - 0.25
-gi04amp = giamp - 0.1
+gi04amp = giamp - 0.2
 gi05amp = giamp + 0.12
 gi06amp = giamp 
 gi07amp = giamp - 0.06 ; can we turn it up beyond 1? yes
@@ -65,7 +62,7 @@ gi08amp = giamp - 0.2 ; can we turn it down beyond 0? NO, somehow it actually ge
 gi09amp = giamp * 0.15
 gi10amp = giamp + 0.2
 gi11amp = giamp - 0.18
-gi30amp = giamp + 0.45
+gi30amp = giamp + 0.25
 
 gicount = 0 ; I don't know how to do a counter without a global var
 
@@ -91,13 +88,14 @@ instr x11
 	#include "instruments/x11.inc"
 endin
 
-instr mycomb
+instr mycomb ; 6 (for now)
 	aIn   inleta "In" 
    	#include "instruments/mycomb.inc"
    	aoutL = ((aRes*iamp)*0.55)+(aIn*0.45)
    	aoutR = ((aRes*iamp)*0.3)+(aIn*0.7)
 	ksecthr invalue "secondthree"
-	if ((gi06on==1) && (ksecthr==1)) then     
+	#include "includes/kon.inc"
+	if ((gi06on==1) && (ksecthr==1) && (kthisoneon==1)) then     
 		AssignSend		p1, 0.1, 0.4, gi06amp
 		SendOut			p1, aoutL, aoutR
 	endif
@@ -106,7 +104,8 @@ endin
 instr 1 ; Moog Fleur
 	#include "instruments/moogfleur.inc"
 	kfirthr invalue "firstthree"
-	if ((gi01on==1) && (kfirthr==1)) then
+	#include "includes/kon.inc"
+	if ((gi01on==1) && (kfirthr==1) && (kthisoneon==1)) then
 		AssignSend	p1, 0.2, 0.45, gi01amp
 		SendOut	 p1, asig*kpanl, asig*kpanr
 	endif
@@ -116,8 +115,9 @@ instr 2 ; sine_bass_wave
 	ipitch = p4
 	ivel = p5
 	kfirthr invalue "firstthree"
+	#include "includes/kon.inc"
 	aSubOut subinstr "sine_bass_wave", ivel, ipitch
-	if ((gi02on==1) && (kfirthr==1)) then  
+	if ((gi02on==1) && (kfirthr==1) && (kthisoneon==1)) then  
 		AssignSendNamed	    	p1, 0.3, 0.7, gi02amp
 		SendOutNamed	        	p1, aSubOut, aSubOut
 	endif
@@ -127,36 +127,37 @@ instr 3
 	ipitch = p4
 	ivel = p5
 	kfirthr invalue "firstthree"
+	#include "includes/kon.inc"
 	aSubOutL, aSubOutR subinstr "sweepy", ivel, ipitch
-	if ((gi03on==1) && (kfirthr==1)) then  
+	if ((gi03on==1) && (kfirthr==1) && (kthisoneon==1)) then  
 		AssignSend		        p1, 0.25, 0.05, gi03amp
 		SendOut		        p1, aSubOutL, aSubOutR
 	endif
 endin ; end ins 3
 
 instr	30 ; WavPlayer
-
 	idur		= p3  
 	kSpeed  	init p4           ; playback speed
 	iSkip   	init p2           ; inskip into file (in seconds)
 	iLoop  		init 0           ; looping switch (0=off 1=on)
-
+	iselect    =p5
 				;double volume			
 	kenv     linseg 0, idur*.2, 2, idur*.4, 1, idur*.4, 0
-
+	
 	; read audio from disk using diskin2 opcode
-	a1,a2     diskin2  "sunblind-justi3.wav", kSpeed, iSkip, iLoop
-
+	if (p5 = 3) then
+		a1,a2     diskin2  "sunblind-justi3.wav", kSpeed, iSkip, iLoop
+	elseif (p5 = 4) then
+		a1,a2     diskin2  "sunblind-justi4.wav", kSpeed, iSkip, iLoop
+	endif
 	;outs      a1*kenv,a2*kenv          ; send audio to outputs
 	kfinthr invalue "finalthree"
-	if ((gi30on==1) && (kfinthr==1)) then  
+	#include "includes/kon.inc"
+	if ((gi30on==1) && (kfinthr==1) && (kthisoneon==1)) then  
 		AssignSend		        p1, 0.1, 0.15, gi30amp
 		SendOut		        p1, a1*kenv, a2*kenv
 	endif
-
 endin ; end 30
-
-
 
 instr 4 ; vocal
 ;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -178,15 +179,14 @@ adelLow			delay   asigLow , ivel*0.009;
 adelLower		delay   asigLow , ivel*0.011;
 aout 			= asig+adelLow+adelLower
 
+kon invalue "allexcept"
 ksecthr invalue "secondthree"
-if ((gi04on==1) && (ksecthr==1)) then  
-	AssignSend		        p1, 20, 0.9, gi04amp
+if ((gi04on==1) && (ksecthr==1) && ((kon==2)||(kon==0))) then  
+	AssignSend		        p1, 0.2, 0.2, gi04amp
 	SendOut  p1, aout, aout
 endif
 
 endin ; end ins 4
-
-
 
 instr 5   ; Rhodes Piano
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -195,33 +195,21 @@ instr 5   ; Rhodes Piano
 ;; to offpitch where p5 is 127.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-
-
 pset           0, 0, 3600, 0, 0, 0, 0, 0, 0, 0, 0
 
-
-
 ;cigoto condition, label 
-
 cigoto (p5==127), dorand  
-
   igoto norand
 
-
-
 dorand:
-
   ikrnd random -3, 5
   ivariance = ikrnd * 2
   iamplitude = 0.4 
-
   goto onward
 
 norand:
-
   ivariance = 0
   iamplitude = 0.3 
-
   goto onward ;this goto may be redundant
 
 onward:
@@ -253,16 +241,14 @@ ivibefn  = gibergeman ;  giSigmoFall;gisine
 
 asig                 fmrhode                 iamplitude, kHz, iindex, icrossfade, ivibedepth, iviberate, ifn1, ifn2, ifn3, ifn4, ivibefn
 
-ksecthr invalue "secondthree"
-if ((gi05on==1) && (ksecthr==1)) then  
-	;note that Reverb is high
-	AssignSend		        p1, 0.5, 3, gi05amp
-	SendOut			        p1, asig*aenv, asig*aenv
-endif
-
+	ksecthr invalue "secondthree"
+	#include "includes/kon.inc"
+	if ((gi05on==1) && (ksecthr==1) && (kthisoneon==1)) then  
+		;note that Reverb is high
+		AssignSend		        p1, 0.5, 3, gi05amp
+		SendOut			        p1, asig*aenv, asig*aenv
+	endif
 endin ; end ins 5
-
-
 
 instr 6, bqdhorn
 ;;;;;;;;;;;;;;;
@@ -362,10 +348,7 @@ instr 6, bqdhorn
     puts Sfoo, 1
     goto nextPart
 
-
-
     nextPart:
-    
     ; convert frequency to radian frequency
     itheta1 = (if1/idenom) * ipi
     itheta2 = (if2/idenom) * ipi
@@ -373,7 +356,6 @@ instr 6, bqdhorn
     itheta4 = (if4/idenom) * ipi
     itheta5 = (if5/idenom) * ipi
     itheta6 = (if6/idenom) * ipi
-
     ; calculate coefficients
     ib11 = -2 * irpole1 * cos(itheta1)
     ib21 = irpole1 * irpole1
@@ -399,14 +381,13 @@ afin  = (asin1 + asin2 + asin3 + asin4 + asin5 + asin6)
 outleta "Out", afin
 endin ; end ins 6
 
-
-
 instr 7 
 	ipitch = p4
 	ivel = p5
 	aSubOutL, aSubOutR subinstr "x11", ivel, ipitch
+	#include "includes/kon.inc"
 	kthithr invalue "thirdthree"
-	if ((gi07on==1) && (kthithr==1)) then  
+	if ((gi07on==1) && (kthithr==1) && (kthisoneon==1)) then  
 	        AssignSend		   	p1, 0.9, 0.075, gi07amp
 	        SendOut	 		p1, aSubOutL, aSubOutR
 	endif
@@ -424,20 +405,13 @@ instr 8 ; Sunshape
 
     kshapeamt  line        1,p3,ilineend
 
-
-
 	; if we have a note (ie 7.07) convert to cycles
-
 	; otherwise we have cycles (ie 670) so do nothing
-
 	ifreq = (p4 > 15 ? ipfo : cpspch(ipfo))
-
-	
 
 	isq ftgenonce 100001,0,128,10,1,0,0.3,0,0.2,0,0.14,0,0.111   ; Square with a small amount of data
 
 	ipulse ftgenonce 100002,0,32768,10,1,1,1,1, 0.7,0.5,0.3,0.1          ; Pulse 
-
 	isine ftgenonce 100003, 0, 1024, 10, 1 
 
 	if (p5>120) then
@@ -446,31 +420,20 @@ instr 8 ; Sunshape
 	  ifunc = ipulse ;pulse
 	endif
 
-	
-
 	aOsc       oscili      0.6, ifreq, isine ;ifunc
-
 	aSqOrPulse         oscili      0.6, ifreq, ifunc
-
 	aToOutOsc       powershape  aOsc, kshapeamt
-
 	aToOutSqOrPulse       powershape  aSqOrPulse, kshapeamt
 
 	; below we set how much relative influence the 
-
 	;two oscilis will have and then push them together
-
 	krando = birnd(0.2)+0.55 ; random number from 0.35 to 0.75
 
 	krandoInverted = 1 - krando
 
 	aout      = aToOutOsc*krando ;sine
-
 	aoutSOP   = aToOutSqOrPulse*krandoInverted ;sq or pulse
-
 	afinalout = (aout+aoutSOP)*2
-
-	
 
 	idurf = p3/10
 
@@ -484,9 +447,9 @@ instr 8 ; Sunshape
 	afinalenv = aenv-krandoInverted
     adeclick   linseg      0.0, 0.01, 1.0, p3 - 0.06, 1.0, 0.05, 0.0
     adone = afinalout * adeclick * imaxamp*afinalenv
-
+	#include "includes/kon.inc"
 	kthithr invalue "thirdthree"
-	if ((gi08on==1) && (kthithr==1)) then 								
+	if ((gi08on==1) && (kthithr==1) && (kthisoneon==1)) then 								
 		AssignSend		        p1, 0.0, 0.2, gi08amp
 		SendOut			        p1, adone, (adone*0.92)
 	endif
@@ -517,7 +480,8 @@ aenvL linseg 0, iatt, 0.8, isus, 0.95, irel,0
 aenvR linseg 0, irel, 0.8, isus, 0.95, iatt,0
 
 	kthithr invalue "thirdthree"
-	if ((gi09on==1) && (kthithr==1)) then 
+	#include "includes/kon.inc"
+	if ((gi09on==1) && (kthithr==1) && (kthisoneon==1)) then 
 		AssignSend		p1, 0.1, 0.1, gi09amp
 		SendOut		p1, asig*aenvL, asig*aenvR
 	endif 
@@ -529,9 +493,9 @@ instr 10
 	ivel = p5
 	ipitch = p4
 	abasic subinstr "mymarimba", ivel, ipitch
-
 	kfinthr invalue "finalthree"
-	if ((gi10on==1) && (kfinthr==1)) then 
+	#include "includes/kon.inc"
+	if ((gi10on==1) && (kfinthr==1) && (kthisoneon==1)) then 
 	  AssignSendNamed		  	p1, 0.5, 0.7, gi10amp
 	  SendOutNamed			  	p1, abasic, abasic
 	endif
@@ -739,30 +703,26 @@ endif
 endin ; end ins 9
 
 instr 11 ; Drillill
+	idur = p3
+	iatt 	= (idur*0.05)
+	idec  	= (idur*0.15) 
+	isus	= (idur*0.30) 
+	irel  	= (idur*0.50) 
+	islev = p5/127
+	;kenv	xadsr iatt, idec, islev, irel
+	kenv expseg 0.001, iatt, islev, idec, islev*0.9, isus, islev*0.9, irel, 0.001 
+	krnd random -25, 65
+	kcps = p4 + krnd	;freq, random scrntchs up sound a bit
 
-idur = p3
-iatt 	= (idur*0.05)
-idec  	= (idur*0.15) 
-isus	= (idur*0.30) 
-irel  	= (idur*0.50) 
+	iunwise = (p5*0.01)
+	kmod = iunwise - 0.1
 
-islev = p5/127
-
-;kenv	xadsr iatt, idec, islev, irel
-kenv expseg 0.001, iatt, islev, idec, islev*0.9, isus, islev*0.9, irel, 0.001 
-
-krnd random -25, 65
-kcps = p4 + krnd	;freq, random scrntchs up sound a bit
-
-iunwise = (p5*0.01)
-kmod = iunwise - 0.1
-
-asigL foscil iunwise, kcps, 1, kmod, kenv, 1
-asigR	vco2  kenv * iunwise, kcps
-
+	asigL foscil iunwise, kcps, 1, kmod, kenv, 1
+	asigR	vco2  kenv * iunwise, kcps
+	kon invalue "allexcept"
 	kfinthr invalue "finalthree"
-	if ((gi11on==1) && (kfinthr==1)) then 
-		AssignSend		        p1, 0.9, 0.2, gi11amp
+	if ((gi11on==1) && (kfinthr==1) && ((kon==1)||(kon==0))) then 
+		AssignSend		        p1, 12, 1, gi11amp
 		SendOut			        p1, asigR, asigR
 	endif
 endin ; end ins 11
@@ -778,13 +738,10 @@ t 0 65 ; set tempo faster
 ;	isend=p4
 ;	ibuss0=p5
 ;	igain0=p6
-
 ; Chorus to Reverb (210)
 i100 0 0 200 210 0.0
-
 ; Chorus to Output (220)
 i100 0 0 200 220 0.0
-
 ; Reverb (210) to Output (220)
 i100 0 0 210 220 0.28
 
@@ -826,17 +783,30 @@ i "mycomb" 	0 200 0.45
 ; broken into sections and
 ; then slightly speed up
 
-i30 0 	 20		1.0
-i30 20	 20		1.0
-i30 40	 20		1.005
-i30 60	 20		1.01
-i30 80	  .		1.0
-i30 100	  .		1.001
-i30 120	  .		1.02
-i30 140	  .		1.03
-i30 160	  .		1.015
-i30 180	  .		1.005
-i30 200	  .		1.0
+i30 0 	 20		1.0		3
+i30 20	 5		1.0		3
+i30 25	 35		1.005	3
+i30 60	 20		1.01	3
+i30 80	  .		1.0		3
+i30 100	 30		1.001	3
+i30 130	 10		1.02	3
+i30 140	 20		1.03	3
+i30 160	  .		1.015	3
+i30 180	  .		1.005	3
+i30 200	  .		1.0		3
+
+; this amplifies the vocal by laying the wav track
+i30	19.5	15		1		4
+i30	26		50		1		4
+i30	69	  	20		1		4
+i30	79		3		1.06	4
+i30	85		5		1.03	4
+i30	97.1	3		1.05	4
+i30	100		30		1		4
+i30	105		3		1.05	4
+i30	120		50		1		4
+i30	150		15		1		4
+i30	168		15		1.01	4
 
 ; 4:1 starts 19.5 vocal melody
 ; start end pitch att
@@ -857,8 +827,6 @@ i30 200	  .		1.0
 ; is this the horn or the piano?
 ; 7:1 starts 10.9 ends 209.4
 #include "includes/i7sco.sco"
-
-
 
 ; 8:1 starts 11.45
 ; ins 8
@@ -926,15 +894,12 @@ i8	16.193197	0.034240	932.274929	76
 i8	16.227211	0.034467	830.585965	59
 
 i8	16.636281	0.1     	554.300  	127
-
 i8	16.636281	0.1     	1108.667979	127
 
 i8	16.772789	0.1     	1108.667979	116
-
 i8	16.772789	0.1     	554.300  	116
 
 i8	16.909070	0.1     	1108.667979	127
-
 i8	16.909070	0.1     	554.300  	127
 
 i8	17.045578	0.1     	554.300  	119
@@ -984,32 +949,25 @@ i8	125.863719	0.1     	1108.67 	116
 i8	125.863719	0.1     	554.30     	116
 
 i8	126.000000	0.1     	1108.667979	127
-
-i8	126.000000	0.1     	554.300  	127
+i8	126.000000	.       	554.300  	127
 
 i8	126.136508	0.1     	554.300  	119
-
-i8	126.136508	0.1     	1108.667979	119
+i8	126.136508	.  		   	1108.67		119
 
 i8	126.409297	0.1     	1244.507929	127
-
-i8	126.409297	0.1     	622.253965	127
+i8	126.409297	.	     	622.253965	127
 
 i8	126.681859	0.1     	622.253965	127
-
 i8	126.681859	0.1     	1244.507929	127
 
 i8	126.954649	0.1     	622.253965	127
-
 i8	126.954649	0.1     	1244.507929	127
 
 i8	127.090930	0.1     	1244.507929	116
-
 i8	127.090930	0.1     	622.253965	116
 
 i8	127.227438	0.1     	1244.507929	127
-
-i8	127.227438	0.1     	622.253965	127
+i8	127.227438	0.1     	622.253965		127
 
 i8	127.3637	0.137		1174.625937	119
 i8	127.364		0.14		585.5			119
@@ -1032,52 +990,41 @@ i8	129.647846	0.034240	932.274929	76
 i8	129.681859	0.034467	830.585965	59
 
 i8	130.090930	0.1     	554.300  	127
-
 i8	130.090930	0.1     	1108.667979	127
 
 i8	130.227438	0.1     	1108.667979	116
-
 i8	130.227438	0.1     	554.300  	116
 
 i8	130.363719	0.1     	1108.667979	127
-
 i8	130.363719	0.1     	554.300  	127
 
-i8	130.500000	0.102721	554.300  	119
-
-i8	130.500000	0.102721	1108.667979	119
+i8	130.5		0.102721	554.300  	119
+i8	130.51		0.10		1109.0		119
 
 i8	130.772789	0.1     	1244.507929	127
-
 i8	130.772789	0.1     	622.253965	127
 
 i8	131.045578	0.1     	622.253965	127
-
 i8	131.045578	0.1     	1244.507929	127
 
 i8	131.318367	0.1     	622.253965	127
-
 i8	131.318367	0.1     	1244.507929	127
 
 i8	131.454649	0.1     	1244.507929	116
 i8	131.454649	0.1     	622.253965		116
 
 i8	131.590930	0.1     	1244.507929	127
-
 i8	131.590930	0.1     	622.253965	127
 
 i8	131.727438	0.136508	1174.625937	119
-
 i8	131.727438	0.136508	587.312968	119
 
 i8	131.86  	0.1     	1108.667979	113
-
 i8	131.87  	0.1     	554.300  	113
 
 ; 8:3 starts 181
 
 i8	181.6		0.273016	1318.435849	127
-
 i8	181.6		0.278   	659.217924 	127
 
 i8	181.909297	0.034240	1244.507929	125
@@ -1091,52 +1038,40 @@ i8	182.01		0.034240	932.274929		76
 i8	182.04		0.034240	830.585965		59
 
 i8	182.454649	0.1     	554.300  		127
-
-i8	182.454649	0.1     	1108.667979	127
+i8	182.454649	0.1     	1108.67    	127
 
 i8	182.591156	0.1     	1108.667979	116
-
 i8	182.591156	0.1     	554.300  	116
 
 i8	182.727438	0.1     	1108.667979	127
-
 i8	182.727438	0.1     	554.300  	127
 
 i8	182.863719	0.1     	554.300  	119
-
 i8	182.863719	0.1     	1108.667979	119
 
 i8	183.136508	0.1     	1244.507929	127
-
 i8	183.136508	0.1     	622.253965	127
 
 i8	183.409297	0.1     	622.253965	127
-
 i8	183.409297	0.1     	1244.507929	127
 
 i8	183.681859	0.1			622.253965	127
-
 i8	183.681859	0.11	1244.507929	127
 
 i8	183.818367	0.1     	1244.507929	116
-
 i8	183.82		0.1     	622.253965	116
 
-i8	183.954649	0.1     	1244.507929	127
-
+i8	183.95		0.1     	1244.507929	127
 i8	183.954649	0.1     	622.253965	127
 
 i8	184.091156	0.14		1174.625937	119
-
 i8	184.091156	0.136508	587.312968	119
 
 i8	184.227438	0.1     	1108.667979	113
-
 i8	184.227438	0.1     	554.300  	113
 
-i8	186.000227	0.272789	1318.435849	127
-
-i8	186.000227	0.277324	659.217924	127
+i8	186.0		0.272789	1318.435849	127
+i8	186.01		0.277324	659.217924	127
 
 i8	186.272789	0.034467	1244.507929	125
 
@@ -1149,11 +1084,9 @@ i8	186.375057	0.034467	932.274929	76
 i8	186.409297	0.034240	830.585965	59
 
 i8	186.818367	0.1     	554.300  	127
-
 i8	186.818367	0.1     	1108.667979	127
 
 i8	186.954649	0.1     	1108.667979	116
-
 i8	186.954649	0.1     	554.300  	116
 
 i8	187.091156	0.1     	1108.667979	127
@@ -1293,23 +1226,18 @@ i8	196.772789	0.1     	622.253965	127
 i8	196.772789	0.1     	1244.507929	127
 
 i8	196.909297	0.1     	1244.507929	116
-
 i8	196.909297	0.1     	622.253965	116
 
 i8	197.045578	0.1     	1244.507929	127
-
 i8	197.045578	0.1     	622.253965	127
 
 i8	197.182086	0.136508	1174.625937	119
-
 i8	197.182086	0.136508	587.312968	119
 
 i8	197.318367	0.1     	1108.667979	113
-
 i8	197.318367	0.1     	554.300  	113
 
 i8	199.091156	0.272789	1318.435849	127
-
 i8	199.091156	0.277324	659.217924	127
 
 i8	199.363719	0.034467	1244.507929	125
@@ -2103,35 +2031,27 @@ i9	146.863719	0.14      	207.646491	49
 i9	146.863719	0.14      	246.934685	84
 
 i9	147.000227	0.15    	207.646491	92
-
 i9	147.000227	0.15    	246.934685	127
 
 i9	147.136508	0.15    	219.999999	92
-
 i9	147.136508	0.15    	246.934685	127
 
 i9	147.409297	0.15    	220     	92
-
 i9	147.409297	0.15    	246.934685	123
 
 i9	147.681859	0.14      	220     	88
-
 i9	147.681859	0.14      	246.934685	123
 
 i9	147.818367	0.15    	219.999999	75
-
 i9	147.818367	0.15    	246.934685	110
 
 i9	147.954649	0.15    	219.999999	92
-
 i9	147.954649	0.15    	246.934685	123
 
-i9	148.090930	0.14      	221.0   	72
-
-i9	148.090930	0.14      	246.934685	107
+i9	148.091		0.14      	221.0   	72
+i9	148.091		0.14      	247.0 		107
 
 i9	148.227438	0.15    	246.9   	127
-
 i9	148.227438	0.15    	230     	92
 
 i9	148.363719	0.14      	184.997211	92
@@ -2493,9 +2413,9 @@ e
  <bsbObject type="BSBCheckBox" version="2">
   <objectName>firstthree</objectName>
   <x>90</x>
-  <y>37</y>
-  <width>50</width>
-  <height>50</height>
+  <y>51</y>
+  <width>20</width>
+  <height>20</height>
   <uuid>{66201786-d546-446a-937a-7e60e85c3bd4}</uuid>
   <visible>true</visible>
   <midichan>0</midichan>
@@ -2537,9 +2457,9 @@ e
  <bsbObject type="BSBCheckBox" version="2">
   <objectName>secondthree</objectName>
   <x>90</x>
-  <y>62</y>
-  <width>50</width>
-  <height>50</height>
+  <y>74</y>
+  <width>25</width>
+  <height>25</height>
   <uuid>{d8810105-c843-4cdb-a00e-59395f05d21b}</uuid>
   <visible>true</visible>
   <midichan>0</midichan>
@@ -2682,6 +2602,65 @@ e
   <mode>lin</mode>
   <mouseControl act="jump">continuous</mouseControl>
   <resolution>0.01000000</resolution>
+  <randomizable group="0">false</randomizable>
+ </bsbObject>
+ <bsbObject type="BSBLabel" version="2">
+  <objectName/>
+  <x>148</x>
+  <y>20</y>
+  <width>120</width>
+  <height>200</height>
+  <uuid>{58499c6c-a91f-45a5-9c32-7815262070eb}</uuid>
+  <visible>true</visible>
+  <midichan>0</midichan>
+  <midicc>0</midicc>
+  <label>Turn off all except</label>
+  <alignment>left</alignment>
+  <font>Georgia</font>
+  <fontsize>14</fontsize>
+  <precision>3</precision>
+  <color>
+   <r>0</r>
+   <g>0</g>
+   <b>0</b>
+  </color>
+  <bgcolor mode="background">
+   <r>255</r>
+   <g>255</g>
+   <b>255</b>
+  </bgcolor>
+  <bordermode>noborder</bordermode>
+  <borderradius>1</borderradius>
+  <borderwidth>1</borderwidth>
+ </bsbObject>
+ <bsbObject type="BSBDropdown" version="2">
+  <objectName>allexcept</objectName>
+  <x>165</x>
+  <y>50</y>
+  <width>80</width>
+  <height>30</height>
+  <uuid>{d9b643a4-5f7a-4171-8f2e-242632828389}</uuid>
+  <visible>true</visible>
+  <midichan>0</midichan>
+  <midicc>0</midicc>
+  <bsbDropdownItemList>
+   <bsbDropdownItem>
+    <name>_x (all on)</name>
+    <value>0</value>
+    <stringvalue/>
+   </bsbDropdownItem>
+   <bsbDropdownItem>
+    <name>i11</name>
+    <value>1</value>
+    <stringvalue/>
+   </bsbDropdownItem>
+   <bsbDropdownItem>
+    <name>i4</name>
+    <value>2</value>
+    <stringvalue/>
+   </bsbDropdownItem>
+  </bsbDropdownItemList>
+  <selectedIndex>0</selectedIndex>
   <randomizable group="0">false</randomizable>
  </bsbObject>
 </bsbPanel>
