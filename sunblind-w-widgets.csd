@@ -1,12 +1,12 @@
 <CsoundSynthesizer>
 <CsOptions>
 ; Select audio/midi flags here according to platform
--odac     ;;;realtime audio out
+; -odac     ;;;realtime audio out
 --env:SSDIR+=assets/ ; needed for instrument 30
 ;-+skip_seconds=60
 ;-iadc    ;;;uncomment -iadc if RT audio input is needed too
 ;-o sunblind-justi3.wav -W ;;; for file output any platform
-;-o sunblindnew.ogg --ogg
+-o sunblindnew.ogg --ogg
 </CsOptions>
 
 <CsInstruments>
@@ -727,26 +727,16 @@ async2, aphase2	partikkelsync	iopcode_id2
 ; clock pulse and phase 
 
 ; output of the partikkel instance above,
-
 ; we will only use the phase
-
-
 
 ;outs	a1*amp, a2*amp
 
 if (gi09on==1) then
 						;insno,ic,ir,id 				
-
 	AssignSend		        p1, 0.0, 0.5, gi09amp
 	SendOut			        p1, a1*amp, a2*amp
 endif
 endin ; end ins 9
-
-
-
-
-
-
 
 instr 11 ; Drillill
 
@@ -814,7 +804,7 @@ i220   0       -1
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;    
 
 ; mycomb
-i "mycomb" 	0 231 0.45
+i "mycomb" 	0 200 0.45
 
 ; ins 1
 ; simple backup flourish/highlight
@@ -948,19 +938,15 @@ i8	16.909070	0.1     	1108.667979	127
 i8	16.909070	0.1     	554.300  	127
 
 i8	17.045578	0.1     	554.300  	119
-
 i8	17.045578	0.1     	1108.667979	119
 
 i8	17.318141	0.1     	1244.507929	127
-
 i8	17.318141	0.1     	622.253965	127
 
 i8	17.590930	0.1     	622.253965	127
-
 i8	17.590930	0.1     	1244.507929	127
 
 i8	17.863719	0.1     	622.253965	127
-
 i8	17.863719	0.1     	1244.507929	127
 
 i8	18.000000	0.1     	1244.507929	116
@@ -1025,13 +1011,11 @@ i8	127.227438	0.1     	1244.507929	127
 
 i8	127.227438	0.1     	622.253965	127
 
-i8	127.363719	0.136508	1174.625937	119
+i8	127.3637	0.137		1174.625937	119
+i8	127.364		0.14		585.5			119
 
-i8	127.363719	0.136508	587.312968	119
-
-i8	127.500000	0.1     	1108.667979	113
-
-i8	127.500000	0.1     	554.300  	113
+i8	127.5 		0.1     	1108.667979	113
+i8	127.5		0.1     	554.300  	113
 
 i8	129.272789	0.273016	1318.435849	127
 
@@ -1076,8 +1060,7 @@ i8	131.318367	0.1     	622.253965	127
 i8	131.318367	0.1     	1244.507929	127
 
 i8	131.454649	0.1     	1244.507929	116
-
-i8	131.454649	0.1     	622.253965	116
+i8	131.454649	0.1     	622.253965		116
 
 i8	131.590930	0.1     	1244.507929	127
 
