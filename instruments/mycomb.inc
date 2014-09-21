@@ -13,7 +13,17 @@ krvt    linseg  0.1, 0.5, 1.2; reverb time envelope for comb filter
 ; using an a-rate variable here will 
 ; produce better results
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-alpt    expseg  	1,14,1,iXXXX,1,iXXXX,1,iXXXX,1,iXXXX,1,iXXXX,0.1,iXXXX,1,iXXXX,0.1,iXXXX,0.005,iXXXX,0.1,iXXXX,		0.005,iXXXX,1,iXXXX,0.9,iXXXX,0.1,iXXXX,0.005,iXXXX,0.1,iXXXX,1,iXXXX,1,iXXXX,1,iXXXX,1,iXXXX,	0.005,iXXXX,0.1,iXXXX,0.005,iXXXX,0.1,iXXXX,0.005,iXXXX,0.1,iXXXX,0.005,iXXXX,0.1,iXXXX,0.005,iXXXX,0.1,iXXXX,	1,iXXXX*14,0.8
+alpt    expseg  	1,14, \
+					1,iXXXX, \
+					1,iXXXX, \
+					1,iXXXX, \
+					1,iXXXX, \
+					1,iXXXX, \
+					0.1,iXXXX,
+					1,iXXXX, \
+					0.1,iXXXX, \
+					0.005,iXXXX, \
+					0.1,iXXXX,		0.005,iXXXX,1,iXXXX,0.9,iXXXX,0.1,iXXXX,1,iXXXX,0.6,iXXXX,1,iXXXX,1,iXXXX,1,iXXXX,1,iXXXX,	0.005,iXXXX,0.8,iXXXX,0.005,iXXXX,0.1,iXXXX,0.005,iXXXX,0.1,iXXXX,0.02,iXXXX,0.1,iXXXX,0.004,iXXXX,0.1,iXXXX,	1,iXXXX*14,0.8
 
 aRes    vcomb   aIn, krvt, alpt, 0.1; comb filter
 ;outs     aRes*iamp, aRes*iamp; comb filtered audio sent to output

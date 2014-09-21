@@ -27,39 +27,24 @@ nchnls = 2
 
 
 giFirstThree 				= 1
-
 giSecondThree				= 1
-
 giLastFive 				= 1
-
 giTwoThreeFiveandSeven	= 1
-
 giFourAndNine				= 1
-
 gievenon					= 1
-
 gioddon  					= 1
-
-	
-
 	
 
 gi01on = 1     *gioddon*giFirstThree                                   		/* inst 1 sco is a simple backup highlight */
-
 gi02on = 1     *gievenon*giTwoThreeFiveandSeven*giFirstThree 		/* inst 2 sco is a faint tap percusive in time with i3 */
-
 gi03on = 1     *gioddon*giTwoThreeFiveandSeven*giFirstThree 		/* inst 3 sco is a repetative rhythm in time with i2 */
 
 gi04on = 1     *gievenon*giSecondThree*giFourAndNine			/* inst 4 sco is a vocal */
-
 gi05on = 1     *gioddon*giTwoThreeFiveandSeven*giSecondThree		/* inst 5 sco is repetative bass line */
-
 gi06on = 1     *gievenon*giSecondThree					/* inst 6 sco is repeated simple melody */
 
 gi07on = 1     *gioddon*giTwoThreeFiveandSeven*giLastFive 		/* inst 7 sco is a drum rhythm*/
-
 gi08on = 1     *gievenon*giLastFive					/* inst 8 sco is flourishy mario paint trill */
-
 gi09on = 1     *gioddon*giLastFive*giFourAndNine			/* inst 9 sco is */
 
 gi10on = 1     *gievenon*giLastFive					/* inst 10 sco is rapid drums */
@@ -68,192 +53,75 @@ gi11on = 1    *gioddon*giLastFive					/* inst 11 sco is */
 
 gi30on = 1    								/* inst 30 sco is ten 20 second chunks for WavPlayer */
 
-
-
 giamp   = 0.31 ; base volume control
-
-gi01amp = giamp + 0.43
-
+gi01amp = giamp - 0.05
 gi02amp = giamp + 0.055
-
 gi03amp = giamp - 0.25
-
-gi04amp = giamp 
-
+gi04amp = giamp - 0.1
 gi05amp = giamp + 0.12
-
 gi06amp = giamp 
-
-gi07amp = giamp + 0.1 ; can we turn it up beyond 1? yes
-
+gi07amp = giamp - 0.06 ; can we turn it up beyond 1? yes
 gi08amp = giamp - 0.2 ; can we turn it down beyond 0? NO, somehow it actually gets louder if you do that!
-
 gi09amp = giamp * 0.15
-
-gi10amp = giamp 
-
+gi10amp = giamp + 0.2
 gi11amp = giamp - 0.18
-
 gi30amp = giamp + 0.45
 
-
-
 gicount = 0 ; I don't know how to do a counter without a global var
-
-                        
-
 
 
 ; I N S T R U M E N T   D E F I N I T I O N S
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-
-
 connect	 "bqdhorn", "Out", "mycomb", "In" 
-
-
 
 ; Include the mixer instruments
 #include "instruments/busseffects.inc"
 
-
-
 instr mymarimba
-
 	#include "instruments/marimba.inc"
-
 endin
-
 instr sine_bass_wave 
 	#include "instruments/sine_bass_wave.inc"
 endin
-
 instr sweepy 
 	#include "instruments/sweepy.inc"
 endin
-
 instr x11 
 	#include "instruments/x11.inc"
 endin
 
 instr mycomb
-
 	aIn   inleta "In" 
-
    	#include "instruments/mycomb.inc"
-
    	aoutL = ((aRes*iamp)*0.55)+(aIn*0.45)
-
    	aoutR = ((aRes*iamp)*0.3)+(aIn*0.7)
-
-             ;outs     aRes*iamp, aRes*iamp; comb filtered audio sent to output
-
-    if (gi06on==1) then    
-
+	ksecthr invalue "secondthree"
+	if ((gi06on==1) && (ksecthr==1)) then     
 		AssignSend		p1, 0.1, 0.4, gi06amp
-
 		SendOut			p1, aoutL, aoutR
-
 	endif
-
 endin
-
-
-
-instr 9 ; Bell
-
-kc1 init 100
-
-kc2 duserrnd 211
-
-kvdepth = 0.005
-
-kvrate = 6
-
-ifn1 = 1
-
-ifn2 = 1
-
-ifn3 = 1
-
-ifn4 = 1
-
-ivfn = 1
-
-; midinoteonpch p4, p5
-
-idur = p3
-
-iatt = p3 * 0.2
-
-irel = p3 * 0.25
-
-isus = idur - (iatt+ irel)
-
-kpch = p4
-
-kamp = p5/127
-
-kfreq = kpch ; cpspch(kpch)
-
-asig fmbell kamp, kfreq, kc1, kc2, kvdepth, kvrate, ifn1, ifn2, ifn3, ifn4, ivfn
-
-aenvL linseg 0, iatt, 0.8, isus, 0.95, irel,0
-
-aenvR linseg 0, irel, 0.8, isus, 0.95, iatt,0
-
-if (gi09on==1) then  
-
-	AssignSend		p1, 0.1, 0.1, gi09amp
-
-	SendOut		p1, asig*aenvL, asig*aenvR
-
-endif
-
-endin
-
-
 
 instr 1 ; Moog Fleur
-
 	#include "instruments/moogfleur.inc"
-
 	kfirthr invalue "firstthree"
-
 	if ((gi01on==1) && (kfirthr==1)) then
-
 		AssignSend	p1, 0.2, 0.45, gi01amp
-
 		SendOut	 p1, asig*kpanl, asig*kpanr
-
 	endif
-
 endin ; end ins 1
 
-
-
 instr 2 ; sine_bass_wave
-
 	ipitch = p4
-
 	ivel = p5
-
 	kfirthr invalue "firstthree"
-
 	aSubOut subinstr "sine_bass_wave", ivel, ipitch
-
 	if ((gi02on==1) && (kfirthr==1)) then  
-
-								;insno,ic,ir,id 	
-
-		AssignSendNamed	        p1, 0.3, 0.7, gi02amp
-
-		SendOutNamed	        p1, aSubOut, aSubOut
-
+		AssignSendNamed	    	p1, 0.3, 0.7, gi02amp
+		SendOutNamed	        	p1, aSubOut, aSubOut
 	endif
-
 endin ; end ins 2
-
 
 instr 3 
 	ipitch = p4
@@ -266,34 +134,24 @@ instr 3
 	endif
 endin ; end ins 3
 
-
-
 instr	30 ; WavPlayer
 
-	idur	=        p3  
-
-	kSpeed  init     p4           ; playback speed
-
-	iSkip   	init     p2           ; inskip into file (in seconds)
-
-	iLoop  	init     0           ; looping switch (0=off 1=on)
+	idur		= p3  
+	kSpeed  	init p4           ; playback speed
+	iSkip   	init p2           ; inskip into file (in seconds)
+	iLoop  		init 0           ; looping switch (0=off 1=on)
 
 				;double volume			
-
 	kenv     linseg 0, idur*.2, 2, idur*.4, 1, idur*.4, 0
 
 	; read audio from disk using diskin2 opcode
-
 	a1,a2     diskin2  "sunblind-justi3.wav", kSpeed, iSkip, iLoop
 
 	;outs      a1*kenv,a2*kenv          ; send audio to outputs
-
-	if (gi30on==1) then  
-
+	kfinthr invalue "finalthree"
+	if ((gi30on==1) && (kfinthr==1)) then  
 		AssignSend		        p1, 0.1, 0.15, gi30amp
-
 		SendOut		        p1, a1*kenv, a2*kenv
-
 	endif
 
 endin ; end 30
@@ -320,10 +178,7 @@ adelLow			delay   asigLow , ivel*0.009;
 adelLower		delay   asigLow , ivel*0.011;
 aout 			= asig+adelLow+adelLower
 
-
-
 ksecthr invalue "secondthree"
-
 if ((gi04on==1) && (ksecthr==1)) then  
 	AssignSend		        p1, 20, 0.9, gi04amp
 	SendOut  p1, aout, aout
@@ -334,15 +189,10 @@ endin ; end ins 4
 
 
 instr 5   ; Rhodes Piano
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
 ;; Rhodes elec piano model originally by 
-
 ;; Perry Cook. Note that I've set the pitch
-
 ;; to offpitch where p5 is 127.
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
@@ -362,83 +212,52 @@ cigoto (p5==127), dorand
 dorand:
 
   ikrnd random -3, 5
-
   ivariance = ikrnd * 2
-
   iamplitude = 0.4 
 
-  ;gicount = gicount +1
-
-  ;String sprintfk "\nnew ikrnd : %d\n", gicount
-
-  ;puts String, 1
-
   goto onward
-
-                    
 
 norand:
 
   ivariance = 0
-
   iamplitude = 0.3 
 
   goto onward ;this goto may be redundant
-
-
 
 onward:
 
 kHz = p4 + ivariance
 
-
-
 ; envelope
 
 iattratio = 1.05-(p5/127) ; p5 is velocity
-
 irelratio  = 0.05
-
 isusratio =  1 - (iattratio + irelratio)
-
 iatt = p3 * iattratio
-
 irel = p3 * irelratio
-
 isus = p3 * isusratio
 
 aenv linseg 0, iatt, 0.99, isus, 0.99, irel, 0 ; end envelope
 
-
-
 iindex = 4.1
-
 icrossfade = 3.1
-
 ivibedepth = 0.2
-
 iviberate  = 6
 
 ifn1 = gisine
-
 ifn2 = gicosine
-
 ifn3 = gisine ;giharpsichord
-
 ifn4 = gisine ;giSigmoFall
 
 ivibefn  = gibergeman ;  giSigmoFall;gisine
 
 asig                 fmrhode                 iamplitude, kHz, iindex, icrossfade, ivibedepth, iviberate, ifn1, ifn2, ifn3, ifn4, ivibefn
 
-if (gi05on==1) then  
-
-;note that Reverb is high
-
-	AssignSend		        p1, 0.2, 3, gi05amp
-
+ksecthr invalue "secondthree"
+if ((gi05on==1) && (ksecthr==1)) then  
+	;note that Reverb is high
+	AssignSend		        p1, 0.5, 3, gi05amp
 	SendOut			        p1, asig*aenv, asig*aenv
-
 endif
 
 endin ; end ins 5
@@ -446,229 +265,159 @@ endin ; end ins 5
 
 
 instr 6, bqdhorn
-
 ;;;;;;;;;;;;;;;
-
 /*  modal synthesis using biquad filters as oscillators
-
     Example by Scott Lindroth 2007 */
 
-
-
     ipi 		= $M_PI ;3.1415926
-
     idenom		= sr*0.5
-
     icps     	= p4
-
     ipan 		= 0.7
-
     iamp    	= 0.01
-
-    iModes 	= 2 ; wood bar or pot lid
-
+    kmod	 	invalue "bdqhornmode"
+	if (kmod < 1) then
+	    kModes = 3 		; "jjr"
+	    printk 	5,kmod,20
+   	elseif ((kmod >= 1) && (kmod < 2)) then
+	   	kModes 	= 1 		; pot lid
+	    printk 	5,kmod,40
+   	elseif ((kmod >= 2) && (kmod < 3)) then
+	   	kModes 	= 2 		; wood bar
+	    printk 	5,kmod,60
+	elseif (kmod >= 3) then
+	   	kModes 	= 4 		; proroxy
+	    printk 	5,kmod,80
+	endif
     ifilterw 	= p5
-
-
 
     apulse    mpulse iamp, 0
 
-
-
-    ;icps    = cpspch( icps )
-
-
-
     ; filter gain
-
-    iamp1 = 4 + (p5/127) 
-
+    iamp1 = 4 + (p5/254) 
     iamp2 = 4 + (p5/127)
-
     iamp3 = 4
-
     iamp4 = 4 
-
     iamp5 = 4 
-
     iamp6 = 4
 
-
-
     ; resonance
-
     irpole1 = 0.99999
-
     irpole2 = irpole1
-
     irpole3 = irpole1
-
     irpole4 = irpole1
-
     irpole5 = irpole1
-
     irpole6 = irpole1
-
-
 
     ; modal frequencies
 
-    if (iModes == 1) goto modes1
-
-    if (iModes == 2) goto modes2
-
+    if (kModes == 1) goto modes1
+    if (kModes == 2) goto modes2
+    if (kModes == 3) goto modes3
+    if (kModes == 4) goto modes4
     
-
+    modes2:
+    if ((p5 == 127)||(p5 == 95)) goto modes4
+    if1     = icps * 1            ;uniform wood bar
+    if2     = icps * 2.572
+    if3     = icps * 4.644
+    if4     = icps * 6.984
+    if5     = icps * 9.723
+    if6     = icps * 12.0
+    Sfoo    strcpy "wood bar"
+    puts Sfoo, 1
+    goto nextPart
+    
     modes1:
-
+    if ((p5 == 127)||(p5 == 95)) goto modes4
     if1    = icps * 1            ;pot lid
-
     if2    = icps * 6.27
-
     if3    = icps * 3.2
-
     if4    = icps * 9.92
-
     if5    = icps * 14.15
-
     if6    = icps * 6.23
-
+    Sfoo    strcpy "pot lid"
+    puts Sfoo, 1
     goto nextPart
 
-
-
-    modes2:
-
-    if1     = icps * 1            ;uniform wood bar
-
-    if2     = icps * 2.572
-
-    if3     = icps * 4.644
-
-    if4     = icps * 6.984
-
-    if5     = icps * 9.723
-
-    if6     = icps * 12.0
-
+    modes3:
+    if ((p5 == 127)||(p5 == 95)) goto modes4
+    if1     = icps * 1           ;jerimee
+    if2     = icps * 1.6
+    if3     = icps * 1.3
+    if4     = icps * 1.9
+    if5     = icps * 4
+    if6     = icps * 1.5
+    Sfoo    strcpy "jjr"
+    puts Sfoo, 1
+    goto nextPart
+    
+    modes4:
+    if1     = icps * 3.1            ;proroxy
+    if2     = icps * 6.27
+    if3     = icps * 3.1
+    if4     = icps * 9.92
+    if5     = icps * 12.5
+    if6     = icps * 6.27
+    Sfoo    strcpy "proroxy"
+    puts Sfoo, 1
     goto nextPart
 
 
 
     nextPart:
-
-
-
+    
     ; convert frequency to radian frequency
-
     itheta1 = (if1/idenom) * ipi
-
     itheta2 = (if2/idenom) * ipi
-
     itheta3 = (if3/idenom) * ipi
-
     itheta4 = (if4/idenom) * ipi
-
     itheta5 = (if5/idenom) * ipi
-
     itheta6 = (if6/idenom) * ipi
 
-
-
     ; calculate coefficients
-
     ib11 = -2 * irpole1 * cos(itheta1)
-
     ib21 = irpole1 * irpole1
-
     ib12 = -2 * irpole2 * cos(itheta2)
-
     ib22 = irpole2 * irpole2
-
     ib13 = -2 * irpole3 * cos(itheta3)
-
     ib23 = irpole3 * irpole3
-
     ib14 = -2 * irpole4 * cos(itheta4)
-
     ib24 = irpole4 * irpole4
-
     ib15 = -2 * irpole5 * cos(itheta5)
-
     ib25 = irpole5 * irpole5
-
     ib16 = -2 * irpole6 * cos(itheta6)
-
     ib26 = irpole6 * irpole6
 
-
-
-;also try setting the -1 coeff. to 0, but scale down the amplitude!
-
-
-
 asin1 biquad  apulse * iamp1, 1, 0, -1, 1, ib11, ib21
-
 asin2 biquad  apulse * iamp2, 1, 0, -1, 1, ib12, ib22
-
 asin3 biquad  apulse * iamp3, 1, 0,  0, 1, ib13, ib23
-
 asin4 biquad  apulse * iamp4, 1, 0, -1, 1, ib14, ib24
-
 asin5 biquad  apulse * iamp5, 1, 0, -1, 1, ib15, ib25
-
 asin6 biquad  apulse * iamp6, 1, 0, -1, 1, ib16, ib26
 
 afin  = (asin1 + asin2 + asin3 + asin4 + asin5 + asin6)
-
-;aL = afin*sqrt(ipan)
-
-;aR = afin*sqrt(1- ipan)
-
 outleta "Out", afin
-
-;if (gi06on==1) then    
-
-;  AssignSend		        p1, 0.1, 0.7, gi06amp
-
-;  SendOut			        p1, aL, aR
-
-;endif
-
 endin ; end ins 6
 
 
 
 instr 7 
-
 	ipitch = p4
-
 	ivel = p5
-
 	aSubOutL, aSubOutR subinstr "x11", ivel, ipitch
-
-	if (gi07on==1) then  
-
-	        AssignSend		        	p1, 0.5, 0.1, gi07amp
-
+	kthithr invalue "thirdthree"
+	if ((gi07on==1) && (kthithr==1)) then  
+	        AssignSend		   	p1, 0.9, 0.075, gi07amp
 	        SendOut	 		p1, aSubOutL, aSubOutR
-
 	endif
-
 endin ; end ins 7
 
-
-
 instr 8 ; Sunshape
-
 ;;;;;;;;;;;;;;;;;;;;
 
 	imaxamp    =20
-
 	ilineend = (p5/5)
-
 	itiny =  0.000001
-
 	ipfo = p4
 
 	;kshapeamt  line        itiny,p3,ilineend
@@ -692,13 +441,9 @@ instr 8 ; Sunshape
 	isine ftgenonce 100003, 0, 1024, 10, 1 
 
 	if (p5>120) then
-
 	  ifunc = isq
-
 	else
-
 	  ifunc = ipulse ;pulse
-
 	endif
 
 	
@@ -734,47 +479,62 @@ instr 8 ; Sunshape
 	aenv   expseg   0.8, idurf, 1.0, idurf,0.4, idurf,1.0, idurf,0.3, idurf, 0.9, idurf,0.6, idurf,0.2, idurf,0.05, idurf,0.01, idurf
 
 	;wobble the env by reducing it
-
 	;the krandoInverted number just happens to fit
 
 	afinalenv = aenv-krandoInverted
-
     adeclick   linseg      0.0, 0.01, 1.0, p3 - 0.06, 1.0, 0.05, 0.0
-
     adone = afinalout * adeclick * imaxamp*afinalenv
 
-			
-
-if (gi08on==1) then									
-
-	AssignSend		        p1, 0.0, 0.2, gi08amp
-
-	SendOut			        p1, adone, (adone*0.92)
-
-endif
-
+	kthithr invalue "thirdthree"
+	if ((gi08on==1) && (kthithr==1)) then 								
+		AssignSend		        p1, 0.0, 0.2, gi08amp
+		SendOut			        p1, adone, (adone*0.92)
+	endif
 endin ; end ins 8
 
+instr 9 ; Bell
+kc1 init 100
+kc2 duserrnd 211
+kvdepth = 0.005
+kvrate = 6
+ifn1 = 1
+ifn2 = 1
+ifn3 = 1
+ifn4 = 1
+ivfn = 1
 
+idur = p3
+iatt = p3 * 0.2
+irel = p3 * 0.25
+isus = idur - (iatt+ irel)
+kpch = p4
+kamp = p5/127
+kfreq = kpch ; cpspch(kpch)
+
+asig fmbell kamp, kfreq, kc1, kc2, kvdepth, kvrate, ifn1, ifn2, ifn3, ifn4, ivfn
+
+aenvL linseg 0, iatt, 0.8, isus, 0.95, irel,0
+aenvR linseg 0, irel, 0.8, isus, 0.95, iatt,0
+
+	kthithr invalue "thirdthree"
+	if ((gi09on==1) && (kthithr==1)) then 
+		AssignSend		p1, 0.1, 0.1, gi09amp
+		SendOut		p1, asig*aenvL, asig*aenvR
+	endif 
+endin ; end instr 9
 
 ; Instrument #10 - Demonstrates the subinstr opcode.
 
 instr 10
-
 	ivel = p5
-
 	ipitch = p4
-
 	abasic subinstr "mymarimba", ivel, ipitch
 
-	if (gi10on==1) then
-
-	  AssignSendNamed		       	p1, 0.5, 0.7, gi10amp
-
+	kfinthr invalue "finalthree"
+	if ((gi10on==1) && (kfinthr==1)) then 
+	  AssignSendNamed		  	p1, 0.5, 0.7, gi10amp
 	  SendOutNamed			  	p1, abasic, abasic
-
 	endif
-
 endin
 
 
@@ -834,15 +594,10 @@ idisttab	= -1			; (default) flat distribution used
                                         ; for grain distribution
 
 async		= 0			; no sync input
-
 kenv2amt	= 0			; no secondary enveloping
-
 ienv2tab	= -1			; default secondary envelope (flat)
-
 ienv_attack	= giSigmoRise		; default attack envelope (flat)
-
 ienv_decay	= giSigmoFall		; default decay envelope (flat)
-
 ksustain_amount	= 0.3			; time (in fraction of grain dur) at
 
                                         ; sustain level for each grain
@@ -896,11 +651,8 @@ ichannelmasks	= -1			; (default) no channel masking,
 krandommask	= 0			; no random grain masking
 
 kwaveform1	= gisine		; source waveforms
-
 kwaveform2	= gisine		;
-
 kwaveform3	= gisine		;
-
 kwaveform4	= gisine		;
 
 iwaveamptab	= -1			; mix of 4 source waveforms and
@@ -999,4721 +751,150 @@ endin ; end ins 9
 instr 11 ; Drillill
 
 idur = p3
-
-
-
 iatt 	= (idur*0.05)
-
 idec  	= (idur*0.15) 
-
 isus	= (idur*0.30) 
-
 irel  	= (idur*0.50) 
-
-
 
 islev = p5/127
 
 ;kenv	xadsr iatt, idec, islev, irel
-
 kenv expseg 0.001, iatt, islev, idec, islev*0.9, isus, islev*0.9, irel, 0.001 
 
-
-
 krnd random -25, 65
-
 kcps = p4 + krnd	;freq, random scrntchs up sound a bit
 
-
-
 iunwise = (p5*0.01)
-
 kmod = iunwise - 0.1
 
-
-
 asigL foscil iunwise, kcps, 1, kmod, kenv, 1
-
 asigR	vco2  kenv * iunwise, kcps
 
-if (gi11on==1) then
-
-	AssignSend		        p1, 0.9, 0.2, gi11amp
-
-	;SendOut			        p1, asigL, asigR	
-
-	SendOut			        p1, asigR, asigR
-
-endif
-
+	kfinthr invalue "finalthree"
+	if ((gi11on==1) && (kfinthr==1)) then 
+		AssignSend		        p1, 0.9, 0.2, gi11amp
+		SendOut			        p1, asigR, asigR
+	endif
 endin ; end ins 11
-
-
-
-
-
-
 
 </CsInstruments>
 
 <CsScore>
-
-
-
 f211 0 -20 -41  12 .2 16 .8	;choose 12 at 20% probability, 16 at 80%
-
-
 
 t 0 65 ; set tempo faster
 
-
-
 ; EFFECTS MATRIX
-
 ;	isend=p4
-
 ;	ibuss0=p5
-
 ;	igain0=p6
 
 ; Chorus to Reverb (210)
-
 i100 0 0 200 210 0.0
 
 ; Chorus to Output (220)
-
-;i100 0 0 200 220 0.0
-
 i100 0 0 200 220 0.0
 
 ; Reverb (210) to Output (220)
-
 i100 0 0 210 220 0.28
 
-
-
 ; 200:1 MASTER EFFECT CONTROLS
-
 ; Chorus.
-
 ; Insno Start   Dur Delay   Divisor of Delay
-
 i200   0       -1      20      10
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ; Reverb.
-
 ; Insno Start   Dur Delay   Pitch mod   Cutoff
-
 i210   0       -1      0.75    0.009       17000
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ; Master output. 
-
 i220   0       -1  
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;    
 
-
-
 ; mycomb
-
-i "mycomb" 	0 221 0.45
-
-
+i "mycomb" 	0 231 0.45
 
 ; ins 1
-
 ; simple backup flourish/highlight
-
 ; 1:1 start 40.3
-
-
-
-i1	40.36    	1.10    	554.300  	127
-
-i1	40.364  	1.09    	880.00   	126
-
-i1	41.454649	0.954649	493.869370	127
-
-i1	41.454649	0.954649	830.585965	126
-
-i1	40.363719	3.273016	659.217924	127
-
-i1	42.409070	1.227664	880.00   	126
-
-i1	42.409070	1.227664	554.300  	127
-
-i1	43.636508	0.954649	987.738739	126
-
-i1	43.636508	0.954649	622.253965	127
-
-i1	43.636508	0.954649	740.0       	127
-
-i1	44.590930	1.227438	880.00   	127
-
-i1	44.590930	1.227438	659.217924	127
-
-i1	44.590930	1.227438	554.300  	126
-
-i1	45.81   	0.95    	493.869370	127
-
-i1	45.82   	0.91    	830.585965	127
-
-i1	45.82   	2.25    	659.217924	126
-
-i1	46.772789	1.227438	880.00   	102
-
-i1	46.772789	1.227438	554.300  	113
-
-i1	48.000000	0.954875	740.0       	119
-
-i1	48.000000	0.954875	987.738739	127
-
-i1	48.000000	0.954875	622.253965	124
-
-i1	48.954649	1.227438	880.00   	109
-
-i1	48.955		1.23		554.300  	127
-
-i1	50.181859	0.954875	493.869370	127
-
-i1	50.181859	0.954875	830.585965	104
-
-i1	48.954649	3.409297	659.217924	127
-
-i1	51.136508	1.227438	554.300  	124
-
-i1	51.136508	1.227438	880.00   	119
-
-i1	52.363719	0.954649	622.253965	124
-
-i1	52.363719	0.954649	987.738739	124
-
-i1	52.363719	0.954649	740.0       	113
-
-i1	53.318141	1.227664	880.00   	102
-
-i1	53.318141	.		554.300  	124
-
-i1	53.318141	.		659.217924	119
-
-i1	54.545578	2.18    	830.585965	127
-
-i1	54.545578	2.18    	740.0       	127
-
-i1	54.545578	2.18    	987.738739	127
-
-i1	54.545578	2.25    	625     	124
-
-i1	57.545578	0.829705	493.869370	119
-
-i1	56.727211	2.16     	554.300  	125
-
-i1	56.727211	2.21     	880.00   	125
-
-i1	56.727211	2.16     	659.217924	125
-
-i1	56.727211	2.18     	740.0       	125
-
-i1	58.363719	2.727438	415.292983	127
-
-i1	58.909070	2.18     	830.585965	127
-
-i1	58.909070	2.18     	740.0       	127
-
-i1	58.909070	2.21     	987.738739	127
-
-i1	58.909070	2.18     	622.253965	127
-
-i1	61.090930	0.818367	554.300  	125
-
-i1	61.090930	1.1     	370     	99
-
-i1	61.090930	2.2     	880.00   	125
-
-i1	61.090930	2.2     	666     	125
-
-i1	61.090930	2.18    	741.0     	116
-
-i1	61.909070	1.363946	554.300  	122
-
-i1	62.18   	0.545805	493.9   	126
-
-i1	62.727438	2.727438	415.292983	115
-
-i1	63.272789	2.18    	830.585965	127
-
-i1	63.272789	2.18     	740.0     	127
-
-i1	63.272789	2.21     	987.738739	127
-
-i1	63.272789	2.18     	622.253965	127
-
-i1	65.454649	2.21     	369.994421	99
-
-i1	65.454649	2.18     	554.300  	125
-
-i1	65.454649	2.18     	880.00   	125
-
-i1	65.454649	2.21     	659.217924	125
-
-i1	65.454649	2.18     	740.0       	125
-
-i1	67.636508	0.954649	659.217924	127
-
-i1	67.636508	0.954649	493.869370	127
-
-i1	67.636508	0.954649	830.585965	127
-
-i1	68.590930	1.22		740.0       	102
-
-i1	68.590930	1.23		880.00   	113
-
-i1	68.590930	1.2		554.300  	102
-
-i1	69.818141	0.954875	830.585965	119
-
-i1	69.818141	0.954875	987.738739	127
-
-i1	69.818141	0.95		630		124
-
-i1	70.772789	1.227438	880.00   	109
-
-i1	70.772789	1.227438	554.300  	127
-
-i1	70.772789	1.227438	740.0       	127
-
-i1	72.000000	0.954875	659.217924	127
-
-i1	72.000000	0.954875	493.869370	127
-
-i1	72.000000	0.954875	830.585965	127
-
-i1	72.954649	1.227438	740.0       	102
-
-i1	72.954649	1.227438	880.00   	113
-
-i1	72.954649	1.227438	554.300  	102
-
-i1	74.181859	0.954875	830.585965	119
-
-i1	74.181859	0.954875	987.738739	127
-
-i1	74.181859	0.954875	622.253965	124
-
-i1	75.136508	1.227438	880.00   	109
-
-i1	75.136508	1.227438	554.300  	127
-
-i1	75.136508	1.227438	740.0      126
-
-i1	76.363719	0.954649	493.869370	127
-
-i1	76.363719	0.954649	830.585965	127
-
-i1	76.363719	2.18     	659.217924	127
-
-i1	77.318141	1.227664	880.00   	102
-
-i1	77.318141	1.227664	554.3   	113
-
-i1	78.545578	0.954649	740.0      120
-
-i1	78.545578	0.954649	987.738739	127
-
-i1	78.545578	0.95		625		124
-
-i1	79.500000	1.227664	880.00   	109
-
-i1	79.500000	1.227664	554.333990	127
-
-i1	80.727438	0.954649	493.869370	127
-
-i1	80.727438	0.954649	830.585965	104
-
-i1	79.500000	3.409297	659.217924	127
-
-i1	81.681859	1.227438	554.333990	124
-
-i1	81.681859	1.227438	880.00   	119
-
-i1	82.909070	0.954875	622.253965	124
-
-i1	82.909070	.		987.738739	124
-
-i1	82.909070	.		740.0      112
-
-i1	83.863719	1.23		880.00   	102
-
-i1	83.863719	1.227438	554.333990	124
-
-i1	83.863719	1.227438	659.217924	119
-
-i1	85.090930	0.954875	493.869370	127
-
-i1	85.090930	0.954875	830.585965	127
-
-i1	85.090930	2.18     		659.2		127
-
-i1	86.045578	1.227438	880.00   	102
-
-i1	86.045578	1.227438	554.3   	113
-
-i1	87.272789	0.954875	740.0      119
-
-i1	87.272789	0.954875	987.738739	127
-
-i1	87.272789	0.954875	622.253965	124
-
-i1	88.227438	1.227438	880.00   	109
-
-i1	88.227438	1.227438	554.333990	127
-
-i1	89.454649	0.954649	493.869370	127
-
-i1	89.454649	0.954649	830.585965	104
-
-i1	88.227438	3.409297	659.217924	127
-
-i1	90.409070	1.227664	554.333990	124
-
-i1	90.409070	1.23		880.00   	119
-
-i1	91.636508	0.954649	622.253965	124
-
-i1	91.636508	0.954649	987.8   	124
-
-i1	91.636508	0.954649	740.0      113
-
-i1	92.590930	1.227664	880.00   	102
-
-i1	92.590930	1.227664	554.333990	124
-
-i1	92.590930	1.227664	659.217924	119
-
-i1	93.818367	0.954649	493.869370	127
-
-i1	93.818367	0.954649	830.585965	127
-
-i1	93.818367	2.181859	659.217924	127
-
-i1	94.772789	1.227438	880.00   	102
-
-i1	94.772789	.            	554.3    	113
-
-i1	96.000000	0.954875	740.0                 119
-
-i1	96.000000	0.954875	987.738739	127
-
-i1	96.000000	0.954875	622.253965	124
-
-i1	96.954649	1.227438	880.00   	109
-
-i1	96.954649	.		554.333990	127
-
-i1	98.181859	0.954875	493.869370	127
-
-i1	98.181859	.		830.585965	104
-
-i1	96.954649	3.409297	659.217924	127
-
-i1	99.136508	1.23		554.333990	124
-
-i1	99.136508	.		880.00   	119
-
-i1	100.363719	0.954875	622.253965	124
-
-i1	100.363719	.		987.738739	124
-
-i1	100.363719	.		740.0		115
-
-i1	101.318367	1.23		880.00   	102
-
-i1	101.318367	.		554.333990	124
-
-i1	101.318367	.		659.217924	119
-
-i1	102.545578	0.954649	493.869370	127
-
-i1	102.545578	.		830.585965	127
-
-i1	102.545578	2.21 	    	661.		126
-
-i1	103.500000	1.227664	880.00   	102
-
-i1	103.500000	.		554.333990	113
-
-i1	104.727438	0.954649	740.0      	119
-
-i1	104.727438	.		987.738739	127
-
-i1	104.727438	.		622.253965	124
-
-i1	105.681859	1.227438	880.00   	109
-
-i1	105.681859	1.227438	554.333990	127
-
-i1	106.909070	0.954875	493.869370	127
-
-i1	106.909070	0.95		830.585965	104
-
-i1	105.681859	3.409297	659.217924	127
-
-i1	107.863719	1.227438	554.333990	124
-
-i1	107.863719	1.227438	880.00   	119
-
-i1	109.090930	0.954875	622.253965	124
-
-i1	109.090930	.		987.738739	124
-
-i1	109.090930	.		740.0		113
-
-i1	110.045578	1.4		880.00   	102
-
-i1	110.045578	.		554.333990	124
-
-i1	110.045578	.		659.217924	119
-
-i1	111.272789	2.21	     	830.585965	127
-
-i1	111.272789	2.21     		740.0    	126
-
-i1	111.272789	2.21     		988.0		127
-
-i1	111.272789	2.21		622.253965	125
-
-i1	114.272789	0.83		493.869370	119
-
-i1	113.454649	2.21     		554.333990	125
-
-i1	113.454649	2.19     		880.00   	125
-
-i1	113.454649	2.19     		659.217924	125
-
-i1	113.454649	2.19     		740.0		125
-
-i1	115.090930	2.73		415.3		127
-
-i1	115.636508	2.21     		830.59		127
-
-i1	115.636508	2.19     		740.0      	124
-
-i1	115.636508	2.19     		987.5		126
-
-i1	115.636508	2.19     		622.253965	127
-
-i1	117.80  		0.818367	554.333990	125
-
-i1	.  		1.09		370.0		99
-
-i1	.  		2.18    		880.00   	125
-
-i1	.  		2.19    		659.2    	125
-
-i1	.  		2.20	    	740.0      125
-
-i1	118.636508	1.363719	554.333990	122
-
-i1	118.90  	0.545578	493.869370	127
-
-i1	119.454649	2.727438	415.292983	115
-
-i1	120.000000	2.21	     	830.585965	127
-
-i1	.		2.19	     	740.0      124
-
-i1	.		2.18	     	987.738739	127
-
-i1	.		2.18     		622.253965	127
-
-i1	122.2		2.21  	   	369.994421	99
-
-i1	.		2.21     		554.333990	125
-
-i1	.		2.05     		880.00   	125
-
-i1	.		2.18     		659.217924	125
-
-i1	.		2.21     		740.0      124
-
-i1	124.363719	0.954875	659.217924	127
-
-i1	124.363719	0.954875	493.869370	127
-
-i1	124.363719	0.954875	830.585965	127
-
-i1	125.318367	1.227438	740.0      101
-
-i1	125.318367	1.23		880.00   	113
-
-i1	125.318367	1.227438	554.333990	102
-
-i1	126.545578	0.954649	830.585965	119
-
-i1	126.545578	0.954649	987.738739	127
-
-i1	126.545578	0.954649	622.253965	124
-
-i1	127.500000	1.227664	880.00   	109
-
-i1	127.500000	1.227664	554.333990	127
-
-i1	127.500000	1.227664	740.0      125
-
-i1	128.727438	0.954649	659.217924	127
-
-i1	128.727438	0.954649	493.869370	127
-
-i1	128.727438	0.954649	830.585965	127
-
-i1	129.681859	1.227664	740.0      112
-
-i1	129.681859	1.227664	880.00   	113
-
-i1	129.681859	1.227664	554.333990	102
-
-i1	130.909297	0.954649	830.585965	119
-
-i1	130.909297	0.954649	987.738739	127
-
-i1	130.909297	0.954649	622.253965	124
-
-i1	131.863719	1.227438	880.00   	109
-
-i1	131.863719	1.227438	554.333990	127
-
-i1	131.863719	1.227438	740.0		124
-
-; 1:2
-
-i1	168.0	   	2.18185 	830.585965	127
-
-i1	168.1	   	2.1818  	740.0      126
-
-i1	168.2	   	2.181	   	987.738739	127
-
-i1	168.3	   	2.18	    	622.253965	127
-
-i1	171.0	   	0.83	    	493.869370	119
-
-i1	170.18		2.05	     	554.333990	125
-
-i1	170.18		2.05	     	880.00   	125
-
-i1	170.18		2.21	     	659.217924	125
-
-i1	170.182	2.21	     	740.0      126
-
-i1	171.82		2.73	415.292983	127
-
-i1	172.36		2.21     	830.585965	127
-
-i1	172.364	2.21     	740.0      127
-
-i1	172.364	2.21     	987.738739	127
-
-i1	172.364	2.05     	622.253965	127
-
-i1	174.5		0.82		554.333990	125
-
-i1	174.55		1.09	369.994421	99
-
-i1	174.56		2.18     	880.00   	125
-
-i1	174.57		2.18     	659.217924	125
-
-i1	174.58		2.21     	740.0      125
-
-i1	175.363719	1.363946	554.333990	122
-
-i1	175.636508	0.545578	493.869370	127
-
-i1	176.181859	2.727664	415.292983	115
-
-i1	176.727438	2.21     	830.585965	127
-
-i1	176.727438	2.21     	740.0      124
-
-i1	176.727438	2.05     	987.738739	127
-
-i1	176.73		2.18     	622.253965	127
-
-i1	178.909297	2.18     	369.994421	99
-
-i1	178.909297	2.21     	554.333990	125
-
-i1	178.909297	2.21     	880.00   	125
-
-i1	178.909297	2.21     	659.217924	125
-
-i1	178.909297	2.18     	740.0      115
-
-i1	181.091156	0.954649	659.217924	127
-
-i1	181.091156	0.954649	493.869370	127
-
-i1	181.091156	0.954649	830.585965	127
-
-i1	182.045578	1.227438	740.0      100
-
-i1	182.045578	1.227438	888.0   	113
-
-i1	182.045578	1.227438	554.333990	102
-
-i1	183.272789	0.954875	830.585965	119
-
-i1	183.272789	0.954875	987.738739	127
-
-i1	183.272789	0.954875	622.253965	124
-
-i1	184.227438	1.227438	880.00   	109
-
-i1	184.227438	1.227438	554.333990	127
-
-i1	184.227438	1.227438	740.0      127
-
-i1	185.454649	0.954875	659.217924	127
-
-i1	185.454649	0.954875	493.869370	127
-
-i1	185.454649	0.954875	830.585965	127
-
-i1	186.409297	1.227438	740.0      102
-
-i1	186.409297	1.227438	880.00   	113
-
-i1	186.409297	1.227438	554.333990	102
-
-i1	187.636508	0.954875	830.585965	119
-
-i1	187.636508	0.954875	987.738739	127
-
-i1	187.636508	0.954875	622.253965	124
-
-i1	188.591156	1.227438	880.00   	109
-
-i1	188.591156	1.227438	554.333990	127
-
-i1	188.591156	1.227438	740.0      124
-
-i1	189.818367	0.954649	659.217924	127
-
-i1	189.818367	0.954649	493.869370	127
-
-i1	189.818367	0.954649	830.585965	127
-
-i1	190.772789	1.227664	740.0      104
-
-i1	190.772789	1.227664	880.00   	113
-
-i1	190.772789	1.227664	554.333990	102
-
-i1	192.000227	0.954649	830.585965	119
-
-i1	192.000227	0.954649	987.738739	127
-
-i1	192.000227	0.954649	622.253965	124
-
-i1	192.954649	1.227664	880.00   	109
-
-i1	192.954649	1.227664	554.333990	127
-
-i1	192.954649	1.227664	740.0      124
-
-i1	194.182086	0.954649	659.217924	127
-
-i1	194.182086	0.954649	493.869370	127
-
-i1	194.182086	0.954649	830.585965	127
-
-i1	195.136508	1.227438	740.0      101
-
-i1	195.136508	1.227438	880.00   	113
-
-i1	195.136508	1.227438	554.333990	102
-
-i1	196.363719	0.954875	830.585965	119
-
-i1	196.363719	0.954875	987.738739	127
-
-i1	196.363719	0.954875	622.253965	124
-
-i1	197.318367	1.227438	880.00   	109
-
-i1	197.318367	1.227438	554.333990	127
-
-i1	197.318367	1.227438	740.0      126
-
-i1	198.545578	0.954875	659.217924	127
-
-i1	198.545578	0.954875	493.869370	127
-
-i1	198.545578	0.954875	830.585965	127
-
-i1	199.500227	1.227438	740.0      103
-
-i1	199.500227	1.227438	880.00   	113
-
-i1	199.500227	1.227438	554.333990	102
-
-i1	200.727438	0.954875	830.585965	119
-
-i1	200.727438	.		987.738739	127
-
-i1	200.727438	.		622.253965	124
-
-i1	201.682086	1.227438	880.00   	109
-
-i1	201.682086	1.227438	554.333990	127
-
-i1	201.682086	1.227438	740.0      124
-
-i1	202.909297	0.954649	659.217924	127
-
-i1	202.909297	0.954649	493.869370	127
-
-i1	202.909297	0.954649	830.585965	127
-
-i1	203.863719	1.227664	740.0      101
-
-i1	203.863719	1.227664	880.00   	113
-
-i1	203.863719	1.227664	554.333990	102
-
-i1	205.091156	1	       	830.6   		119
-
-i1	205.091156	1       		987.7   		125
-
-i1	205.091156	1       		622.3	   	124
-
-i1	206.045578	1.227438	880.00   	109
-
-i1	206.045578	.		554.333990	127
-
-i1	206.045578	.		740.0      	125
-
-i1	207.27   	2.05     		493.869370	127
-
-i1	207.27   	2.18     		659.217924	127
-
-i1	207.273 	2.21     		415.292983	124
-
-i1	209.45  	0.27   		659.217924	127
-
-i1	209.4649	0.3   		415.292983	127
-
-i1	209.47  	.   		493.869370	127
-
-
+; 1:2 168
+#include "includes/i1sco.sco"
 
 ; ins 2
-
 ; iChan StartTime Dur Pitch Vel
-
 ; 2:1 starts 10.9
-
 #include "includes/i2sco.sco"
 
-
-
 ; 3:1
-
 ; Include score for i3
-
 #include "includes/i3sco.sco"
 
-
-
 ; 30:1
-
 ; wav file of rendered i3
-
 ; broken into sections and
-
 ; then slightly speed up
 
 i30 0 	 20		1.0
-
 i30 20	 20		1.0
-
 i30 40	 20		1.005
-
-i30 60	 20		1.02
-
+i30 60	 20		1.01
 i30 80	  .		1.0
-
 i30 100	  .		1.001
-
 i30 120	  .		1.02
-
 i30 140	  .		1.03
-
-i30 160	  .		1.02
-
+i30 160	  .		1.015
 i30 180	  .		1.005
-
 i30 200	  .		1.0
 
-
-
 ; 4:1 starts 19.5 vocal melody
-
 ; start end pitch att
-
 ; melody is here
-
 #include "includes/i4sco.sco"
 
-
-
 ; 5:1 start 10.9 ends 209
-
 ; ins 5
-
 ; Include score for i5
-
 #include "includes/i5sco.sco"
 
-
-
 ; ins 6
-
 ; note the chords
-
 ; 6:1 10.9
-
-
-
-i6	10.9		0.136508	415.292983	127
-
-i6	10.9		0.136508	329.608962	127
-
-i6	10.9		0.136508	246.934685	127
-
-i6	11.2		0.136508	415.292983	95
-
-i6	11.2		0.136508	329.608962	95
-
-i6	11.2		0.136508	246.934685	95
-
-i6	11.5		0.341043	415.292983	122
-
-i6	11.5		0.341043	329.608962	122
-
-i6	11.5		0.341043	246.934685	122
-
-i6	11.86		0.136508	277.166995	122
-
-i6	11.863719	0.136508	329.608962	122
-
-i6	11.863719	0.136508	439.999998	122
-
-i6	12.136281	0.136735	329.608962	95
-
-i6	12.136281	0.136735	439.999998	95
-
-i6	12.136281	0.136735	277.166995	95
-
-i6	12.409070	0.27		439.999998	119
-
-i6	12.41		0.276		277.166995	119
-
-i6	12.41		0.27		329.608962	119
-
-i6	12.68		0.14		278			101
-
-i6	12.681859	0.136508	329.608962	101
-
-i6	12.818141	0.27    		439.999998	122
-
-i6	12.818141	0.27    		329.608962	122
-
-i6	13.090930	0.136508	369.994421	125
-
-i6	13.090930	0.136508	493.869370	125
-
-i6	13.090930	0.136508	311.126982	125
-
-i6	13.363719	0.136508	369.994421	107
-
-i6	13.363719	0.136508	493.869370	107
-
-i6	13.363719	0.136508	311.126982	107
-
-i6	13.636281	0.409524	311.126982	119
-
-i6	13.636281	0.409524	493.869370	119
-
-i6	13.636281	0.41		369.994421	119
-
-
-
-; 6:2 14
-
-
-
-i6	14.05		0.136508	439.999998	116
-
-i6	14.05		0.136508	329.608962	116
-
-i6	14.05		0.136508	277.166995	116
-
-i6	14.318141	0.136735	439.999998	107
-
-i6	14.318141	0.136735	277.166995	107
-
-i6	14.318141	0.136735	329.608962	107
-
-i6	14.590930	0.27    	277.166995	119
-
-i6	14.590930	0.27    	439.999998	119
-
-i6	14.590930	0.27    	329.608962	119
-
-i6	14.863719	0.136508	277.166995	95
-
-i6	14.863719	0.136508	329.608962	95
-
-i6	15.000000	0.27    	439.999998	122
-
-i6	15.000000	0.27    	329.608962	122
-
-i6	15.136281	0.136735	277.166995	110
-
-i6	15.272789	0.136508	415.292983	127
-
-i6	15.272789	0.136508	329.608962	127
-
-i6	15.272789	0.136508	246.934685	127
-
-i6	15.545578	0.136508	415.292983	95
-
-i6	15.545578	0.136508	329.608962	95
-
-i6	15.545578	0.136508	246.934685	95
-
-i6	15.818141	0.341270	415.292983	122
-
-i6	15.818141	0.341270	329.608962	122
-
-i6	15.818141	0.341270	246.934685	122
-
-i6	16.227211	0.136735	277.166995	122
-
-i6	16.227211	0.136735	329.608962	122
-
-i6	16.227211	0.136735	439.999998	122
-
-i6	16.500000	0.136508	329.608962	95
-
-i6	16.500000	0.136508	439.999998	95
-
-i6	16.500000	0.136508	277.166995	95
-
-i6	16.772789	0.27    	439.999998	119
-
-i6	16.772789	0.27    	277.166995	119
-
-i6	16.772789	0.27    	329.608962	119
-
-i6	17.045578	0.136508	277.166995	101
-
-i6	17.045578	0.136508	329.608962	101
-
-i6	17.181859	0.27    	439.999998	122
-
-i6	17.181859	0.27    	329.608962	122
-
-i6	17.454649	0.136508	369.994421	125
-
-i6	17.454649	0.136508	493.869370	125
-
-i6	17.454649	0.136508	311.126982	125
-
-i6	17.727211	0.136735	369.994421	107
-
-i6	17.727211	0.136735	493.869370	107
-
-i6	17.727211	0.136735	311.126982	107
-
-i6	18.000000	0.41		311.126982	119
-
-i6	18.000000	0.41		493.869370	119
-
-i6	18.000000	0.41		369.994421	119
-
-
-
-; 6:3 18.4
-
-
-
-i6	18.4		0.136735	439.999998	116
-
-i6	18.409070	0.136735	329.608962	116
-
-i6	18.409070	0.136735	277.166995	116
-
-i6	18.681859	0.136508	439.999998	107
-
-i6	18.681859	0.136508	277.166995	107
-
-i6	18.681859	0.136508	329.608962	107
-
-i6	18.954649	0.27		277.166995	119
-
-i6	18.954649	0.27		439.999998	119
-
-i6	18.954649	0.27		329.608962	119
-
-i6	19.227211	0.136735	277.166995	95
-
-i6	19.227211	0.136735	329.608962	95
-
-i6	19.363719	0.272789	439.999998	122
-
-i6	19.363719	0.272789	329.608962	122
-
-i6	19.500000	0.136508	277.166995	110
-
-i6	19.636281	0.136735	415.292983	127
-
-i6	19.636281	0.136735	329.608962	127
-
-i6	19.636281	0.136735	246.934685	127
-
-i6	19.909070	0.136735	415.292983	95
-
-i6	19.909070	0.136735	329.608962	95
-
-i6	19.909070	0.136735	246.934685	95
-
-i6	20.181859	0.341043	415.292983	122
-
-i6	20.181859	0.341043	329.608962	122
-
-i6	20.181859	0.341043	246.934685	122
-
-i6	20.590930	0.136508	277.166995	122
-
-i6	20.590930	0.136508	329.608962	122
-
-i6	20.590930	0.136508	439.999998	122
-
-i6	20.863719	0.136508	329.608962	95
-
-i6	20.863719	0.136508	439.999998	95
-
-i6	20.863719	0.136508	277.166995	95
-
-i6	21.136281	0.27    	439.999998	119
-
-i6	21.136281	0.27    	277.166995	119
-
-i6	21.136281	0.27    	329.608962	119
-
-i6	21.409070	0.136735	277.166995	101
-
-i6	21.409070	0.136735	329.608962	101
-
-i6	21.545578	0.272789	439.999998	122
-
-i6	21.545578	0.272789	329.608962	122
-
-i6	21.818141	0.136735	369.994421	125
-
-i6	21.818141	0.136735	493.869370	125
-
-i6	21.818141	0.136735	311.126982	125
-
-i6	22.090930	0.136508	369.994421	107
-
-i6	22.090930	0.136508	493.869370	107
-
-i6	22.090930	0.136508	311.126982	107
-
-i6	22.363719	0.409297	311.126982	119
-
-i6	22.363719	0.409297	493.869370	119
-
-i6	22.363719	0.41		369.994421	119
-
-
-
-; 6:4 22.7
-
-i6	22.7		0.136508	439.999998	116
-
-i6	22.8		0.136508	329.608962	116
-
-i6	22.8		0.136508	277.166995	116
-
-i6	23.045578	0.136508	439.999998	107
-
-i6	23.045578	0.136508	277.166995	107
-
-i6	23.045578	0.136508	329.608962	107
-
-i6	23.318141	0.27    	277.166995	119
-
-i6	23.318141	0.27    	439.999998	119
-
-i6	23.318141	0.27    	329.608962	119
-
-i6	23.590930	0.136508	277.166995	95
-
-i6	23.590930	0.136508	329.608962	95
-
-i6	23.727211	0.27    	439.999998	122
-
-i6	23.727211	0.27    	329.608962	122
-
-i6	23.863719	0.136508	277.166995	110
-
-i6	24.000000	0.136508	415.292983	127
-
-i6	24.000000	0.136508	329.608962	127
-
-i6	24.000000	0.136508	246.934685	127
-
-i6	24.272789	0.136508	415.292983	95
-
-i6	24.272789	0.136508	329.608962	95
-
-i6	24.272789	0.136508	246.934685	95
-
-i6	24.545578	0.341043	415.292983	122
-
-i6	24.545578	0.341043	329.608962	122
-
-i6	24.545578	0.341043	246.934685	122
-
-i6	24.954649	0.136508	277.166995	122
-
-i6	24.954649	0.136508	329.608962	122
-
-i6	24.954649	0.136508	439.999998	122
-
-i6	25.227211	0.136735	329.608962	95
-
-i6	25.227211	0.136735	439.999998	95
-
-i6	25.227211	0.136735	277.166995	95
-
-i6	25.500000	0.27    	439.999998	119
-
-i6	25.500000	0.27    	277.166995	119
-
-i6	25.500000	0.27    	329.608962	119
-
-i6	25.772789	0.136508	277.166995	101
-
-i6	25.772789	0.136508	329.608962	101
-
-i6	25.909070	0.27    	439.999998	122
-
-i6	25.909070	0.27    	329.608962	122
-
-i6	26.181859	0.136508	369.994421	125
-
-i6	26.181859	0.136508	493.869370	125
-
-i6	26.181859	0.136508	311.126982	125
-
-i6	26.454649	0.136508	369.994421	107
-
-i6	26.454649	0.136508	493.869370	107
-
-i6	26.454649	0.136508	311.126982	107
-
-i6	26.727211	0.409297	311.126982	119
-
-i6	26.727211	0.409297	493.869370	119
-
-i6	26.727211	0.41		369.994421	119
-
-
-
-; 6:5 27.1
-
-i6	27.1		0.136735	439.999998	116
-
-i6	27.136281	0.136735	329.608962	116
-
-i6	27.136281	0.136735	277.166995	116
-
-i6	27.409070	0.136735	439.999998	107
-
-i6	27.409070	0.136735	277.166995	107
-
-i6	27.409070	0.136735	329.608962	107
-
-i6	27.681859	0.27    	277.166995	119
-
-i6	27.681859	0.27    	439.999998	119
-
-i6	27.681859	0.27    	329.608962	119
-
-i6	27.954649	0.136508	277.166995	95
-
-i6	27.954649	0.136508	329.608962	95
-
-i6	28.090930	0.27    	439.999998	122
-
-i6	28.090930	0.27    	329.608962	122
-
-i6	28.227211	0.136735	277.166995	110
-
-i6	28.363719	0.136508	415.292983	127
-
-i6	28.363719	0.136508	329.608962	127
-
-i6	28.363719	0.136508	246.934685	127
-
-i6	28.636281	0.136735	415.292983	95
-
-i6	28.636281	0.136735	329.608962	95
-
-i6	28.636281	0.136735	246.934685	95
-
-i6	28.909070	0.341270	415.292983	122
-
-i6	28.909070	0.341270	329.608962	122
-
-i6	28.909070	0.341270	246.934685	122
-
-i6	29.318141	0.136735	277.166995	122
-
-i6	29.318141	0.136735	329.608962	122
-
-i6	29.318141	0.136735	439.999998	122
-
-i6	29.590930	0.136508	329.608962	95
-
-i6	29.590930	0.136508	439.999998	95
-
-i6	29.590930	0.136508	277.166995	95
-
-i6	29.863719	0.272789	439.999998	119
-
-i6	29.863719	0.272789	277.166995	119
-
-i6	29.863719	0.272789	329.608962	119
-
-i6	30.136281	0.136735	277.166995	101
-
-i6	30.136281	0.136735	329.608962	101
-
-i6	30.272789	0.27    	439.999998	122
-
-i6	30.272789	0.27    	329.608962	122
-
-i6	30.545578	0.136508	369.994421	125
-
-i6	30.545578	0.136508	493.869370	125
-
-i6	30.545578	0.136508	311.126982	125
-
-i6	30.818141	0.136735	369.994421	107
-
-i6	30.818141	0.136735	493.869370	107
-
-i6	30.818141	0.136735	311.126982	107
-
-i6	31.090930	0.409297	311.126982	119
-
-i6	31.090930	0.409297	493.869370	119
-
-i6	31.090930	0.41		370		119
-
-
-
-; 6.6 31.5
-
-i6	31.500000	0.136508	439.999998	116
-
-i6	31.500000	0.136508	329.608962	116
-
-i6	31.500000	0.136508	277.166995	116
-
-i6	31.772789	0.136508	439.999998	107
-
-i6	31.772789	0.136508	277.166995	107
-
-i6	31.772789	0.136508	329.608962	107
-
-i6	32.045578	0.272789	277.166995	119
-
-i6	32.045578	0.272789	439.999998	119
-
-i6	32.045578	0.272789	329.608962	119
-
-i6	32.318141	0.136735	277.166995	95
-
-i6	32.318141	0.136735	329.608962	95
-
-i6	32.454649	0.272789	439.999998	122
-
-i6	32.454649	0.272789	329.608962	122
-
-i6	32.590930	0.136508	277.166995	110
-
-i6	32.727211	0.136735	415.292983	127
-
-i6	32.727211	0.136735	329.608962	127
-
-i6	32.727211	0.136735	246.934685	127
-
-i6	33.000000	0.136508	415.292983	95
-
-i6	33.000000	0.136508	329.608962	95
-
-i6	33.000000	0.136508	246.934685	95
-
-i6	33.272789	0.341043	415.292983	122
-
-i6	33.272789	0.341043	329.608962	122
-
-i6	33.272789	0.341043	246.934685	122
-
-i6	33.681859	0.136508	277.166995	122
-
-i6	33.681859	0.136508	329.608962	122
-
-i6	33.681859	0.136508	439.999998	122
-
-i6	33.954649	0.136508	329.608962	95
-
-i6	33.954649	0.136508	439.999998	95
-
-i6	33.954649	0.136508	277.166995	95
-
-i6	34.227211	0.27    	439.999998	119
-
-i6	34.227211	0.27    	277.166995	119
-
-i6	34.227211	0.27    	329.608962	119
-
-i6	34.500000	0.136508	277.166995	101
-
-i6	34.500000	0.136508	329.608962	101
-
-i6	34.636281	0.27    	439.999998	122
-
-i6	34.636281	0.27    	329.608962	122
-
-i6	34.909070	0.136735	369.994421	125
-
-i6	34.909070	0.136735	493.869370	125
-
-i6	34.909070	0.136735	311.126982	125
-
-i6	35.181859	0.136508	369.994421	107
-
-i6	35.181859	0.136508	493.869370	107
-
-i6	35.181859	0.136508	311.126982	107
-
-i6	35.454649	0.409297	311.126982	119
-
-i6	35.454649	0.409297	493.869370	119
-
-i6	35.5		0.41		370		119
-
-
-
-; 6.7 35.86
-
-i6	35.863719	0.136508	439.999998	116
-
-i6	35.863719	0.136508	329.608962	116
-
-i6	35.863719	0.136508	277.166995	116
-
-i6	36.136281	0.136735	439.999998	107
-
-i6	36.136281	0.136735	277.166995	107
-
-i6	36.136281	0.136735	329.608962	107
-
-i6	36.409070	0.27    	277.166995	119
-
-i6	36.409070	0.27    	439.999998	119
-
-i6	36.409070	0.27    	329.608962	119
-
-i6	36.681859	0.136508	277.166995	95
-
-i6	36.681859	0.136508	329.608962	95
-
-i6	36.818141	0.27    	439.999998	122
-
-i6	36.818141	0.27    	329.608962	122
-
-i6	36.954649	0.136508	277.166995	110
-
-i6	37.090930	0.136508	415.292983	127
-
-i6	37.090930	0.136508	329.608962	127
-
-i6	37.090930	0.136508	246.934685	127
-
-i6	37.363719	0.136508	415.292983	95
-
-i6	37.363719	0.136508	329.608962	95
-
-i6	37.363719	0.136508	246.934685	95
-
-i6	37.636508	0.341043	415.292983	122
-
-i6	37.636508	0.341043	329.608962	122
-
-i6	37.636508	0.341043	246.934685	122
-
-i6	38.045578	0.136508	277.166995	122
-
-i6	38.045578	0.136508	329.608962	122
-
-i6	38.045578	0.136508	439.999998	122
-
-i6	38.318141	0.136735	329.608962	95
-
-i6	38.318141	0.136735	439.999998	95
-
-i6	38.318141	0.136735	277.166995	95
-
-i6	38.590930	0.27    	439.999998	119
-
-i6	38.590930	0.27    	277.166995	119
-
-i6	38.590930	0.27    	329.608962	119
-
-i6	38.863719	0.136508	277.166995	101
-
-i6	38.863719	0.136508	329.608962	101
-
-i6	39.000000	0.27    	439.999998	122
-
-i6	39.000000	0.27    	329.608962	122
-
-i6	39.272789	0.136508	369.994421	125
-
-i6	39.272789	0.136508	493.869370	125
-
-i6	39.272789	0.136508	311.126982	125
-
-i6	39.545578	0.136508	369.994421	107
-
-i6	39.545578	0.136508	493.869370	107
-
-i6	39.545578	0.136508	311.126982	107
-
-i6	39.818141	0.409297	311.126982	119
-
-i6	39.818141	0.409297	493.869370	119
-
-i6	39.818141	0.409297	369.994421	119
-
-i6	40.227211	0.136735	439.999998	116
-
-i6	40.227211	0.136735	329.608962	116
-
-i6	40.227211	0.136735	277.166995	116
-
-i6	40.500000	0.136735	439.999998	107
-
-i6	40.500000	0.136735	277.166995	107
-
-i6	40.500000	0.136735	329.608962	107
-
-i6	40.772789	0.27    	277.166995	119
-
-i6	40.772789	0.27    	439.999998	119
-
-i6	40.772789	0.27    	329.608962	119
-
-i6	41.045578	0.136508	277.166995	95
-
-i6	41.045578	0.136508	329.608962	95
-
-i6	41.181859	0.27    	439.999998	122
-
-i6	41.181859	0.27    	329.608962	122
-
-i6	41.318141	0.136735	277.166995	110
-
-i6	41.454649	0.136508	415.292983	127
-
-i6	41.454649	0.136508	329.608962	127
-
-i6	41.454649	0.136508	246.934685	127
-
-i6	41.727211	0.136735	415.292983	95
-
-i6	41.727211	0.136735	329.608962	95
-
-i6	41.727211	0.136735	246.934685	95
-
-i6	42.000000	0.341270	415.292983	122
-
-i6	42.000000	0.341270	329.608962	122
-
-i6	42.000000	0.341270	246.934685	122
-
-i6	42.409070	0.136735	277.166995	122
-
-i6	42.409070	0.136735	329.608962	122
-
-i6	42.409070	0.136735	439.999998	122
-
-i6	42.681859	0.136508	329.608962	95
-
-i6	42.681859	0.136508	439.999998	95
-
-i6	42.681859	0.136508	277.166995	95
-
-i6	42.954649	0.272789	439.999998	119
-
-i6	42.954649	0.272789	277.166995	119
-
-i6	42.954649	0.272789	329.608962	119
-
-i6	43.227211	0.136735	277.166995	101
-
-i6	43.227211	0.136735	329.608962	101
-
-i6	43.363719	0.27    	439.999998	122
-
-i6	43.363719	0.27    	329.608962	122
-
-i6	43.636508	0.136508	369.994421	125
-
-i6	43.636508	0.136508	493.869370	125
-
-i6	43.636508	0.136508	311.126982	125
-
-i6	43.909070	0.136735	369.994421	107
-
-i6	43.909070	0.136735	493.869370	107
-
-i6	43.909070	0.136735	311.126982	107
-
-i6	44.181859	0.409297	311.126982	119
-
-i6	44.181859	0.409297	493.869370	119
-
-i6	44.181859	0.409297	369.994421	119
-
-i6	44.590930	0.136508	439.999998	116
-
-i6	44.590930	0.136508	329.608962	116
-
-i6	44.590930	0.136508	277.166995	116
-
-i6	44.863719	0.136508	439.999998	107
-
-i6	44.863719	0.136508	277.166995	107
-
-i6	44.863719	0.136508	329.608962	107
-
-i6	45.136508	0.272789	277.166995	119
-
-i6	45.136508	0.272789	439.999998	119
-
-i6	45.136508	0.272789	329.608962	119
-
-i6	45.409070	0.136735	277.166995	95
-
-i6	45.409070	0.136735	329.608962	95
-
-i6	45.545578	0.272789	439.999998	122
-
-i6	45.545578	0.272789	329.608962	122
-
-i6	45.681859	0.136508	277.166995	110
-
-i6	45.818141	0.136735	415.292983	127
-
-i6	45.818141	0.136735	329.608962	127
-
-i6	45.818141	0.136735	246.934685	127
-
-i6	46.090930	0.136508	415.292983	95
-
-i6	46.090930	0.136508	329.608962	95
-
-i6	46.090930	0.136508	246.934685	95
-
-i6	46.363719	0.341043	415.292983	122
-
-i6	46.363719	0.341043	329.608962	122
-
-i6	46.363719	0.341043	246.934685	122
-
-i6	46.772789	0.136508	277.166995	122
-
-i6	46.772789	0.136508	329.608962	122
-
-i6	46.772789	0.136508	439.999998	122
-
-i6	47.045578	0.136508	329.608962	95
-
-i6	47.045578	0.136508	439.999998	95
-
-i6	47.045578	0.136508	277.166995	95
-
-i6	47.318141	0.27    	439.999998	119
-
-i6	47.318141	0.27    	277.166995	119
-
-i6	47.318141	0.27    	329.608962	119
-
-i6	47.590930	0.136508	277.166995	101
-
-i6	47.590930	0.136508	329.608962	101
-
-i6	47.727211	0.27    	439.999998	122
-
-i6	47.727211	0.27    	329.608962	122
-
-i6	48.000000	0.136735	369.994421	125
-
-i6	48.000000	0.136735	493.869370	125
-
-i6	48.000000	0.136735	311.126982	125
-
-i6	48.272789	0.136508	369.994421	107
-
-i6	48.272789	0.136508	493.869370	107
-
-i6	48.272789	0.136508	311.126982	107
-
-i6	48.545578	0.409297	311.126982	119
-
-i6	48.545578	0.409297	493.869370	119
-
-i6	48.545578	0.409297	369.994421	119
-
-i6	48.954649	0.136508	439.999998	116
-
-i6	48.954649	0.136508	329.608962	116
-
-i6	48.954649	0.136508	277.166995	116
-
-i6	49.227211	0.136735	439.999998	107
-
-i6	49.227211	0.136735	277.166995	107
-
-i6	49.227211	0.136735	329.608962	107
-
-i6	49.500000	0.27    	277.166995	119
-
-i6	49.500000	0.27    	439.999998	119
-
-i6	49.500000	0.27    	329.608962	119
-
-i6	49.772789	0.136508	277.166995	95
-
-i6	49.772789	0.136508	329.608962	95
-
-i6	49.909070	0.27    	439.999998	122
-
-i6	49.909070	0.27    	329.608962	122
-
-i6	50.045578	0.136508	277.166995	110
-
-i6	50.181859	0.136508	415.292983	127
-
-i6	50.181859	0.136508	329.608962	127
-
-i6	50.181859	0.136508	246.934685	127
-
-i6	50.454649	0.136508	415.292983	95
-
-i6	50.454649	0.136508	329.608962	95
-
-i6	50.454649	0.136508	246.934685	95
-
-i6	50.727211	0.341270	415.292983	122
-
-i6	50.727211	0.341270	329.608962	122
-
-i6	50.727211	0.341270	246.934685	122
-
-i6	51.136508	0.136508	277.166995	122
-
-i6	51.136508	0.136508	329.608962	122
-
-i6	51.136508	0.136508	439.999998	122
-
-i6	51.409070	0.136735	329.608962	95
-
-i6	51.409070	0.136735	439.999998	95
-
-i6	51.409070	0.136735	277.166995	95
-
-i6	51.681859	0.27    	439.999998	119
-
-i6	51.681859	0.27    	277.166995	119
-
-i6	51.681859	0.27    	329.608962	119
-
-i6	51.954649	0.136508	277.166995	101
-
-i6	51.954649	0.136508	329.608962	101
-
-i6	52.090930	0.27    	439.999998	122
-
-i6	52.090930	0.27    	329.608962	122
-
-i6	52.363719	0.136508	369.994421	125
-
-i6	52.363719	0.136508	493.869370	125
-
-i6	52.363719	0.136508	311.126982	125
-
-i6	52.636508	0.136508	369.994421	107
-
-i6	52.636508	0.136508	493.869370	107
-
-i6	52.636508	0.136508	311.126982	107
-
-i6	52.909070	0.409297	311.126982	119
-
-i6	52.909070	0.409297	493.869370	119
-
-i6	52.909070	0.409297	369.994421	119
-
-i6	53.318141	0.136735	439.999998	116
-
-i6	53.318141	0.136735	329.608962	116
-
-i6	53.318141	0.136735	277.166995	116
-
-i6	53.590930	0.136508	439.999998	107
-
-i6	53.590930	0.136508	277.166995	107
-
-i6	53.590930	0.136508	329.608962	107
-
-i6	53.863719	0.27    	277.166995	119
-
-i6	53.863719	0.27    	439.999998	119
-
-i6	53.863719	0.27    	329.608962	119
-
-i6	54.136508	0.136508	277.166995	95
-
-i6	54.136508	0.136508	329.608962	95
-
-i6	54.272789	0.27    	439.999998	122
-
-i6	54.272789	0.27    	329.608962	122
-
-i6	54.409070	0.136735	277.166995	110
-
-i6	54.545578	0.136508	246.934685	127
-
-i6	54.545578	0.136508	311.126982	127
-
-i6	54.545578	0.136508	415.292983	127
-
-i6	54.818141	0.136735	246.934685	95
-
-i6	54.818141	0.136735	311.126982	95
-
-i6	54.818141	0.136735	415.292983	95
-
-i6	55.090930	0.341270	246.934685	122
-
-i6	55.090930	0.341270	311.126982	122
-
-i6	55.090930	0.341270	415.292983	122
-
-i6	55.500000	0.136735	311.126982	122
-
-i6	55.500000	0.136735	246.934685	122
-
-i6	55.500000	0.136735	415.292983	122
-
-i6	55.772789	0.136508	246.934685	95
-
-i6	55.772789	0.136508	311.126982	95
-
-i6	55.772789	0.136508	415.292983	95
-
-i6	56.045578	0.272789	246.934685	119
-
-i6	56.045578	0.272789	311.126982	119
-
-i6	56.045578	0.272789	415.292983	119
-
-i6	56.318141	0.136735	246.934685	101
-
-i6	56.318141	0.136735	311.126982	101
-
-i6	56.454649	0.272789	415.292983	122
-
-i6	56.454649	0.272789	311.126982	122
-
-i6	56.727211	0.136735	277.166995	125
-
-i6	56.727211	0.136735	439.999998	125
-
-i6	56.727211	0.136735	369.994421	125
-
-i6	57.000000	0.136735	277.166995	107
-
-i6	57.000000	0.136735	439.999998	107
-
-i6	57.000000	0.136735	369.994421	107
-
-i6	57.272789	0.409297	277.166995	119
-
-i6	57.272789	0.409297	439.999998	119
-
-i6	57.272789	0.409297	369.994421	119
-
-i6	57.681859	0.136508	439.999998	116
-
-i6	57.681859	0.136508	277.166995	116
-
-i6	57.681859	0.136508	369.994421	116
-
-i6	57.954649	0.136508	439.999998	107
-
-i6	57.954649	0.136508	277.166995	107
-
-i6	57.954649	0.136508	369.994421	107
-
-i6	58.227211	0.27    	277.166995	119
-
-i6	58.227211	0.27    	439.999998	119
-
-i6	58.227211	0.27    	369.994421	119
-
-i6	58.500000	0.136735	277.166995	95
-
-i6	58.500000	0.136735	369.994421	95
-
-i6	58.636508	0.272789	369.994421	122
-
-i6	58.636508	0.272789	439.999998	122
-
-i6	58.772789	0.136508	277.166995	110
-
-i6	58.909070	0.136735	246.934685	127
-
-i6	58.909070	0.136735	311.126982	127
-
-i6	58.909070	0.136735	415.292983	127
-
-i6	59.181859	0.136508	246.934685	95
-
-i6	59.181859	0.136508	311.126982	95
-
-i6	59.181859	0.136508	415.292983	95
-
-i6	59.454649	0.341043	246.934685	122
-
-i6	59.454649	0.341043	311.126982	122
-
-i6	59.454649	0.341043	415.292983	122
-
-i6	59.863719	0.136508	311.126982	122
-
-i6	59.863719	0.136508	246.934685	122
-
-i6	59.863719	0.136508	415.292983	122
-
-i6	60.136508	0.136508	246.934685	95
-
-i6	60.136508	0.136508	311.126982	95
-
-i6	60.136508	0.136508	415.292983	95
-
-i6	60.409070	0.27    	246.934685	119
-
-i6	60.409070	0.27    	311.126982	119
-
-i6	60.409070	0.27    	415.292983	119
-
-i6	60.681859	0.136508	246.934685	101
-
-i6	60.681859	0.136508	311.126982	101
-
-i6	60.818141	0.27    	415.292983	122
-
-i6	60.818141	0.27    	311.126982	122
-
-i6	61.090930	0.136508	277.166995	125
-
-i6	61.090930	0.136508	439.999998	125
-
-i6	61.090930	0.136508	369.994421	125
-
-i6	61.363719	0.136508	277.166995	107
-
-i6	61.363719	0.136508	439.999998	107
-
-i6	61.363719	0.136508	369.994421	107
-
-i6	61.636508	0.409297	277.166995	119
-
-i6	61.636508	0.409297	439.999998	119
-
-i6	61.636508	0.409297	369.994421	119
-
-i6	62.045578	0.136508	439.999998	116
-
-i6	62.045578	0.136508	277.166995	116
-
-i6	62.045578	0.136508	369.994421	116
-
-i6	62.318141	0.136735	439.999998	107
-
-i6	62.318141	0.136735	277.166995	107
-
-i6	62.318141	0.136735	369.994421	107
-
-i6	62.590930	0.27    	277.166995	119
-
-i6	62.590930	0.27    	439.999998	119
-
-i6	62.590930	0.27    	369.994421	119
-
-i6	62.863719	0.136508	277.166995	95
-
-i6	62.863719	0.136508	369.994421	95
-
-i6	63.000000	0.27    	369.994421	122
-
-i6	63.000000	0.27    	439.999998	122
-
-i6	63.136508	0.136508	277.166995	110
-
-i6	63.272789	0.136508	246.934685	127
-
-i6	63.272789	0.136508	311.126982	127
-
-i6	63.272789	0.136508	415.292983	127
-
-i6	63.545578	0.136508	246.934685	95
-
-i6	63.545578	0.136508	311.126982	95
-
-i6	63.545578	0.136508	415.292983	95
-
-i6	63.818141	0.341270	246.934685	122
-
-i6	63.818141	0.341270	311.126982	122
-
-i6	63.818141	0.341270	415.292983	122
-
-i6	64.227438	0.136508	311.126982	122
-
-i6	64.227438	0.136508	246.934685	122
-
-i6	64.227438	0.136508	415.292983	122
-
-i6	64.500000	0.136735	246.934685	95
-
-i6	64.500000	0.136735	311.126982	95
-
-i6	64.500000	0.136735	415.292983	95
-
-i6	64.772789	0.27    	246.934685	119
-
-i6	64.772789	0.27    	311.126982	119
-
-i6	64.772789	0.27    	415.292983	119
-
-i6	65.045578	0.136508	246.934685	101
-
-i6	65.045578	0.136508	311.126982	101
-
-i6	65.181859	0.27    	415.292983	122
-
-i6	65.181859	0.27    	311.126982	122
-
-i6	65.454649	0.136508	277.166995	125
-
-i6	65.454649	0.136508	439.999998	125
-
-i6	65.454649	0.136508	369.994421	125
-
-i6	65.727438	0.136508	277.166995	107
-
-i6	65.727438	0.136508	439.999998	107
-
-i6	65.727438	0.136508	369.994421	107
-
-i6	66.000000	0.409297	277.166995	119
-
-i6	66.000000	0.409297	439.999998	119
-
-i6	66.000000	0.409297	369.994421	119
-
-i6	66.409070	0.136735	439.999998	116
-
-i6	66.409070	0.136735	277.166995	116
-
-i6	66.409070	0.136735	369.994421	116
-
-i6	66.681859	0.136508	439.999998	107
-
-i6	66.681859	0.136508	277.166995	107
-
-i6	66.681859	0.136508	369.994421	107
-
-i6	66.954649	0.27    	277.166995	119
-
-i6	66.954649	0.27    	439.999998	119
-
-i6	66.954649	0.27    	369.994421	119
-
-i6	67.227438	0.136508	277.166995	95
-
-i6	67.227438	0.136508	369.994421	95
-
-i6	67.363719	0.27    	369.994421	122
-
-i6	67.363719	0.27    	439.999998	122
-
-i6	67.500000	0.136735	277.166995	110
-
-i6	67.636508	0.136508	415.292983	127
-
-i6	67.636508	0.136508	329.608962	127
-
-i6	67.636508	0.136508	246.934685	127
-
-i6	67.909070	0.136735	415.292983	95
-
-i6	67.909070	0.136735	329.608962	95
-
-i6	67.909070	0.136735	246.934685	95
-
-i6	68.181859	0.341043	415.292983	122
-
-i6	68.181859	0.341043	329.608962	122
-
-i6	68.181859	0.341043	246.934685	122
-
-i6	68.590930	0.136735	277.166995	122
-
-i6	68.590930	0.136735	329.608962	122
-
-i6	68.590930	0.136735	439.999998	122
-
-i6	68.863719	0.136508	329.608962	95
-
-i6	68.863719	0.136508	439.999998	95
-
-i6	68.863719	0.136508	277.166995	95
-
-i6	69.136508	0.272789	439.999998	119
-
-i6	69.136508	0.272789	277.166995	119
-
-i6	69.136508	0.272789	329.608962	119
-
-i6	69.409070	0.136735	277.166995	101
-
-i6	69.409070	0.136735	329.608962	101
-
-i6	69.545578	0.272789	439.999998	122
-
-i6	69.545578	0.272789	329.608962	122
-
-i6	69.818141	0.136735	369.994421	125
-
-i6	69.818141	0.136735	493.869370	125
-
-i6	69.818141	0.136735	311.126982	125
-
-i6	70.090930	0.136735	369.994421	107
-
-i6	70.090930	0.136735	493.869370	107
-
-i6	70.090930	0.136735	311.126982	107
-
-i6	70.363719	0.409297	311.126982	119
-
-i6	70.363719	0.409297	493.869370	119
-
-i6	70.363719	0.409297	369.994421	119
-
-i6	70.772789	0.136508	439.999998	116
-
-i6	70.772789	0.136508	329.608962	116
-
-i6	70.772789	0.136508	277.166995	116
-
-i6	71.045578	0.136508	439.999998	107
-
-i6	71.045578	0.136508	277.166995	107
-
-i6	71.045578	0.136508	329.608962	107
-
-i6	71.318141	0.27    	277.166995	119
-
-i6	71.318141	0.27    	439.999998	119
-
-i6	71.318141	0.27    	329.608962	119
-
-i6	71.590930	0.136735	277.166995	95
-
-i6	71.590930	0.136735	329.608962	95
-
-i6	71.727438	0.272789	439.999998	122
-
-i6	71.727438	0.272789	329.608962	122
-
-i6	71.863719	0.136508	277.166995	110
-
-i6	72.000000	0.136735	415.292983	127
-
-i6	72.000000	0.136735	329.608962	127
-
-i6	72.000000	0.136735	246.934685	127
-
-i6	72.272789	0.136508	415.292983	95
-
-i6	72.272789	0.136508	329.608962	95
-
-i6	72.272789	0.136508	246.934685	95
-
-i6	72.545578	0.341043	415.292983	122
-
-i6	72.545578	0.341043	329.608962	122
-
-i6	72.545578	0.341043	246.934685	122
-
-i6	72.954649	0.136508	277.166995	122
-
-i6	72.954649	0.136508	329.608962	122
-
-i6	72.954649	0.136508	439.999998	122
-
-i6	73.227438	0.136508	329.608962	95
-
-i6	73.227438	0.136508	439.999998	95
-
-i6	73.227438	0.136508	277.166995	95
-
-i6	73.500000	0.27    	439.999998	119
-
-i6	73.500000	0.27    	277.166995	119
-
-i6	73.500000	0.27    	329.608962	119
-
-i6	73.772789	0.136508	277.166995	101
-
-i6	73.772789	0.136508	329.608962	101
-
-i6	73.909070	0.27    	439.999998	122
-
-i6	73.909070	0.27    	329.608962	122
-
-i6	74.181859	0.136508	369.994421	125
-
-i6	74.181859	0.136508	493.869370	125
-
-i6	74.181859	0.136508	311.126982	125
-
-i6	74.454649	0.136508	369.994421	107
-
-i6	74.454649	0.136508	493.869370	107
-
-i6	74.454649	0.136508	311.126982	107
-
-i6	74.727438	0.409297	311.126982	119
-
-i6	74.727438	0.409297	493.869370	119
-
-i6	74.727438	0.409297	369.994421	119
-
-i6	75.136508	0.136508	439.999998	116
-
-i6	75.136508	0.136508	329.608962	116
-
-i6	75.136508	0.136508	277.166995	116
-
-i6	75.409070	0.136735	439.999998	107
-
-i6	75.409070	0.136735	277.166995	107
-
-i6	75.409070	0.136735	329.608962	107
-
-i6	75.681859	0.27    	277.166995	119
-
-i6	75.681859	0.27    	439.999998	119
-
-i6	75.681859	0.27    	329.608962	119
-
-i6	75.954649	0.136508	277.166995	95
-
-i6	75.954649	0.136508	329.608962	95
-
-i6	76.090930	0.27    	439.999998	122
-
-i6	76.090930	0.27    	329.608962	122
-
-i6	76.227438	0.136508	277.166995	110
-
-i6	76.363719	0.136508	415.292983	127
-
-i6	76.363719	0.136508	329.608962	127
-
-i6	76.363719	0.136508	246.934685	127
-
-i6	76.636508	0.136508	415.292983	95
-
-i6	76.636508	0.136508	329.608962	95
-
-i6	76.636508	0.136508	246.934685	95
-
-i6	76.909070	0.341270	415.292983	122
-
-i6	76.909070	0.341270	329.608962	122
-
-i6	76.909070	0.341270	246.934685	122
-
-i6	77.318141	0.136735	277.166995	122
-
-i6	77.318141	0.136735	329.608962	122
-
-i6	77.318141	0.136735	439.999998	122
-
-i6	77.590930	0.136735	329.608962	95
-
-i6	77.590930	0.136735	439.999998	95
-
-i6	77.590930	0.136735	277.166995	95
-
-i6	77.863719	0.27    	439.999998	119
-
-i6	77.863719	0.27    	277.166995	119
-
-i6	77.863719	0.27    	329.608962	119
-
-i6	78.136508	0.136508	277.166995	101
-
-i6	78.136508	0.136508	329.608962	101
-
-i6	78.272789	0.27    	439.999998	122
-
-i6	78.272789	0.27    	329.608962	122
-
-i6	78.545578	0.136508	369.994421	125
-
-i6	78.545578	0.136508	493.869370	125
-
-i6	78.545578	0.136508	311.126982	125
-
-i6	78.818141	0.136735	369.994421	107
-
-i6	78.818141	0.136735	493.869370	107
-
-i6	78.818141	0.136735	311.126982	107
-
-i6	79.090930	0.409297	311.126982	119
-
-i6	79.090930	0.409297	493.869370	119
-
-i6	79.090930	0.409297	369.994421	119
-
-i6	79.500000	0.136735	439.999998	116
-
-i6	79.500000	0.136735	329.608962	116
-
-i6	79.500000	0.136735	277.166995	116
-
-i6	79.772789	0.136508	439.999998	107
-
-i6	79.772789	0.136508	277.166995	107
-
-i6	79.772789	0.136508	329.608962	107
-
-i6	80.045578	0.272789	277.166995	119
-
-i6	80.045578	0.272789	439.999998	119
-
-i6	80.045578	0.272789	329.608962	119
-
-i6	80.318141	0.136735	277.166995	95
-
-i6	80.318141	0.136735	329.608962	95
-
-i6	80.454649	0.27    	439.999998	122
-
-i6	80.454649	0.27    	329.608962	122
-
-i6	80.590930	0.136735	277.166995	110
-
-i6	80.727438	0.136508	415.292983	127
-
-i6	80.727438	0.136508	329.608962	127
-
-i6	80.727438	0.136508	246.934685	127
-
-i6	81.000000	0.136735	415.292983	95
-
-i6	81.000000	0.136735	329.608962	95
-
-i6	81.000000	0.136735	246.934685	95
-
-i6	81.272789	0.341043	415.292983	122
-
-i6	81.272789	0.341043	329.608962	122
-
-i6	81.272789	0.341043	246.934685	122
-
-i6	81.681859	0.136508	277.166995	122
-
-i6	81.681859	0.136508	329.608962	122
-
-i6	81.681859	0.136508	439.999998	122
-
-i6	81.954649	0.136508	329.608962	95
-
-i6	81.954649	0.136508	439.999998	95
-
-i6	81.954649	0.136508	277.166995	95
-
-i6	82.227438	0.272789	439.999998	119
-
-i6	82.227438	0.272789	277.166995	119
-
-i6	82.227438	0.272789	329.608962	119
-
-i6	82.500000	0.136735	277.166995	101
-
-i6	82.500000	0.136735	329.608962	101
-
-i6	82.636508	0.272789	439.999998	122
-
-i6	82.636508	0.272789	329.608962	122
-
-i6	82.909070	0.136735	369.994421	125
-
-i6	82.909070	0.136735	493.869370	125
-
-i6	82.909070	0.136735	311.126982	125
-
-i6	83.181859	0.136508	369.994421	107
-
-i6	83.181859	0.136508	493.869370	107
-
-i6	83.181859	0.136508	311.126982	107
-
-i6	83.454649	0.409297	311.126982	119
-
-i6	83.454649	0.409297	493.869370	119
-
-i6	83.454649	0.409297	369.994421	119
-
-i6	83.863719	0.136508	439.999998	116
-
-i6	83.863719	0.136508	329.608962	116
-
-i6	83.863719	0.136508	277.166995	116
-
-i6	84.136508	0.136508	439.999998	107
-
-i6	84.136508	0.136508	277.166995	107
-
-i6	84.136508	0.136508	329.608962	107
-
-i6	84.409070	0.27    	277.166995	119
-
-i6	84.409070	0.27    	439.999998	119
-
-i6	84.409070	0.27    	329.608962	119
-
-i6	84.681859	0.136508	277.166995	95
-
-i6	84.681859	0.136508	329.608962	95
-
-i6	84.818141	0.27    	439.999998	122
-
-i6	84.818141	0.27    	329.608962	122
-
-i6	84.954649	0.136508	277.166995	110
-
-i6	85.090930	0.136735	415.292983	127
-
-i6	85.090930	0.136735	329.608962	127
-
-i6	85.090930	0.136735	246.934685	127
-
-i6	85.363719	0.136508	415.292983	95
-
-i6	85.363719	0.136508	329.608962	95
-
-i6	85.363719	0.136508	246.934685	95
-
-i6	85.636508	0.341043	415.292983	122
-
-i6	85.636508	0.341043	329.608962	122
-
-i6	85.636508	0.341043	246.934685	122
-
-i6	86.045578	0.136508	277.166995	122
-
-i6	86.045578	0.136508	329.608962	122
-
-i6	86.045578	0.136508	439.999998	122
-
-i6	86.318141	0.136735	329.608962	95
-
-i6	86.318141	0.136735	439.999998	95
-
-i6	86.318141	0.136735	277.166995	95
-
-i6	86.590930	0.27    	439.999998	119
-
-i6	86.590930	0.27    	277.166995	119
-
-i6	86.590930	0.27    	329.608962	119
-
-i6	86.863719	0.136508	277.166995	101
-
-i6	86.863719	0.136508	329.608962	101
-
-i6	87.000000	0.27    	439.999998	122
-
-i6	87.000000	0.27    	329.608962	122
-
-i6	87.272789	0.136508	369.994421	125
-
-i6	87.272789	0.136508	493.869370	125
-
-i6	87.272789	0.136508	311.126982	125
-
-i6	87.545578	0.136508	369.994421	107
-
-i6	87.545578	0.136508	493.869370	107
-
-i6	87.545578	0.136508	311.126982	107
-
-i6	87.818367	0.409297	311.126982	119
-
-i6	87.818367	0.409297	493.869370	119
-
-i6	87.818367	0.409297	369.994421	119
-
-i6	88.227438	0.136508	439.999998	116
-
-i6	88.227438	0.136508	329.608962	116
-
-i6	88.227438	0.136508	277.166995	116
-
-i6	88.500000	0.136735	439.999998	107
-
-i6	88.500000	0.136735	277.166995	107
-
-i6	88.500000	0.136735	329.608962	107
-
-i6	88.772789	0.27    	277.166995	119
-
-i6	88.772789	0.27    	439.999998	119
-
-i6	88.772789	0.27    	329.608962	119
-
-i6	89.045578	0.136508	277.166995	95
-
-i6	89.045578	0.136508	329.608962	95
-
-i6	89.181859	0.27    	439.999998	122
-
-i6	89.181859	0.27    	329.608962	122
-
-i6	89.318367	0.136508	277.166995	110
-
-i6	89.454649	0.136508	415.292983	127
-
-i6	89.454649	0.136508	329.608962	127
-
-i6	89.454649	0.136508	246.934685	127
-
-i6	89.727438	0.136508	415.292983	95
-
-i6	89.727438	0.136508	329.608962	95
-
-i6	89.727438	0.136508	246.934685	95
-
-i6	90.000000	0.341270	415.292983	122
-
-i6	90.000000	0.341270	329.608962	122
-
-i6	90.000000	0.341270	246.934685	122
-
-i6	90.409070	0.136735	277.166995	122
-
-i6	90.409070	0.136735	329.608962	122
-
-i6	90.409070	0.136735	439.999998	122
-
-i6	90.681859	0.136735	329.608962	95
-
-i6	90.681859	0.136735	439.999998	95
-
-i6	90.681859	0.136735	277.166995	95
-
-i6	90.954649	0.27    	439.999998	119
-
-i6	90.954649	0.27    	277.166995	119
-
-i6	90.954649	0.27    	329.608962	119
-
-i6	91.227438	0.136508	277.166995	101
-
-i6	91.227438	0.136508	329.608962	101
-
-i6	91.363719	0.27    	439.999998	122
-
-i6	91.363719	0.27    	329.608962	122
-
-i6	91.636508	0.136508	369.994421	125
-
-i6	91.636508	0.136508	493.869370	125
-
-i6	91.636508	0.136508	311.126982	125
-
-i6	91.909070	0.136735	369.994421	107
-
-i6	91.909070	0.136735	493.869370	107
-
-i6	91.909070	0.136735	311.126982	107
-
-i6	92.181859	0.409297	311.126982	119
-
-i6	92.181859	0.409297	493.869370	119
-
-i6	92.181859	0.409297	369.994421	119
-
-i6	92.590930	0.136735	439.999998	116
-
-i6	92.590930	0.136735	329.608962	116
-
-i6	92.590930	0.136735	277.166995	116
-
-i6	92.863719	0.136508	439.999998	107
-
-i6	92.863719	0.136508	277.166995	107
-
-i6	92.863719	0.136508	329.608962	107
-
-i6	93.136508	0.272789	277.166995	119
-
-i6	93.136508	0.272789	439.999998	119
-
-i6	93.136508	0.272789	329.608962	119
-
-i6	93.409070	0.136735	277.166995	95
-
-i6	93.409070	0.136735	329.608962	95
-
-i6	93.545578	0.27    	439.999998	122
-
-i6	93.545578	0.27    	329.608962	122
-
-i6	93.681859	0.136735	277.166995	110
-
-i6	93.818367	0.136508	415.292983	127
-
-i6	93.818367	0.136508	329.608962	127
-
-i6	93.818367	0.136508	246.934685	127
-
-i6	94.090930	0.136735	415.292983	95
-
-i6	94.090930	0.136735	329.608962	95
-
-i6	94.090930	0.136735	246.934685	95
-
-i6	94.363719	0.341043	415.292983	122
-
-i6	94.363719	0.341043	329.608962	122
-
-i6	94.363719	0.341043	246.934685	122
-
-i6	94.772789	0.136508	277.166995	122
-
-i6	94.772789	0.136508	329.608962	122
-
-i6	94.772789	0.136508	439.999998	122
-
-i6	95.045578	0.136508	329.608962	95
-
-i6	95.045578	0.136508	439.999998	95
-
-i6	95.045578	0.136508	277.166995	95
-
-i6	95.318367	0.272789	439.999998	119
-
-i6	95.318367	0.272789	277.166995	119
-
-i6	95.318367	0.272789	329.608962	119
-
-i6	95.590930	0.136735	277.166995	101
-
-i6	95.590930	0.136735	329.608962	101
-
-i6	95.727438	0.272789	439.999998	122
-
-i6	95.727438	0.272789	329.608962	122
-
-i6	96.000000	0.136735	369.994421	125
-
-i6	96.000000	0.136735	493.869370	125
-
-i6	96.000000	0.136735	311.126982	125
-
-i6	96.272789	0.136508	369.994421	107
-
-i6	96.272789	0.136508	493.869370	107
-
-i6	96.272789	0.136508	311.126982	107
-
-i6	96.545578	0.409297	311.126982	119
-
-i6	96.545578	0.409297	493.869370	119
-
-i6	96.545578	0.409297	369.994421	119
-
-i6	96.954649	0.136508	439.999998	116
-
-i6	96.954649	0.136508	329.608962	116
-
-i6	96.954649	0.136508	277.166995	116
-
-i6	97.227438	0.136508	439.999998	107
-
-i6	97.227438	0.136508	277.166995	107
-
-i6	97.227438	0.136508	329.608962	107
-
-i6	97.500000	0.27    	277.166995	119
-
-i6	97.500000	0.27    	439.999998	119
-
-i6	97.500000	0.27    	329.608962	119
-
-i6	97.772789	0.136508	277.166995	95
-
-i6	97.772789	0.136508	329.608962	95
-
-i6	97.909070	0.27    	439.999998	122
-
-i6	97.909070	0.27    	329.608962	122
-
-i6	98.045578	0.136508	277.166995	110
-
-i6	98.181859	0.136735	415.292983	127
-
-i6	98.181859	0.136735	329.608962	127
-
-i6	98.181859	0.136735	246.934685	127
-
-i6	98.454649	0.136508	415.292983	95
-
-i6	98.454649	0.136508	329.608962	95
-
-i6	98.454649	0.136508	246.934685	95
-
-i6	98.727438	0.341043	415.292983	122
-
-i6	98.727438	0.341043	329.608962	122
-
-i6	98.727438	0.341043	246.934685	122
-
-i6	99.136508	0.136508	277.166995	122
-
-i6	99.136508	0.136508	329.608962	122
-
-i6	99.136508	0.136508	439.999998	122
-
-i6	99.409070	0.136735	329.608962	95
-
-i6	99.409070	0.136735	439.999998	95
-
-i6	99.409070	0.136735	277.166995	95
-
-i6	99.681859	0.27    	439.999998	119
-
-i6	99.681859	0.27    	277.166995	119
-
-i6	99.681859	0.27    	329.608962	119
-
-i6	99.954649	0.136508	277.166995	101
-
-i6	99.954649	0.136508	329.608962	101
-
-i6	100.090930	0.27    	439.999998	122
-
-i6	100.090930	0.27    	329.608962	122
-
-i6	100.363719	0.136508	369.994421	125
-
-i6	100.363719	0.136508	493.869370	125
-
-i6	100.363719	0.136508	311.126982	125
-
-i6	100.636508	0.136508	369.994421	107
-
-i6	100.636508	0.136508	493.869370	107
-
-i6	100.636508	0.136508	311.126982	107
-
-i6	100.909070	0.409524	311.126982	119
-
-i6	100.909070	0.409524	493.869370	119
-
-i6	100.909070	0.409524	369.994421	119
-
-i6	101.318367	0.136508	439.999998	116
-
-i6	101.318367	0.136508	329.608962	116
-
-i6	101.318367	0.136508	277.166995	116
-
-i6	101.590930	0.136735	439.999998	107
-
-i6	101.590930	0.136735	277.166995	107
-
-i6	101.590930	0.136735	329.608962	107
-
-i6	101.863719	0.27    	277.166995	119
-
-i6	101.863719	0.27    	439.999998	119
-
-i6	101.863719	0.27    	329.608962	119
-
-i6	102.136508	0.136508	277.166995	95
-
-i6	102.136508	0.136508	329.608962	95
-
-i6	102.272789	0.27    	439.999998	122
-
-i6	102.272789	0.27    	329.608962	122
-
-i6	102.409070	0.136735	277.166995	110
-
-i6	102.545578	0.136508	415.292983	127
-
-i6	102.545578	0.136508	329.608962	127
-
-i6	102.545578	0.136508	246.934685	127
-
-i6	102.818367	0.136508	415.292983	95
-
-i6	102.818367	0.136508	329.608962	95
-
-i6	102.818367	0.136508	246.934685	95
-
-i6	103.090930	0.341270	415.292983	122
-
-i6	103.090930	0.341270	329.608962	122
-
-i6	103.090930	0.341270	246.934685	122
-
-i6	103.500000	0.136735	277.166995	122
-
-i6	103.500000	0.136735	329.608962	122
-
-i6	103.500000	0.136735	439.999998	122
-
-i6	103.772789	0.136508	329.608962	95
-
-i6	103.772789	0.136508	439.999998	95
-
-i6	103.772789	0.136508	277.166995	95
-
-i6	104.045578	0.27    	439.999998	119
-
-i6	104.045578	0.27    	277.166995	119
-
-i6	104.045578	0.27    	329.608962	119
-
-i6	104.318367	0.136508	277.166995	101
-
-i6	104.318367	0.136508	329.608962	101
-
-i6	104.454649	0.27    	439.999998	122
-
-i6	104.454649	0.27    	329.608962	122
-
-i6	104.727438	0.136508	369.994421	125
-
-i6	104.727438	0.136508	493.869370	125
-
-i6	104.727438	0.136508	311.126982	125
-
-i6	105.0		0.136735	369.994421	107
-
-i6	105.0		0.136735	493.869370	107
-
-i6	105.0		0.136735	311.126982	107
-
-i6	105.272789	0.409297	311.126982	119
-
-i6	105.272789	0.409297	493.869370	119
-
-i6	105.27		0.41		370			123
-
-
-
-i6	105.681859	0.136735	439.999998	116
-
-i6	105.681859	0.136735	329.608962	116
-
-i6	105.681859	0.136735	277.166995	116
-
-i6	105.954649	0.136508	439.999998	107
-
-i6	105.954649	0.136508	277.166995	107
-
-i6	105.954649	0.136508	329.608962	107
-
-i6	106.227438	0.272789	277.166995	119
-
-i6	106.227438	0.272789	439.999998	119
-
-i6	106.227438	0.272789	329.608962	119
-
-i6	106.500000	0.136735	277.166995	95
-
-i6	106.500000	0.136735	329.608962	95
-
-i6	106.636508	0.272789	439.999998	122
-
-i6	106.636508	0.272789	329.608962	122
-
-i6	106.772789	0.136508	277.166995	110
-
-i6	106.909070	0.136735	415.292983	127
-
-i6	106.909070	0.136735	329.608962	127
-
-i6	106.909070	0.136735	246.934685	127
-
-i6	107.181859	0.136735	415.292983	95
-
-i6	107.181859	0.136735	329.608962	95
-
-i6	107.181859	0.136735	246.934685	95
-
-i6	107.454649	0.341043	415.292983	122
-
-i6	107.454649	0.341043	329.608962	122
-
-i6	107.454649	0.341043	246.934685	122
-
-i6	107.863719	0.136508	277.166995	122
-
-i6	107.863719	0.136508	329.608962	122
-
-i6	107.863719	0.136508	439.999998	122
-
-i6	108.136508	0.136508	329.608962	95
-
-i6	108.136508	0.136508	439.999998	95
-
-i6	108.136508	0.136508	277.166995	95
-
-i6	108.409070	0.27    	439.999998	119
-
-i6	108.409070	0.27    	277.166995	119
-
-i6	108.409070	0.27    	329.608962	119
-
-i6	108.681859	0.136735	277.166995	101
-
-i6	108.681859	0.136735	329.608962	101
-
-i6	108.818367	0.272789	439.999998	122
-
-i6	108.818367	0.272789	329.608962	122
-
-i6	109.090930	0.136735	369.994421	125
-
-i6	109.090930	0.136735	493.869370	125
-
-i6	109.090930	0.136735	311.126982	125
-
-i6	109.363719	0.136508	369.994421	107
-
-i6	109.363719	0.136508	493.869370	107
-
-i6	109.363719	0.136508	311.126982	107
-
-i6	109.636508	0.409297	311.126982	119
-
-i6	109.636508	0.409297	493.869370	119
-
-i6	109.636508	0.409297	369.994421	119
-
-i6	110.045578	0.136508	439.999998	116
-
-i6	110.045578	0.136508	329.608962	116
-
-i6	110.045578	0.136508	277.166995	116
-
-i6	110.318367	0.136508	439.999998	107
-
-i6	110.318367	0.136508	277.166995	107
-
-i6	110.318367	0.136508	329.608962	107
-
-i6	110.590930	0.27    	277.166995	119
-
-i6	110.590930	0.27    	439.999998	119
-
-i6	110.590930	0.27    	329.608962	119
-
-i6	110.863719	0.136508	277.166995	95
-
-i6	110.863719	0.136508	329.608962	95
-
-i6	111.000000	0.27    	439.999998	122
-
-i6	111.000000	0.27    	329.608962	122
-
-i6	111.136508	0.136508	277.166995	110
-
-i6	111.272789	0.136735	246.934685	127
-
-i6	111.272789	0.136735	311.126982	127
-
-i6	111.272789	0.136735	415.292983	127
-
-i6	111.545578	0.136508	246.934685	95
-
-i6	111.545578	0.136508	311.126982	95
-
-i6	111.545578	0.136508	415.292983	95
-
-i6	111.818367	0.341043	246.934685	122
-
-i6	111.818367	0.341043	311.126982	122
-
-i6	111.818367	0.341043	415.292983	122
-
-i6	112.227438	0.136508	311.126982	122
-
-i6	112.227438	0.136508	246.934685	122
-
-i6	112.227438	0.136508	415.292983	122
-
-i6	112.500000	0.136735	246.934685	95
-
-i6	112.500000	0.136735	311.126982	95
-
-i6	112.500000	0.136735	415.292983	95
-
-i6	112.772789	0.27    	246.934685	119
-
-i6	112.772789	0.27    	311.126982	119
-
-i6	112.772789	0.27    	415.292983	119
-
-i6	113.045578	0.136508	246.934685	101
-
-i6	113.045578	0.136508	311.126982	101
-
-i6	113.181859	0.27    	415.292983	122
-
-i6	113.181859	0.27    	311.126982	122
-
-i6	113.454649	0.136508	277.166995	125
-
-i6	113.454649	0.136508	439.999998	125
-
-i6	113.454649	0.136508	369.994421	125
-
-i6	113.727438	0.136508	277.166995	107
-
-i6	113.727438	0.136508	439.999998	107
-
-i6	113.727438	0.136508	369.994421	107
-
-i6	114.000000	0.409524	277.166995	119
-
-i6	114.000000	0.409524	439.999998	119
-
-i6	114.000000	0.409524	369.994421	119
-
-i6	114.409297	0.136508	439.999998	116
-
-i6	114.409297	0.136508	277.166995	116
-
-i6	114.409297	0.136508	369.994421	116
-
-i6	114.681859	0.136735	439.999998	107
-
-i6	114.681859	0.136735	277.166995	107
-
-i6	114.681859	0.136735	369.994421	107
-
-i6	114.954649	0.27    	277.166995	119
-
-i6	114.954649	0.27    	439.999998	119
-
-i6	114.954649	0.27    	369.994421	119
-
-i6	115.227438	0.136508	277.166995	95
-
-i6	115.227438	0.136508	369.994421	95
-
-i6	115.363719	0.27    	369.994421	122
-
-i6	115.363719	0.27    	439.999998	122
-
-i6	115.500000	0.136735	277.166995	110
-
-i6	115.636508	0.136508	246.934685	127
-
-i6	115.636508	0.136508	311.126982	127
-
-i6	115.636508	0.136508	415.292983	127
-
-i6	115.909297	0.136508	246.934685	95
-
-i6	115.909297	0.136508	311.126982	95
-
-i6	115.909297	0.136508	415.292983	95
-
-i6	116.181859	0.341270	246.934685	122
-
-i6	116.181859	0.341270	311.126982	122
-
-i6	116.181859	0.341270	415.292983	122
-
-i6	116.590930	0.136735	311.126982	122
-
-i6	116.590930	0.136735	246.934685	122
-
-i6	116.590930	0.136735	415.292983	122
-
-i6	116.863719	0.136508	246.934685	95
-
-i6	116.863719	0.136508	311.126982	95
-
-i6	116.863719	0.136508	415.292983	95
-
-i6	117.136508	0.27    	246.934685	119
-
-i6	117.136508	0.27    	311.126982	119
-
-i6	117.136508	0.27    	415.292983	119
-
-i6	117.409297	0.136508	246.934685	101
-
-i6	117.409297	0.136508	311.126982	101
-
-i6	117.545578	0.27    	415.292983	122
-
-i6	117.545578	0.27    	311.126982	122
-
-i6	117.818367	0.136508	277.166995	125
-
-i6	117.818367	0.136508	439.999998	125
-
-i6	117.818367	0.136508	369.994421	125
-
-i6	118.090930	0.136735	277.166995	107
-
-i6	118.090930	0.136735	439.999998	107
-
-i6	118.090930	0.136735	369.994421	107
-
-i6	118.363719	0.409297	277.166995	119
-
-i6	118.363719	0.409297	439.999998	119
-
-i6	118.363719	0.409297	369.994421	119
-
-i6	118.772789	0.136735	439.999998	116
-
-i6	118.772789	0.136735	277.166995	116
-
-i6	118.772789	0.136735	369.994421	116
-
-i6	119.045578	0.136508	439.999998	107
-
-i6	119.045578	0.136508	277.166995	107
-
-i6	119.045578	0.136508	369.994421	107
-
-i6	119.318367	0.272789	277.166995	119
-
-i6	119.318367	0.272789	439.999998	119
-
-i6	119.318367	0.272789	369.994421	119
-
-i6	119.590930	0.136735	277.166995	95
-
-i6	119.590930	0.136735	369.994421	95
-
-i6	119.727438	0.272789	369.994421	122
-
-i6	119.727438	0.272789	439.999998	122
-
-i6	119.863719	0.136508	277.166995	110
-
-i6	120.000000	0.136735	246.934685	127
-
-i6	120.000000	0.136735	311.126982	127
-
-i6	120.000000	0.136735	415.292983	127
-
-i6	120.272789	0.136735	246.934685	95
-
-i6	120.272789	0.136735	311.126982	95
-
-i6	120.272789	0.136735	415.292983	95
-
-i6	120.545578	0.341043	246.934685	122
-
-i6	120.545578	0.341043	311.126982	122
-
-i6	120.545578	0.341043	415.292983	122
-
-i6	120.954649	0.136508	311.126982	122
-
-i6	120.954649	0.136508	246.934685	122
-
-i6	120.954649	0.136508	415.292983	122
-
-i6	121.227438	0.136508	246.934685	95
-
-i6	121.227438	0.136508	311.126982	95
-
-i6	121.227438	0.136508	415.292983	95
-
-i6	121.500000	0.27    	246.934685	119
-
-i6	121.500000	0.27    	311.126982	119
-
-i6	121.500000	0.27    	415.292983	119
-
-i6	121.772789	0.136735	246.934685	101
-
-i6	121.772789	0.136735	311.126982	101
-
-i6	121.909297	0.272789	415.292983	122
-
-i6	121.909297	0.272789	311.126982	122
-
-i6	122.181859	0.136735	277.166995	125
-
-i6	122.181859	0.136735	439.999998	125
-
-i6	122.181859	0.136735	369.994421	125
-
-i6	122.454649	0.136508	277.166995	107
-
-i6	122.454649	0.136508	439.999998	107
-
-i6	122.454649	0.136508	369.994421	107
-
-i6	122.727438	0.409297	277.166995	119
-
-i6	122.727438	0.409297	439.999998	119
-
-i6	122.727438	0.409297	369.994421	119
-
-i6	123.136508	0.136508	439.999998	116
-
-i6	123.136508	0.136508	277.166995	116
-
-i6	123.136508	0.136508	369.994421	116
-
-i6	123.409297	0.136508	439.999998	107
-
-i6	123.409297	0.136508	277.166995	107
-
-i6	123.409297	0.136508	369.994421	107
-
-i6	123.681859	0.27    	277.166995	119
-
-i6	123.681859	0.27    	439.999998	119
-
-i6	123.681859	0.27    	369.994421	119
-
-i6	123.954649	0.136508	277.166995	95
-
-i6	123.954649	0.136508	369.994421	95
-
-i6	124.090930	0.27    	369.994421	122
-
-i6	124.090930	0.27    	439.999998	122
-
-i6	124.227438	0.136508	277.166995	110
-
-i6	124.363719	0.136508	415.292983	127
-
-i6	124.363719	0.136508	329.608962	127
-
-i6	124.363719	0.136508	246.934685	127
-
-i6	124.636508	0.136508	415.292983	95
-
-i6	124.636508	0.136508	329.608962	95
-
-i6	124.636508	0.136508	246.934685	95
-
-i6	124.909297	0.341043	415.292983	122
-
-i6	124.909297	0.341043	329.608962	122
-
-i6	124.909297	0.341043	246.934685	122
-
-i6	125.318367	0.136508	277.166995	122
-
-i6	125.318367	0.136508	329.608962	122
-
-i6	125.318367	0.136508	439.999998	122
-
-i6	125.590930	0.136735	329.608962	95
-
-i6	125.590930	0.136735	439.999998	95
-
-i6	125.590930	0.136735	277.166995	95
-
-i6	125.863719	0.27    	439.999998	119
-
-i6	125.863719	0.27    	277.166995	119
-
-i6	125.863719	0.27    	329.608962	119
-
-i6	126.136508	0.136508	277.166995	101
-
-i6	126.136508	0.136508	329.608962	101
-
-i6	126.272789	0.27    	439.999998	122
-
-i6	126.272789	0.27    	329.608962	122
-
-i6	126.545578	0.136508	369.994421	125
-
-i6	126.545578	0.136508	493.869370	125
-
-i6	126.545578	0.136508	311.126982	125
-
-i6	126.818367	0.136508	369.994421	107
-
-i6	126.818367	0.136508	493.869370	107
-
-i6	126.818367	0.136508	311.126982	107
-
-i6	127.090930	0.409297	311.126982	119
-
-i6	127.090930	0.409297	493.869370	119
-
-i6	127.090930	0.409297	369.994421	119
-
-i6	127.500000	0.136735	439.999998	116
-
-i6	127.500000	0.136735	329.608962	116
-
-i6	127.500000	0.136735	277.166995	116
-
-i6	127.772789	0.136735	439.999998	107
-
-i6	127.772789	0.136735	277.166995	107
-
-i6	127.772789	0.136735	329.608962	107
-
-i6	128.045578	0.27    	277.166995	119
-
-i6	128.045578	0.27    	439.999998	119
-
-i6	128.045578	0.27    	329.608962	119
-
-i6	128.318367	0.136508	277.166995	95
-
-i6	128.318367	0.136508	329.608962	95
-
-i6	128.454649	0.27    	439.999998	122
-
-i6	128.454649	0.27    	329.608962	122
-
-i6	128.590930	0.136735	277.166995	110
-
-i6	128.727438	0.136508	415.292983	127
-
-i6	128.727438	0.136508	329.608962	127
-
-i6	128.727438	0.136508	246.934685	127
-
-i6	129.000000	0.136735	415.292983	95
-
-i6	129.000000	0.136735	329.608962	95
-
-i6	129.000000	0.136735	246.934685	95
-
-i6	129.272789	0.341270	415.292983	122
-
-i6	129.272789	0.341270	329.608962	122
-
-i6	129.272789	0.341270	246.934685	122
-
-i6	129.681859	0.136735	277.166995	122
-
-i6	129.681859	0.136735	329.608962	122
-
-i6	129.681859	0.136735	439.999998	122
-
-i6	129.954649	0.136508	329.608962	95
-
-i6	129.954649	0.136508	439.999998	95
-
-i6	129.954649	0.136508	277.166995	95
-
-i6	130.227438	0.272789	439.999998	119
-
-i6	130.227438	0.272789	277.166995	119
-
-i6	130.227438	0.272789	329.608962	119
-
-i6	130.500000	0.136735	277.166995	101
-
-i6	130.500000	0.136735	329.608962	101
-
-i6	130.636508	0.27    	439.999998	122
-
-i6	130.636508	0.27    	329.608962	122
-
-i6	130.909297	0.136508	369.994421	125
-
-i6	130.909297	0.136508	493.869370	125
-
-i6	130.909297	0.136508	311.126982	125
-
-i6	131.181859	0.136735	369.994421	107
-
-i6	131.181859	0.136735	493.869370	107
-
-i6	131.181859	0.136735	311.126982	107
-
-i6	131.454649	0.409297	311.126982	119
-
-i6	131.454649	0.409297	493.869370	119
-
-i6	131.454649	0.409297	369.994421	119
-
-i6	131.863719	0.136508	439.999998	116
-
-i6	131.863719	0.136508	329.608962	116
-
-i6	131.863719	0.136508	277.166995	116
-
-i6	132.136508	0.136508	439.999998	107
-
-i6	132.136508	0.136508	277.166995	107
-
-i6	132.136508	0.136508	329.608962	107
-
-i6	132.409297	0.272789	277.166995	119
-
-i6	132.409297	0.272789	439.999998	119
-
-i6	132.409297	0.272789	329.608962	119
-
-i6	132.681859	0.136735	277.166995	95
-
-i6	132.681859	0.136735	329.608962	95
-
-i6	132.818367	0.272789	439.999998	122
-
-i6	132.818367	0.272789	329.608962	122
-
-i6	132.954649	0.136508	277.166995	110
-
-; 6:200 starts 150
-
-i6	150.5   	0.136508	415.292983	126
-
-i6	150.545578	0.136508	329.61  	125
-
-i6	150.545578	0.136508	246.934685	126
-
-i6	150.81  	0.136508	415.292983	95
-
-i6	150.818		0.136508	329.608962	95
-
-i6	150.82		0.136508	246.934685	95
-
-i6	151.090930	0.341270	415.292983	122
-
-i6	151.090930	0.341270	329.608962	122
-
-i6	151.090930	0.341270	246.934685	122
-
-i6	151.5		0.136508	277.166995	122
-
-i6	151.5		0.136508	329.608962	122
-
-i6	151.5		0.136508	439.999998	122
-
-i6	151.77		0.136735	329.608962	95
-
-i6	151.773		0.136735	439.999998	95
-
-i6	151.7731	0.14		277.166995	95
-
-i6	152.045578	0.27    	439.999998	119
-
-i6	152.045578	0.27    	277.166995	119
-
-i6	152.045578	0.27    	329.608962	119
-
-i6	152.318367	0.136508	277.166995	101
-
-i6	152.318367	0.136508	329.608962	101
-
-i6	152.454649	0.27    	439.999998	122
-
-i6	152.454649	0.27    	329.608962	122
-
-i6	152.727438	0.136508	369.994421	125
-
-i6	152.727438	0.136508	493.869370	125
-
-i6	152.727438	0.136508	311.126982	125
-
-i6	153.000227	0.136508	369.994421	107
-
-i6	153.000227	0.136508	493.869370	107
-
-i6	153.000227	0.136508	311.126982	107
-
-i6	153.272789	0.409297	311.126982	119
-
-i6	153.272789	0.409297	493.869370	119
-
-i6	153.27		0.41		370			119
-
-
-
-i6	153.681859	0.136735	439.999998	116
-
-i6	153.681859	0.136735	329.608962	116
-
-i6	153.681859	0.136735	277.166995	116
-
-i6	153.954649	0.136508	439.999998	107
-
-i6	153.954649	0.136508	277.166995	107
-
-i6	153.954649	0.136508	329.608962	107
-
-i6	154.227438	0.27    	277.166995	119
-
-i6	154.227438	0.27    	439.999998	119
-
-i6	154.227438	0.27    	329.608962	119
-
-i6	154.500227	0.136508	277.166995	95
-
-i6	154.500227	0.136508	329.608962	95
-
-i6	154.636508	0.27    	439.999998	122
-
-i6	154.636508	0.27    	329.608962	122
-
-i6	154.772789	0.136735	277.166995	110
-
-i6	154.909297	0.136508	415.292983	127
-
-i6	154.909297	0.136508	329.608962	127
-
-i6	154.909297	0.136508	246.934685	127
-
-i6	155.181859	0.136735	415.292983	95
-
-i6	155.181859	0.136735	329.608962	95
-
-i6	155.181859	0.136735	246.934685	95
-
-i6	155.454649	0.341270	415.292983	122
-
-i6	155.454649	0.341270	329.608962	122
-
-i6	155.454649	0.341270	246.934685	122
-
-i6	155.863719	0.136735	277.166995	122
-
-i6	155.863719	0.136735	329.608962	122
-
-i6	155.863719	0.136735	439.999998	122
-
-i6	156.136508	0.136508	329.608962	95
-
-i6	156.136508	0.136508	439.999998	95
-
-i6	156.136508	0.136508	277.166995	95
-
-i6	156.409297	0.272789	439.999998	119
-
-i6	156.409297	0.272789	277.166995	119
-
-i6	156.409297	0.272789	329.608962	119
-
-i6	156.681859	0.136735	277.166995	101
-
-i6	156.681859	0.136735	329.608962	101
-
-i6	156.818367	0.272789	439.999998	122
-
-i6	156.818367	0.272789	329.608962	122
-
-i6	157.090930	0.136735	369.994421	125
-
-i6	157.090930	0.136735	493.869370	125
-
-i6	157.090930	0.136735	311.126982	125
-
-i6	157.363719	0.136735	369.994421	107
-
-i6	157.363719	0.136735	493.869370	107
-
-i6	157.363719	0.136735	311.126982	107
-
-i6	157.636508	0.409297	311.126982	119
-
-i6	157.636508	0.409297	493.869370	119
-
-i6	157.636508	0.41		369.994421	119
-
-
-
-i6	158.045578	0.136508	439.999998	116
-
-i6	158.045578	0.136508	329.608962	116
-
-i6	158.045578	0.136508	277.166995	116
-
-i6	158.318367	0.136508	439.999998	107
-
-i6	158.318367	0.136508	277.166995	107
-
-i6	158.318367	0.136508	329.608962	107
-
-i6	158.590930	0.27    	277.166995	119
-
-i6	158.590930	0.27    	439.999998	119
-
-i6	158.590930	0.27    	329.608962	119
-
-i6	158.863719	0.136735	277.166995	95
-
-i6	158.863719	0.136735	329.608962	95
-
-i6	159.000227	0.272789	439.999998	122
-
-i6	159.000227	0.272789	329.608962	122
-
-i6	159.136508	0.136508	277.166995	110
-
-i6	159.272789	0.136735	415.292983	127
-
-i6	159.272789	0.136735	329.608962	127
-
-i6	159.272789	0.136735	246.934685	127
-
-i6	159.545578	0.136508	415.292983	95
-
-i6	159.545578	0.136508	329.608962	95
-
-i6	159.545578	0.136508	246.934685	95
-
-i6	159.818367	0.341043	415.292983	122
-
-i6	159.818367	0.341043	329.608962	122
-
-i6	159.818367	0.341043	246.934685	122
-
-i6	160.227438	0.136508	277.166995	122
-
-i6	160.227438	0.136508	329.608962	122
-
-i6	160.227438	0.136508	439.999998	122
-
-i6	160.500227	0.136508	329.608962	95
-
-i6	160.500227	0.136508	439.999998	95
-
-i6	160.500227	0.136508	277.166995	95
-
-i6	160.772789	0.27    	439.999998	119
-
-i6	160.772789	0.27    	277.166995	119
-
-i6	160.772789	0.27    	329.608962	119
-
-i6	161.045578	0.136508	277.166995	101
-
-i6	161.045578	0.136508	329.608962	101
-
-i6	161.181859	0.27    	439.999998	122
-
-i6	161.181859	0.27    	329.608962	122
-
-i6	161.454649	0.136735	369.994421	125
-
-i6	161.454649	0.136735	493.869370	125
-
-i6	161.454649	0.136735	311.126982	125
-
-i6	161.727438	0.136508	369.994421	107
-
-i6	161.727438	0.136508	493.869370	107
-
-i6	161.727438	0.136508	311.126982	107
-
-i6	162.000227	0.409297	311.126982	119
-
-i6	162.000227	0.409297	493.869370	119
-
-i6	162.000227	0.409297	369.994421	119
-
-i6	162.409297	0.136508	439.999998	116
-
-i6	162.409297	0.136508	329.608962	116
-
-i6	162.409297	0.136508	277.166995	116
-
-i6	162.681859	0.136735	439.999998	107
-
-i6	162.681859	0.136735	277.166995	107
-
-i6	162.681859	0.136735	329.608962	107
-
-i6	162.954649	0.27    	277.166995	119
-
-i6	162.954649	0.27    	439.999998	119
-
-i6	162.954649	0.27    	329.608962	119
-
-i6	163.227438	0.136508	277.166995	95
-
-i6	163.227438	0.136508	329.608962	95
-
-i6	163.363719	0.27    	439.999998	122
-
-i6	163.363719	0.27    	329.608962	122
-
-i6	163.500227	0.136508	277.166995	110
-
-i6	163.636508	0.136508	415.292983	127
-
-i6	163.636508	0.136508	329.608962	127
-
-i6	163.636508	0.136508	246.934685	127
-
-i6	163.909297	0.136508	415.292983	95
-
-i6	163.909297	0.136508	329.608962	95
-
-i6	163.909297	0.136508	246.934685	95
-
-i6	164.181859	0.341270	415.292983	122
-
-i6	164.181859	0.341270	329.608962	122
-
-i6	164.181859	0.341270	246.934685	122
-
-i6	164.591156	0.136508	277.166995	122
-
-i6	164.591156	0.136508	329.608962	122
-
-i6	164.591156	0.136508	439.999998	122
-
-i6	164.863719	0.136735	329.608962	95
-
-i6	164.863719	0.136735	439.999998	95
-
-i6	164.863719	0.136735	277.166995	95
-
-i6	165.136508	0.27    	439.999998	119
-
-i6	165.136508	0.27    	277.166995	119
-
-i6	165.136508	0.27    	329.608962	119
-
-i6	165.409297	0.136508	277.166995	101
-
-i6	165.409297	0.136508	329.608962	101
-
-i6	165.545578	0.27    	439.999998	122
-
-i6	165.545578	0.27    	329.608962	122
-
-i6	165.818367	0.136508	369.994421	125
-
-i6	165.818367	0.136508	493.869370	125
-
-i6	165.818367	0.136508	311.126982	125
-
-i6	166.091156	0.136508	369.994421	107
-
-i6	166.091156	0.136508	493.869370	107
-
-i6	166.091156	0.136508	311.126982	107
-
-i6	166.363719	0.409297	311.126982	119
-
-i6	166.363719	0.409297	493.869370	119
-
-i6	166.363719	0.409297	369.994421	119
-
-i6	166.772789	0.136735	439.999998	116
-
-i6	166.772789	0.136735	329.608962	116
-
-i6	166.772789	0.136735	277.166995	116
-
-i6	167.045578	0.136508	439.999998	107
-
-i6	167.045578	0.136508	277.166995	107
-
-i6	167.045578	0.136508	329.608962	107
-
-i6	167.318367	0.27    	277.166995	119
-
-i6	167.318367	0.27    	439.999998	119
-
-i6	167.318367	0.27    	329.608962	119
-
-i6	167.591156	0.136508	277.166995	95
-
-i6	167.591156	0.136508	329.608962	95
-
-i6	167.727438	0.27    	439.999998	122
-
-i6	167.727438	0.27    	329.608962	122
-
-i6	167.863719	0.136735	277.166995	110
-
-i6	168.000227	0.136508	246.934685	127
-
-i6	168.000227	0.136508	311.126982	127
-
-i6	168.000227	0.136508	415.292983	127
-
-i6	168.272789	0.136735	246.934685	95
-
-i6	168.272789	0.136735	311.126982	95
-
-i6	168.272789	0.136735	415.292983	95
-
-i6	168.545578	0.341043	246.934685	122
-
-i6	168.545578	0.341043	311.126982	122
-
-i6	168.545578	0.341043	415.292983	122
-
-i6	168.954649	0.136735	311.126982	122
-
-i6	168.954649	0.136735	246.934685	122
-
-i6	168.954649	0.136735	415.292983	122
-
-i6	169.227438	0.136508	246.934685	95
-
-i6	169.227438	0.136508	311.126982	95
-
-i6	169.227438	0.136508	415.292983	95
-
-i6	169.500227	0.272789	246.934685	119
-
-i6	169.500227	0.272789	311.126982	119
-
-i6	169.500227	0.272789	415.292983	119
-
-i6	169.772789	0.136735	246.934685	101
-
-i6	169.772789	0.136735	311.126982	101
-
-i6	169.909297	0.272789	415.292983	122
-
-i6	169.909297	0.272789	311.126982	122
-
-i6	170.181859	0.136735	277.166995	125
-
-i6	170.181859	0.136735	439.999998	125
-
-i6	170.181859	0.136735	369.994421	125
-
-i6	170.454649	0.136735	277.166995	107
-
-i6	170.454649	0.136735	439.999998	107
-
-i6	170.454649	0.136735	369.994421	107
-
-i6	170.727438	0.409297	277.166995	119
-
-i6	170.727438	0.409297	439.999998	119
-
-i6	170.727438	0.409297	369.994421	119
-
-i6	171.136508	0.136508	439.999998	116
-
-i6	171.136508	0.136508	277.166995	116
-
-i6	171.136508	0.136508	369.994421	116
-
-i6	171.409297	0.136508	439.999998	107
-
-i6	171.409297	0.136508	277.166995	107
-
-i6	171.409297	0.136508	369.994421	107
-
-i6	171.681859	0.27    	277.166995	119
-
-i6	171.681859	0.27    	439.999998	119
-
-i6	171.681859	0.27    	369.994421	119
-
-i6	171.954649	0.136735	277.166995	95
-
-i6	171.954649	0.136735	369.994421	95
-
-i6	172.091156	0.272789	369.994421	122
-
-i6	172.091156	0.272789	439.999998	122
-
-i6	172.227438	0.136508	277.166995	110
-
-i6	172.363719	0.136735	246.934685	127
-
-i6	172.363719	0.136735	311.126982	127
-
-i6	172.363719	0.136735	415.292983	127
-
-i6	172.636508	0.136508	246.934685	95
-
-i6	172.636508	0.136508	311.126982	95
-
-i6	172.636508	0.136508	415.292983	95
-
-i6	172.909297	0.341043	246.934685	122
-
-i6	172.909297	0.341043	311.126982	122
-
-i6	172.909297	0.341043	415.292983	122
-
-i6	173.318367	0.136508	311.126982	122
-
-i6	173.318367	0.136508	246.934685	122
-
-i6	173.318367	0.136508	415.292983	122
-
-i6	173.591156	0.136508	246.934685	95
-
-i6	173.591156	0.136508	311.126982	95
-
-i6	173.591156	0.136508	415.292983	95
-
-i6	173.863719	0.27    	246.934685	119
-
-i6	173.863719	0.27    	311.126982	119
-
-i6	173.863719	0.27    	415.292983	119
-
-i6	174.136508	0.136508	246.934685	101
-
-i6	174.136508	0.136508	311.126982	101
-
-i6	174.272789	0.27    	415.292983	122
-
-i6	174.272789	0.27    	311.126982	122
-
-i6	174.545578	0.136508	277.166995	125
-
-i6	174.545578	0.136508	439.999998	125
-
-i6	174.545578	0.136508	369.994421	125
-
-i6	174.818367	0.136508	277.166995	107
-
-i6	174.818367	0.136508	439.999998	107
-
-i6	174.818367	0.136508	369.994421	107
-
-i6	175.091156	0.409297	277.166995	119
-
-i6	175.091156	0.409297	439.999998	119
-
-i6	175.091156	0.409297	369.994421	119
-
-i6	175.500227	0.136508	439.999998	116
-
-i6	175.500227	0.136508	277.166995	116
-
-i6	175.500227	0.136508	369.994421	116
-
-i6	175.772789	0.136735	439.999998	107
-
-i6	175.772789	0.136735	277.166995	107
-
-i6	175.772789	0.136735	369.994421	107
-
-i6	176.045578	0.27    	277.166995	119
-
-i6	176.045578	0.27    	439.999998	119
-
-i6	176.045578	0.27    	369.994421	119
-
-i6	176.318367	0.136508	277.166995	95
-
-i6	176.318367	0.136508	369.994421	95
-
-i6	176.454649	0.27    	369.994421	122
-
-i6	176.454649	0.27    	439.999998	122
-
-i6	176.591156	0.136508	277.166995	110
-
-i6	176.727438	0.136508	246.934685	127
-
-i6	176.727438	0.136508	311.126982	127
-
-i6	176.727438	0.136508	415.292983	127
-
-i6	177.000227	0.136508	246.934685	95
-
-i6	177.000227	0.136508	311.126982	95
-
-i6	177.000227	0.136508	415.292983	95
-
-i6	177.272789	0.341270	246.934685	122
-
-i6	177.272789	0.341270	311.126982	122
-
-i6	177.272789	0.341270	415.292983	122
-
-i6	177.681859	0.136735	311.126982	122
-
-i6	177.681859	0.136735	246.934685	122
-
-i6	177.681859	0.136735	415.292983	122
-
-i6	177.954649	0.136735	246.934685	95
-
-i6	177.954649	0.136735	311.126982	95
-
-i6	177.954649	0.136735	415.292983	95
-
-i6	178.227438	0.27    	246.934685	119
-
-i6	178.227438	0.27    	311.126982	119
-
-i6	178.227438	0.27    	415.292983	119
-
-i6	178.500227	0.136508	246.934685	101
-
-i6	178.500227	0.136508	311.126982	101
-
-i6	178.636508	0.27    	415.292983	122
-
-i6	178.636508	0.27    	311.126982	122
-
-i6	178.909297	0.136508	277.166995	125
-
-i6	178.909297	0.136508	439.999998	125
-
-i6	178.909297	0.136508	369.994421	125
-
-i6	179.181859	0.136735	277.166995	107
-
-i6	179.181859	0.136735	439.999998	107
-
-i6	179.181859	0.136735	369.994421	107
-
-i6	179.454649	0.409297	277.166995	119
-
-i6	179.454649	0.409297	439.999998	119
-
-i6	179.454649	0.41		369.994421	119
-
-
-
-i6	179.863719	0.136735	439.999998	116
-
-i6	179.863719	0.136735	277.166995	116
-
-i6	179.863719	0.136735	369.994421	116
-
-i6	180.136508	0.136508	439.999998	107
-
-i6	180.136508	0.136508	277.166995	107
-
-i6	180.136508	0.136508	369.994421	107
-
-i6	180.409297	0.272789	277.166995	119
-
-i6	180.409297	0.272789	439.999998	119
-
-i6	180.409297	0.272789	369.994421	119
-
-i6	180.681859	0.136735	277.166995	95
-
-i6	180.681859	0.136735	369.994421	95
-
-i6	180.818367	0.27    	369.994421	122
-
-i6	180.818367	0.27    	439.999998	122
-
-i6	180.954649	0.136735	277.166995	110
-
-i6	181.091156	0.136508	415.292983	127
-
-i6	181.091156	0.136508	329.608962	127
-
-i6	181.091156	0.136508	246.934685	127
-
-i6	181.363719	0.136735	415.292983	95
-
-i6	181.363719	0.136735	329.608962	95
-
-i6	181.363719	0.136735	246.934685	95
-
-i6	181.636508	0.341043	415.292983	122
-
-i6	181.636508	0.341043	329.608962	122
-
-i6	181.636508	0.341043	246.934685	122
-
-i6	182.045578	0.136508	277.166995	122
-
-i6	182.045578	0.136508	329.608962	122
-
-i6	182.045578	0.136508	439.999998	122
-
-i6	182.318367	0.136508	329.608962	95
-
-i6	182.318367	0.136508	439.999998	95
-
-i6	182.318367	0.136508	277.166995	95
-
-i6	182.591156	0.272789	439.999998	119
-
-i6	182.591156	0.272789	277.166995	119
-
-i6	182.591156	0.272789	329.608962	119
-
-i6	182.863719	0.136735	277.166995	101
-
-i6	182.863719	0.136735	329.608962	101
-
-i6	183.000227	0.272789	439.999998	122
-
-i6	183.000227	0.272789	329.608962	122
-
-i6	183.272789	0.136735	369.994421	125
-
-i6	183.272789	0.136735	493.869370	125
-
-i6	183.272789	0.136735	311.126982	125
-
-i6	183.545578	0.136508	369.994421	107
-
-i6	183.545578	0.136508	493.869370	107
-
-i6	183.545578	0.136508	311.126982	107
-
-i6	183.818367	0.409297	311.126982	119
-
-i6	183.818367	0.409297	493.869370	119
-
-i6	183.818367	0.409297	369.994421	119
-
-i6	184.227438	0.136508	439.999998	116
-
-i6	184.227438	0.136508	329.608962	116
-
-i6	184.227438	0.136508	277.166995	116
-
-i6	184.500227	0.136508	439.999998	107
-
-i6	184.500227	0.136508	277.166995	107
-
-i6	184.500227	0.136508	329.608962	107
-
-i6	184.772789	0.27    	277.166995	119
-
-i6	184.772789	0.27    	439.999998	119
-
-i6	184.772789	0.27    	329.608962	119
-
-i6	185.045578	0.136508	277.166995	95
-
-i6	185.045578	0.136508	329.608962	95
-
-i6	185.181859	0.27    	439.999998	122
-
-i6	185.181859	0.27    	329.608962	122
-
-i6	185.318367	0.136508	277.166995	110
-
-i6	185.454649	0.136735	415.292983	127
-
-i6	185.454649	0.136735	329.608962	127
-
-i6	185.454649	0.136735	246.934685	127
-
-i6	185.727438	0.136508	415.292983	95
-
-i6	185.727438	0.136508	329.608962	95
-
-i6	185.727438	0.136508	246.934685	95
-
-i6	186.000227	0.341043	415.292983	122
-
-i6	186.000227	0.341043	329.608962	122
-
-i6	186.000227	0.341043	246.934685	122
-
-i6	186.409297	0.136508	277.166995	122
-
-i6	186.409297	0.136508	329.608962	122
-
-i6	186.409297	0.136508	439.999998	122
-
-i6	186.682086	0.136508	329.608962	95
-
-i6	186.682086	0.136508	439.999998	95
-
-i6	186.682086	0.136508	277.166995	95
-
-i6	186.954649	0.27    	439.999998	119
-
-i6	186.954649	0.27    	277.166995	119
-
-i6	186.954649	0.27    	329.608962	119
-
-i6	187.227438	0.136508	277.166995	101
-
-i6	187.227438	0.136508	329.608962	101
-
-i6	187.363719	0.27    	439.999998	122
-
-i6	187.363719	0.27    	329.608962	122
-
-i6	187.636508	0.136508	369.994421	125
-
-i6	187.636508	0.136508	493.869370	125
-
-i6	187.636508	0.136508	311.126982	125
-
-i6	187.909297	0.136508	369.994421	107
-
-i6	187.909297	0.136508	493.869370	107
-
-i6	187.909297	0.136508	311.126982	107
-
-i6	188.182086	0.409297	311.126982	119
-
-i6	188.182086	0.409297	493.869370	119
-
-i6	188.182086	0.409297	369.994421	119
-
-i6	188.59  	0.136508	439.999998	116
-
-i6	188.59  	0.136508	329.608962	116
-
-i6	188.591 	0.136508	277.166995	116
-
-i6	188.863 	0.137   	439.999998	107
-
-i6	188.8637	0.137   	277.166995	107
-
-i6	188.864 	0.137   	329.608962	107
-
-i6	189.136508	0.27    	277.166995	119
-
-i6	189.136508	0.27    	439.999998	112
-
-i6	189.136508	0.27    	329.608962	119
-
-i6	189.409297	0.136508	277.166995	95
-
-i6	189.409297	0.136508	329.608962	95
-
-i6	189.545578	0.27    	439.999998	122
-
-i6	189.545578	0.27    	329.608962	122
-
-i6	189.682086	0.136508	277.166995	110
-
-i6	189.818367	0.136508	415.292983	127
-
-i6	189.818367	0.136508	329.608962	127
-
-i6	189.818367	0.136508	246.934685	127
-
-i6	190.091156	0.136508	415.292983	95
-
-i6	190.091156	0.136508	329.608962	95
-
-i6	190.091156	0.136508	246.934685	95
-
-i6	190.363719	0.341270	415.292983	122
-
-i6	190.363719	0.341270	329.608962	122
-
-i6	190.363719	0.341270	246.934685	122
-
-i6	190.772789	0.136735	277.166995	122
-
-i6	190.772789	0.136735	329.608962	122
-
-i6	190.772789	0.136735	439.999998	122
-
-i6	191.045578	0.136735	329.608962	95
-
-i6	191.045578	0.136735	439.999998	95
-
-i6	191.045578	0.136735	277.166995	95
-
-i6	191.318367	0.27    	439.999998	119
-
-i6	191.318367	0.27    	277.166995	119
-
-i6	191.318367	0.27    	329.608962	119
-
-i6	191.591156	0.136508	277.166995	101
-
-i6	191.591156	0.136508	329.608962	101
-
-i6	191.727438	0.27    	439.999998	122
-
-i6	191.727438	0.27    	329.608962	122
-
-i6	192.000227	0.136508	369.994421	125
-
-i6	192.000227	0.136508	493.869370	125
-
-i6	192.000227	0.136508	311.126982	125
-
-i6	192.272789	0.136735	369.994421	107
-
-i6	192.272789	0.136735	493.869370	107
-
-i6	192.272789	0.136735	311.126982	107
-
-i6	192.545578	0.409297	311.126982	119
-
-i6	192.545578	0.409297	493.869370	119
-
-i6	192.545578	0.409297	369.994421	119
-
-i6	192.954649	0.136735	439.999998	116
-
-i6	192.954649	0.136735	329.608962	116
-
-i6	192.954649	0.136735	277.166995	116
-
-i6	193.227438	0.136508	439.999998	107
-
-i6	193.227438	0.136508	277.166995	107
-
-i6	193.227438	0.136508	329.608962	107
-
-i6	193.500227	0.272789	277.166995	119
-
-i6	193.500227	0.272789	439.999998	119
-
-i6	193.500227	0.272789	329.608962	119
-
-i6	193.772789	0.136735	277.166995	95
-
-i6	193.772789	0.136735	329.608962	95
-
-i6	193.909297	0.27    	439.999998	122
-
-i6	193.909297	0.27    	329.608962	122
-
-i6	194.045578	0.136735	277.166995	110
-
-i6	194.182086	0.136508	415.292983	127
-
-i6	194.182086	0.136508	329.608962	127
-
-i6	194.182086	0.136508	246.934685	127
-
-i6	194.454649	0.136735	415.292983	95
-
-i6	194.454649	0.136735	329.608962	95
-
-i6	194.454649	0.136735	246.934685	95
-
-i6	194.727438	0.341043	415.292983	122
-
-i6	194.727438	0.341043	329.608962	122
-
-i6	194.727438	0.341043	246.934685	122
-
-i6	195.136508	0.136508	277.166995	122
-
-i6	195.136508	0.136508	329.608962	122
-
-i6	195.136508	0.136508	439.999998	122
-
-i6	195.409297	0.136508	329.608962	95
-
-i6	195.409297	0.136508	439.999998	95
-
-i6	195.409297	0.136508	277.166995	95
-
-i6	195.682086	0.272789	439.999998	119
-
-i6	195.682086	0.272789	277.166995	119
-
-i6	195.682086	0.272789	329.608962	119
-
-i6	195.954649	0.136735	277.166995	101
-
-i6	195.954649	0.136735	329.608962	101
-
-i6	196.091156	0.272789	439.999998	122
-
-i6	196.091156	0.272789	329.608962	122
-
-i6	196.363719	0.136735	369.994421	125
-
-i6	196.363719	0.136735	493.869370	125
-
-i6	196.363719	0.136735	311.126982	125
-
-i6	196.636508	0.136508	369.994421	107
-
-i6	196.636508	0.136508	493.869370	107
-
-i6	196.636508	0.136508	311.126982	107
-
-i6	196.909297	0.409297	311.126982	119
-
-i6	196.909297	0.409297	493.869370	119
-
-i6	196.909297	0.409297	369.994421	119
-
-i6	197.318367	0.136508	439.999998	116
-
-i6	197.318367	0.136508	329.608962	116
-
-i6	197.318367	0.136508	277.166995	116
-
-i6	197.591156	0.136508	439.999998	107
-
-i6	197.591156	0.136508	277.166995	107
-
-i6	197.591156	0.136508	329.608962	107
-
-i6	197.863719	0.27    	277.166995	119
-
-i6	197.863719	0.27    	439.999998	119
-
-i6	197.863719	0.27    	329.608962	119
-
-i6	198.136508	0.136508	277.166995	95
-
-i6	198.136508	0.136508	329.608962	95
-
-i6	198.272789	0.27    	439.999998	122
-
-i6	198.272789	0.27    	329.608962	122
-
-i6	198.409297	0.136508	277.166995	110
-
-i6	198.545578	0.136735	415.292983	127
-
-i6	198.545578	0.136735	329.608962	127
-
-i6	198.545578	0.136735	246.934685	127
-
-i6	198.818367	0.136508	415.292983	95
-
-i6	198.818367	0.136508	329.608962	95
-
-i6	198.818367	0.136508	246.934685	95
-
-i6	199.091156	0.341043	415.292983	122
-
-i6	199.091156	0.341043	329.608962	122
-
-i6	199.091156	0.341043	246.934685	122
-
-i6	199.500227	0.136508	277.166995	122
-
-i6	199.500227	0.136508	329.608962	122
-
-i6	199.500227	0.136508	439.999998	122
-
-i6	199.772789	0.136735	329.608962	95
-
-i6	199.772789	0.136735	439.999998	95
-
-i6	199.772789	0.136735	277.166995	95
-
-i6	200.045578	0.27    	439.999998	119
-
-i6	200.045578	0.27    	277.166995	119
-
-i6	200.045578	0.27    	329.608962	119
-
-i6	200.318367	0.136508	277.166995	101
-
-i6	200.318367	0.136508	329.608962	101
-
-i6	200.454649	0.27    	439.999998	122
-
-i6	200.454649	0.27    	329.608962	122
-
-i6	200.727438	0.136508	369.994421	125
-
-i6	200.727438	0.136508	493.869370	125
-
-i6	200.727438	0.136508	311.126982	125
-
-i6	201.000227	0.136508	369.994421	107
-
-i6	201.000227	0.136508	493.869370	107
-
-i6	201.000227	0.136508	311.126982	107
-
-i6	201.272789	0.409524	311.126982	119
-
-i6	201.272789	0.409524	493.869370	119
-
-i6	201.272789	0.409524	369.994421	119
-
-i6	201.682086	0.136508	439.999998	116
-
-i6	201.682086	0.136508	329.608962	116
-
-i6	201.682086	0.136508	277.166995	116
-
-i6	201.954649	0.136735	439.999998	107
-
-i6	201.954649	0.136735	277.166995	107
-
-i6	201.954649	0.136735	329.608962	107
-
-i6	202.227438	0.27    	277.166995	119
-
-i6	202.227438	0.27    	439.999998	119
-
-i6	202.227438	0.27    	329.608962	119
-
-i6	202.500227	0.136508	277.166995	95
-
-i6	202.500227	0.136508	329.608962	95
-
-i6	202.636508	0.27    	439.999998	122
-
-i6	202.636508	0.27    	329.608962	122
-
-i6	202.772789	0.136735	277.166995	110
-
-i6	202.909297	0.136508	415.292983	127
-
-i6	202.909297	0.136508	329.608962	127
-
-i6	202.909297	0.136508	246.934685	127
-
-i6	203.182086	0.136508	415.292983	95
-
-i6	203.182086	0.136508	329.608962	95
-
-i6	203.182086	0.136508	246.934685	95
-
-i6	203.454649	0.341270	415.292983	122
-
-i6	203.454649	0.341270	329.608962	122
-
-i6	203.454649	0.341270	246.934685	122
-
-i6	203.863719	0.136735	277.166995	122
-
-i6	203.863719	0.136735	329.608962	122
-
-i6	203.863719	0.136735	439.999998	122
-
-i6	204.136508	0.136508	329.608962	95
-
-i6	204.136508	0.136508	439.999998	95
-
-i6	204.136508	0.136508	277.166995	95
-
-i6	204.409297	0.27    	439.999998	119
-
-i6	204.409297	0.27    	277.166995	119
-
-i6	204.409297	0.27    	329.608962	119
-
-i6	204.682086	0.136508	277.166995	101
-
-i6	204.682086	0.136508	329.608962	101
-
-i6	204.818367	0.27    	439.999998	122
-
-i6	204.818367	0.27    	329.608962	122
-
-i6	205.091156	0.136508	369.994421	125
-
-i6	205.091156	0.136508	493.869370	125
-
-i6	205.091156	0.136508	311.126982	125
-
-i6	205.363719	0.136735	369.994421	107
-
-i6	205.363719	0.136735	493.869370	107
-
-i6	205.363719	0.136735	311.126982	107
-
-i6	205.636508	0.409297	311.126982	119
-
-i6	205.636508	0.409297	493.869370	119
-
-i6	205.636508	0.41		370		111
-
-
-
-i6	206.0		0.136735	439.999998	116
-
-i6	206.0		0.136735	329.608962	116
-
-i6	206.05		0.136735	277.166995	116
-
-i6	206.318367	0.136508	439.999998	107
-
-i6	206.318367	0.136508	277.166995	107
-
-i6	206.318367	0.136508	329.608962	107
-
-i6	206.591156	0.272789	277.166995	119
-
-i6	206.591156	0.272789	439.999998	119
-
-i6	206.591156	0.272789	329.608962	119
-
-i6	206.863719	0.136735	277.166995	95
-
-i6	206.863719	0.136735	329.608962	95
-
-i6	207.000227	0.272789	439.999998	122
-
-i6	207.000227	0.272789	329.608962	122
-
-i6	207.136508	0.136508	277.166995	110
-
-i6	207.272789	0.420862	246.934685	127
-
-i6	207.272789	0.425397	329.608962	127
-
-i6	207.818367	0.084354	246.934685	127
-
-i6	207.818367	0.091156	329.608962	127
-
-i6	207.954649	0.08		246.934685	91
-
-i6	208.091156	0.08		329.608962	127
-
-i6	208.091156	0.084354	247.0		127
-
-i6	208.227438	0.084354	246.934685	84
-
-i6	208.363719	0.091156	329.608962	127
-
-i6	208.363719	0.095692	246.934685	127
-
-i6	208.500227	0.084354	246.934685	99
-
-i6	208.636508	0.073016	246.934685	127
-
-i6	208.636508	0.079819	329.608962	127
-
-i6	208.772789	0.084354	246.934685	91
-
-i6	208.909297	0.073016	246.934685	127
-
-i6	208.909297	0.073016	329.608962	127
-
-i6	209.045578	0.091156	246.934685	84
-
-i6	209.182086	0.079592	246.934685	127
-
-i6	209.182086	0.084127	329.608962	127
-
-i6	209.318367	0.084354	246.934685	84
-
-i6	209.454649	0.27	    	329.608962	127
-
-i6	209.454649	0.27    		246.934685	127
-
-
+#include "includes/i6sco.sco"
 
 ; ins 7 
-
 ; is this the horn or the piano?
-
 ; 7:1 starts 10.9 ends 209.4
-
 #include "includes/i7sco.sco"
 
 
 
 ; 8:1 starts 11.45
-
 ; ins 8
-
 ; flourishy mario paint trill
-
-
-
 i8	11.45   	0.272789	1318.435849	127
-
 i8	11.45	    0.277324	 659.217924	127
 
 i8	11.70    	0.034467	1244.507929	125
-
 i8	11.76   	0.05	1108.667979	108
-
 i8	11.80   	0.05	987.738739	    92
-
 i8	11.83   	0.05	932.274929	    76
-
 i8	11.86   	0.05	830.585965	    59
 
 i8	12.27   	0.1     	554.3	       127
-
 i8	12.273  	0.1     	1108.667979	127
 
 i8	12.409070	0.1     	1108.667979	116
-
 i8	12.409070	0.1     	554.30  	   116
 
 i8	12.545578	0.1     	1108.667979	127
-
 i8	12.545578	0.1     	554.300  	    127
 
 i8	12.681859	0.1     	554.300  	    119
-
 i8	12.681859	0.1     	1108.667979	119
 
 i8	12.954649	0.1     	1244.507929	127
-
 i8	12.954649	0.1     	622.253965	127
 
 i8	13.227211	0.1     	622.253965	127
@@ -5783,25 +964,20 @@ i8	17.863719	0.1     	622.253965	127
 i8	17.863719	0.1     	1244.507929	127
 
 i8	18.000000	0.1     	1244.507929	116
-
 i8	18.000000	0.1     	622.253965	116
 
 i8	18.136281	0.1     	1244.507929	127
-
 i8	18.136281	0.1     	622.253965	127
 
 i8	18.272789	0.136508	1174.625937	119
-
 i8	18.272789	0.136508	587.312968	119
 
 i8	18.409070	0.1     	1108.667979	113
-
 i8	18.409070	0.1     	554.300  	113
 
 ; 8:2
 
 i8	124.909297	0.272789	1318.435849	127
-
 i8	124.909297	0.277324	659.217924	127
 
 i8	125.181859	0.034467	1244.507929	125
@@ -5815,7 +991,6 @@ i8	125.284127	0.034467	932.274929	76
 i8	125.318367	0.034240	830.585965	59
 
 i8	125.727438	0.1     	554.300  	127
-
 i8	125.727438	0.1     	1108.67  	127
 
 i8	125.863719	0.1     	1108.67 	116
@@ -7025,20 +2200,16 @@ i9	150.42               	0.15    	246.934685	127
 i9	150.42               	0.15    	219.999999	92
 
 i9	150.545578	0.15    	329.608962	127
-
 i9	150.545578	0.15    	246.934685	127
 
 i9	150.818367	0.15    	246.934685	122
-
 i9	150.818367	0.15    	329.608962	122
 
 i9	151.090930	0.14      	246.934685	127
-
 i9	151.090930	0.14      	329.608962	127
 
-i9	151.500227	0.15    	329.608962	127
-
-i9	151.500227	0.15    	277.166995	127
+i9	151.5   	0.15    	329.608962	127
+i9	151.5   	0.15    	277.166995	127
 
 i9	151.772789	0.14      	329.608962	119
 
@@ -7075,7 +2246,6 @@ i9	153.681859	0.14      	329.608962	127
 i9	153.954649	0.15      	277.166995	116
 
 i9	153.954649	0.15      	329.608962	116
-
 i9	153.681859	0.57      	219.999999	123
 
 i9	154.227438	0.28      	329.608962	127
@@ -7333,9 +2503,9 @@ e
  <visible>true</visible>
  <uuid/>
  <bgcolor mode="background">
-  <r>255</r>
-  <g>155</g>
-  <b>235</b>
+  <r>240</r>
+  <g>221</g>
+  <b>229</b>
  </bgcolor>
  <bsbObject type="BSBCheckBox" version="2">
   <objectName>firstthree</objectName>
@@ -7394,6 +2564,141 @@ e
   <selected>true</selected>
   <label/>
   <pressedValue>1</pressedValue>
+  <randomizable group="0">false</randomizable>
+ </bsbObject>
+ <bsbObject type="BSBLabel" version="2">
+  <objectName/>
+  <x>15</x>
+  <y>76</y>
+  <width>80</width>
+  <height>25</height>
+  <uuid>{1f2a90ac-2b60-4984-858e-548f84257725}</uuid>
+  <visible>true</visible>
+  <midichan>0</midichan>
+  <midicc>0</midicc>
+  <label>2nd three on?</label>
+  <alignment>left</alignment>
+  <font>Arial</font>
+  <fontsize>10</fontsize>
+  <precision>3</precision>
+  <color>
+   <r>0</r>
+   <g>0</g>
+   <b>0</b>
+  </color>
+  <bgcolor mode="nobackground">
+   <r>255</r>
+   <g>255</g>
+   <b>255</b>
+  </bgcolor>
+  <bordermode>noborder</bordermode>
+  <borderradius>1</borderradius>
+  <borderwidth>1</borderwidth>
+ </bsbObject>
+ <bsbObject type="BSBLabel" version="2">
+  <objectName/>
+  <x>15</x>
+  <y>102</y>
+  <width>80</width>
+  <height>25</height>
+  <uuid>{159e635d-7bd6-484f-a422-0a40e471cee5}</uuid>
+  <visible>true</visible>
+  <midichan>0</midichan>
+  <midicc>0</midicc>
+  <label>3rd three on?</label>
+  <alignment>left</alignment>
+  <font>Arial</font>
+  <fontsize>10</fontsize>
+  <precision>3</precision>
+  <color>
+   <r>0</r>
+   <g>0</g>
+   <b>0</b>
+  </color>
+  <bgcolor mode="nobackground">
+   <r>255</r>
+   <g>255</g>
+   <b>255</b>
+  </bgcolor>
+  <bordermode>noborder</bordermode>
+  <borderradius>1</borderradius>
+  <borderwidth>1</borderwidth>
+ </bsbObject>
+ <bsbObject type="BSBLabel" version="2">
+  <objectName/>
+  <x>15</x>
+  <y>126</y>
+  <width>80</width>
+  <height>25</height>
+  <uuid>{b7aa6d02-c1d7-45f1-b319-a187059f07c6}</uuid>
+  <visible>true</visible>
+  <midichan>0</midichan>
+  <midicc>0</midicc>
+  <label>Final three on?</label>
+  <alignment>left</alignment>
+  <font>Arial</font>
+  <fontsize>10</fontsize>
+  <precision>3</precision>
+  <color>
+   <r>0</r>
+   <g>0</g>
+   <b>0</b>
+  </color>
+  <bgcolor mode="nobackground">
+   <r>255</r>
+   <g>255</g>
+   <b>255</b>
+  </bgcolor>
+  <bordermode>noborder</bordermode>
+  <borderradius>1</borderradius>
+  <borderwidth>1</borderwidth>
+ </bsbObject>
+ <bsbObject type="BSBCheckBox" version="2">
+  <objectName>finalthree</objectName>
+  <x>92</x>
+  <y>127</y>
+  <width>20</width>
+  <height>20</height>
+  <uuid>{cf659137-9158-4fb6-9481-bba3f086ca31}</uuid>
+  <visible>true</visible>
+  <midichan>0</midichan>
+  <midicc>0</midicc>
+  <selected>true</selected>
+  <label/>
+  <pressedValue>1</pressedValue>
+  <randomizable group="0">false</randomizable>
+ </bsbObject>
+ <bsbObject type="BSBCheckBox" version="2">
+  <objectName>thirdthree</objectName>
+  <x>91</x>
+  <y>103</y>
+  <width>20</width>
+  <height>20</height>
+  <uuid>{35002d2b-900a-40c6-8bab-378d98b5b042}</uuid>
+  <visible>true</visible>
+  <midichan>0</midichan>
+  <midicc>0</midicc>
+  <selected>true</selected>
+  <label/>
+  <pressedValue>1</pressedValue>
+  <randomizable group="0">false</randomizable>
+ </bsbObject>
+ <bsbObject type="BSBKnob" version="2">
+  <objectName>bdqhornmode</objectName>
+  <x>50</x>
+  <y>170</y>
+  <width>50</width>
+  <height>50</height>
+  <uuid>{40e6a407-3700-479f-b110-a819bc332bd3}</uuid>
+  <visible>true</visible>
+  <midichan>0</midichan>
+  <midicc>0</midicc>
+  <minimum>0.00000000</minimum>
+  <maximum>4.00000000</maximum>
+  <value>1.16000000</value>
+  <mode>lin</mode>
+  <mouseControl act="jump">continuous</mouseControl>
+  <resolution>0.01000000</resolution>
   <randomizable group="0">false</randomizable>
  </bsbObject>
 </bsbPanel>
