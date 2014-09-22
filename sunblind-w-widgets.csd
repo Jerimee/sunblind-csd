@@ -3,7 +3,7 @@
 ; Select audio/midi flags here according to platform
  -odac     ;;;realtime audio out
 --env:SSDIR+=assets/ ; needed for instrument 30
-;-+skip_seconds=60
+;-+skip_seconds=9
 ;-iadc    ;;;uncomment -iadc if RT audio input is needed too
 ;-o sunblind-justi4.wav -W ;;; for file output any platform
 ;-o sunblind-justvocals.ogg --ogg
@@ -50,9 +50,9 @@ gi11on = 1    *gioddon*giLastFive					/* inst 11 sco is */
 
 gi30on = 1    								/* inst 30 sco is ten 20 second chunks for WavPlayer */
 
-giamp   = 0.33 ; base volume control
+giamp   = 0.35 ; global volume control
 gi01amp = giamp - 0.075
-gi02amp = giamp + 0.06
+gi02amp = giamp  + 0.4
 gi03amp = giamp - 0.1
 gi04amp = giamp - 0.2
 gi05amp = giamp + 0.12
@@ -115,10 +115,10 @@ instr 2 ; sine_bass_wave
 	ipitch = p4
 	ivel = p5
 	kfirthr invalue "firstthree"
-	#include "includes/kon.inc"
+	kon invalue "allexcept"
 	aSubOut subinstr "sine_bass_wave", ivel, ipitch
-	if ((gi02on==1) && (kfirthr==1) && (kthisoneon==1)) then  
-		AssignSendNamed	    	p1, 0.3, 0.7, gi02amp
+	if ((gi02on==1) && (kfirthr==1) && ((kon==2)||(kon==0))) then  
+		AssignSendNamed	    	p1, 5, 0.75, gi02amp
 		SendOutNamed	        	p1, aSubOut, aSubOut
 	endif
 endin ; end ins 2
@@ -2272,7 +2272,7 @@ i12 180	  .		1.0055	3
 i12 200	  .		1.0		3
 
 ; 12:2
-; this amplifies the vocal by laying the wav track
+; this amplifies the vocal by laying on the wav track
 i12	19.5	15		1		4
 i12	26		50		1		4
 i12	36		1		1.01	4
@@ -2497,7 +2497,7 @@ e
   <midicc>0</midicc>
   <minimum>0.00000000</minimum>
   <maximum>4.00000000</maximum>
-  <value>0.36000000</value>
+  <value>1.28000000</value>
   <mode>lin</mode>
   <mouseControl act="jump">continuous</mouseControl>
   <resolution>0.01000000</resolution>
