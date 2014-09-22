@@ -50,19 +50,19 @@ gi11on = 1    *gioddon*giLastFive					/* inst 11 sco is */
 
 gi30on = 1    								/* inst 30 sco is ten 20 second chunks for WavPlayer */
 
-giamp   = 0.31 ; base volume control
-gi01amp = giamp - 0.05
-gi02amp = giamp + 0.055
-gi03amp = giamp - 0.25
+giamp   = 0.33 ; base volume control
+gi01amp = giamp - 0.075
+gi02amp = giamp + 0.06
+gi03amp = giamp - 0.1
 gi04amp = giamp - 0.2
 gi05amp = giamp + 0.12
 gi06amp = giamp 
-gi07amp = giamp - 0.06 ; can we turn it up beyond 1? yes
+gi07amp = giamp  
 gi08amp = giamp - 0.2 ; can we turn it down beyond 0? NO, somehow it actually gets louder if you do that!
 gi09amp = giamp * 0.15
 gi10amp = giamp + 0.2
-gi11amp = giamp - 0.18
-gi30amp = giamp + 0.25
+gi11amp = giamp - 0.21
+gi30amp = giamp + 0.3
 
 gicount = 0 ; I don't know how to do a counter without a global var
 
@@ -126,38 +126,14 @@ endin ; end ins 2
 instr 3 
 	ipitch = p4
 	ivel = p5
+	kon invalue "allexcept"
 	kfirthr invalue "firstthree"
-	#include "includes/kon.inc"
 	aSubOutL, aSubOutR subinstr "sweepy", ivel, ipitch
-	if ((gi03on==1) && (kfirthr==1) && (kthisoneon==1)) then  
-		AssignSend		        p1, 0.25, 0.05, gi03amp
+	if ((gi03on==1) && (kfirthr==1) && ((kon==3)||(kon==0))) then  
+		AssignSend		        p1, 0.15, 0.1, gi03amp
 		SendOut		        p1, aSubOutL, aSubOutR
 	endif
 endin ; end ins 3
-
-instr	30 ; WavPlayer
-	idur		= p3  
-	kSpeed  	init p4           ; playback speed
-	iSkip   	init p2           ; inskip into file (in seconds)
-	iLoop  		init 0           ; looping switch (0=off 1=on)
-	iselect    =p5
-				;double volume			
-	kenv     linseg 0, idur*.2, 2, idur*.4, 1, idur*.4, 0
-	
-	; read audio from disk using diskin2 opcode
-	if (p5 = 3) then
-		a1,a2     diskin2  "sunblind-justi3.wav", kSpeed, iSkip, iLoop
-	elseif (p5 = 4) then
-		a1,a2     diskin2  "sunblind-justi4.wav", kSpeed, iSkip, iLoop
-	endif
-	;outs      a1*kenv,a2*kenv          ; send audio to outputs
-	kfinthr invalue "finalthree"
-	#include "includes/kon.inc"
-	if ((gi30on==1) && (kfinthr==1) && (kthisoneon==1)) then  
-		AssignSend		        p1, 0.1, 0.15, gi30amp
-		SendOut		        p1, a1*kenv, a2*kenv
-	endif
-endin ; end 30
 
 instr 4 ; vocal
 ;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -172,17 +148,19 @@ islev 	= ivel * 0.5
 
 kenv	xadsr iatt, idec, islev, irel
 
-asig			vco2  kenv, kcps*0.999
-asigLow			vco2  kenv, kcps*0.99
+asig			vco2  kenv, kcps*0.99999
+asigLow			vco2  kenv, kcps*0.9925
 asigLower		vco2  kenv, kcps*0.9
+asigLowest		vco2  kenv, kcps*0.8855
 adelLow			delay   asigLow , ivel*0.009;
 adelLower		delay   asigLow , ivel*0.011;
-aout 			= asig+adelLow+adelLower
+				; adelLower added twice
+aout 			= asig+adelLow+adelLower+adelLower+asigLowest
 
 kon invalue "allexcept"
 ksecthr invalue "secondthree"
-if ((gi04on==1) && (ksecthr==1) && ((kon==2)||(kon==0))) then  
-	AssignSend		        p1, 0.2, 0.2, gi04amp
+if ((gi04on==1) && (ksecthr==1) && ((kon==4)||(kon==0))) then  
+	AssignSend		        p1, 0.2, 0.3, gi04amp
 	SendOut  p1, aout, aout
 endif
 
@@ -398,10 +376,8 @@ instr 8 ; Sunshape
 
 	imaxamp    =20
 	ilineend = (p5/5)
-	itiny =  0.000001
+	itiny =  0.00001
 	ipfo = p4
-
-	;kshapeamt  line        itiny,p3,ilineend
 
     kshapeamt  line        1,p3,ilineend
 
@@ -436,21 +412,18 @@ instr 8 ; Sunshape
 	afinalout = (aout+aoutSOP)*2
 
 	idurf = p3/10
-
-	;                                 v,t,v,t,v 
-
-	aenv   expseg   0.8, idurf, 1.0, idurf,0.4, idurf,1.0, idurf,0.3, idurf, 0.9, idurf,0.6, idurf,0.2, idurf,0.05, idurf,0.01, idurf
+	aenv   expseg   0.8, idurf, 1.0, idurf,0.4, idurf,1.0, idurf,0.3, idurf, 0.9, idurf,0.6, idurf,0.2, idurf,0.05, idurf,itiny,idurf
 
 	;wobble the env by reducing it
 	;the krandoInverted number just happens to fit
 
 	afinalenv = aenv-krandoInverted
-    adeclick   linseg      0.0, 0.01, 1.0, p3 - 0.06, 1.0, 0.05, 0.0
+    adeclick   linseg      0.0, itiny, 1.0, p3 - 0.06, 1.0, itiny, 0.0
     adone = afinalout * adeclick * imaxamp*afinalenv
 	#include "includes/kon.inc"
 	kthithr invalue "thirdthree"
 	if ((gi08on==1) && (kthithr==1) && (kthisoneon==1)) then 								
-		AssignSend		        p1, 0.0, 0.2, gi08amp
+		AssignSend		        p1, 0.8, 0.2, gi08amp
 		SendOut			        p1, adone, (adone*0.92)
 	endif
 endin ; end ins 8
@@ -704,14 +677,14 @@ endin ; end ins 9
 
 instr 11 ; Drillill
 	idur = p3
-	iatt 	= (idur*0.05)
-	idec  	= (idur*0.15) 
-	isus	= (idur*0.30) 
-	irel  	= (idur*0.50) 
+	iatt 	= (idur*0.15)
+	idec  	= (idur*0.25) 
+	isus	= (idur*0.25) 
+	irel  	= (idur*0.35) 
 	islev = p5/127
 	;kenv	xadsr iatt, idec, islev, irel
 	kenv expseg 0.001, iatt, islev, idec, islev*0.9, isus, islev*0.9, irel, 0.001 
-	krnd random -25, 65
+	krnd random -23, 62
 	kcps = p4 + krnd	;freq, random scrntchs up sound a bit
 
 	iunwise = (p5*0.01)
@@ -721,11 +694,35 @@ instr 11 ; Drillill
 	asigR	vco2  kenv * iunwise, kcps
 	kon invalue "allexcept"
 	kfinthr invalue "finalthree"
-	if ((gi11on==1) && (kfinthr==1) && ((kon==1)||(kon==0))) then 
-		AssignSend		        p1, 12, 1, gi11amp
+	if ((gi11on==1) && (kfinthr==1) && ((kon==11)||(kon==0))) then 
+		AssignSend		        p1, 10, 3.2, gi11amp
 		SendOut			        p1, asigR, asigR
 	endif
 endin ; end ins 11
+
+instr	12 ; WavPlayer
+	idur		= p3  
+	kSpeed  	init p4           ; playback speed
+	iSkip   	init p2           ; inskip into file (in seconds)
+	iLoop  		init 0           ; looping switch (0=off 1=on)
+	iselect    =p5
+				;double volume			
+	kenv     linseg 0, idur*.2, 2, idur*.4, 1, idur*.4, 0
+	
+	; read audio from disk using diskin2 opcode
+	if (p5 = 3) then
+		a1,a2     diskin2  "sunblind-justi3.wav", kSpeed, iSkip, iLoop
+	elseif (p5 = 4) then
+		a1,a2     diskin2  "sunblind-justi4.wav", kSpeed, iSkip, iLoop
+	endif
+	;outs      a1*kenv,a2*kenv          ; send audio to outputs
+	kfinthr invalue "finalthree"
+	#include "includes/kon.inc"
+	if ((gi30on==1) && (kfinthr==1) && (kthisoneon==1)) then  
+		AssignSend		        p1, 0.1, 0.15, gi30amp
+		SendOut		        p1, a1*kenv, a2*kenv
+	endif
+endin ; end 12
 
 </CsInstruments>
 
@@ -777,36 +774,6 @@ i "mycomb" 	0 200 0.45
 ; 3:1
 ; Include score for i3
 #include "includes/i3sco.sco"
-
-; 30:1
-; wav file of rendered i3
-; broken into sections and
-; then slightly speed up
-
-i30 0 	 20		1.0		3
-i30 20	 5		1.0		3
-i30 25	 35		1.005	3
-i30 60	 20		1.01	3
-i30 80	  .		1.0		3
-i30 100	 30		1.001	3
-i30 130	 10		1.02	3
-i30 140	 20		1.03	3
-i30 160	  .		1.015	3
-i30 180	  .		1.005	3
-i30 200	  .		1.0		3
-
-; this amplifies the vocal by laying the wav track
-i30	19.5	15		1		4
-i30	26		50		1		4
-i30	69	  	20		1		4
-i30	79		3		1.06	4
-i30	85		5		1.03	4
-i30	97.1	3		1.05	4
-i30	100		30		1		4
-i30	105		3		1.05	4
-i30	120		50		1		4
-i30	150		15		1		4
-i30	168		15		1.01	4
 
 ; 4:1 starts 19.5 vocal melody
 ; start end pitch att
@@ -1730,269 +1697,204 @@ i9	102.818367	0.12	246.934685	125
 
 i9	102.545578	2.15	164.804481	127
 
-; 9:3
+; 9:3 starts 106.9
 
 i9	106.9    	0.14      	329.608962	127
-
-i9	106.909070	0.14      	246.934685	123
+i9	106.91		0.14      	246.934685	123
 
 i9	107.181859	0.14      	246.934685	122
-
 i9	107.181859	0.14      	329.608962	122
 
 i9	107.454649	0.15    	246.934685	123
-
 i9	107.454649	0.15    	329.608962	123
 
 i9	107.863719	0.15    	329.608962	123
-
-i9	107.863719	0.15    	277.166995	123
+i9	107.864		0.15    	277.166995	123
 
 i9	108.136508	0.15    	329.608962	119
-
-i9	108.136508	0.15    	277.166995	119
+i9	108.137		0.15    	277.166995	119
 
 i9	108.409070	0.28       	277.166995	123
-
-i9	108.409070	0.29       	329.608962	123
+i9	108.41		0.29       	329.608962	123
 
 i9	108.681859	0.14      	329.608962	87
-
-i9	108.681859	0.14      	277.166995	87
+i9	108.682		0.14      	277.166995	87
 
 i9	108.818367	0.15    	329.608962	127
-
-i9	108.818367	0.15    	277.166995	123
+i9	108.82		0.15    	277.166995	123
 
 i9	109.090930	0.14      	311.126982	123
-
 i9	109.090930	0.14      	369.994421	123
 
 i9	109.363719	0.15    	369.994421	113
-
 i9	109.363719	0.15    	311.126982	113
 
 i9	109.636508	0.42               	311.126982	119
-
 i9	109.636508	0.42               	369.994421	119
 
 i9	110.045578	0.15    	277.166995	127
-
 i9	110.045578	0.15    	329.608962	127
 
 i9	110.318367	0.15    	277.166995	116
-
 i9	110.318367	0.15    	329.60  	116
 
 i9	110.590930	0.29      	329.61  	126
-
-i9	110.590930	0.29       277.17  	123
+i9	110.591		0.29       277.17  	123
 
 i9	110.863719	0.15    	329.608962	84
-
 i9	110.9   	0.15    	277.166995	84
 
-i9	111.000000	0.14      	277.166995	123
-
-i9	111.000000	0.14      	329.608962	123
+i9	111.00001	0.14      	277.17		123
+i9	111.001		0.14      	329.608962	123
 
 ; 9:4
 
 i9	137.454649	0.15    	207.646491	92
-
 i9	137.454649	0.15    	246.934685	123
 
 i9	137.590930	0.14      	207.646491	46
-
 i9	137.590930	0.14      	246.934685	81
 
 i9	137.727438	0.15    	207.646491	92
-
-i9	137.727438	0.15    	246.934685	123
+i9	137.73		0.15    	246.934685	123
 
 i9	137.863719	0.14      	207.646491	52
-
 i9	137.863719	0.14      	246.934685	87
 
-i9	138.000227	0.15    	207.646491	92
-
-i9	138.000227	0.15    	246.934685	123
+i9	138.00022	0.15    	207.646491	92
+i9	138.00023	0.15    	246.934685	123
 
 i9	138.136508	0.15    	207.646491	49
-
 i9	138.136508	0.15    	246.934685	84
 
 i9	138.272789	0.14      	207.646491	92
-
 i9	138.272789	0.14      	246.934685	123
 
 i9	138.409297	0.15    	219.999999	92
-
-i9	138.409297	0.15    	246.934685	127
+i9	138.41		0.15    	246.934685	127
 
 i9	138.681859	0.14      	219.999999	92
-
 i9	138.681859	0.14      	246.934685	127
 
 i9	138.954649	0.15    	219.999999	88
+i9	138.955		0.15    	246.934685	123
 
-i9	138.954649	0.15    	246.934685	123
-
-i9	139.090930	0.14      	219.999999	75
-
-i9	139.090930	0.14      	246.934685	110
+i9	139.09		0.14      	219.999999	75
+i9	139.091		0.14      	246.934685	110
 
 i9	139.227438	0.15    	219.999999	92
-
 i9	139.227438	0.15    	246.934685	127
 
-i9	139.363719	0.14      	219.999999	72
-
-i9	139.363719	0.14      	246.934685	107
+i9	139.36371	0.14      	219.999999	72
+i9	139.36372	0.14      	246.934685	107
 
 i9	139.500227	0.15    	246.934685	127
-
 i9	139.500227	0.15    	219.999999	92
 
 i9	139.636508	0.15    	184.997211	92
-
 i9	139.636508	0.15    	246.934685	127
 
 i9	139.909297	0.15    	184.997211	92
-
 i9	139.909297	0.15    	246.934685	127
 
-i9	140.181859	0.14      	184.997211	92
-
-i9	140.181859	0.14      	246.934685	123
+i9	140.1819	0.14      	184.997211	92
+i9	140.182		0.141     	246.934685	123
 
 i9	140.318367	0.15    	184.997211	72
-
 i9	140.318367	0.15    	246.934685	107
 
 i9	140.454649	0.15    	184.997211	92
-
 i9	140.454649	0.15    	246.934685	123
 
 i9	140.590930	0.14      	219.999999	80
-
 i9	140.590930	0.14      	246.934685	115
 
 i9	140.863719	0.14      	219.999999	92
-
-i9	140.863719	0.14      	246.934685	123
+i9	140.864		0.145     	246.934685	123
 
 i9	141.136508	0.15    	220     	92
-
 i9	141.136508	0.15    	246.934685	127
 
-i9	141.272789	0.14      	220     	63
-
-i9	141.272789	0.14      	246.934685	98
+i9	141.272789	0.141     	220     	63
+i9	141.273		0.14      	246.934685	98
 
 i9	141.409297	0.15    	220     	92
-
 i9	141.409297	0.15    	246.934685	127
 
 i9	141.545578	0.15    	220     	72
-
 i9	141.545578	0.15    	246.934685	107
 
 i9	141.681859	0.14      	246.934685	127
-
-i9	141.681859	0.14      	220     	92
+i9	141.682		0.141     	220     	92
 
 i9	141.818367	0.15    	207.646491	92
-
 i9	141.818367	0.15    	246.934685	127
 
 i9	141.954649	0.15    	207.646491	46
-
-i9	141.954649	0.15    	246.934685	81
+i9	141.955		0.1475    	246.934685	81
 
 i9	142.090930	0.14      	207.646491	92
-
 i9	142.090930	0.14      	246.934685	127
 
 i9	142.227438	0.15    	207.646491	52
-
-i9	142.227438	0.15    	246.934685	87
+i9	142.2275	0.15    	246.934685	87
 
 i9	142.363719	0.14      	207.646491	92
-
 i9	142.363719	0.14      	246.934685	127
 
 i9	142.500227	0.15    	207.646491	49
-
-i9	142.500227	0.15    	246.934685	84
+i9	142.51		0.15    	246.934685	84
 
 i9	142.636508	0.15    	207.646491	92
-
 i9	142.636508	0.15    	246.934685	127
 
 i9	142.772789	0.14      	225     	92
-
 i9	142.772789	0.14      	246.934685	123
 
 i9	143.045578	0.15    	219.999999	92
-
 i9	143.045578	0.15    	246.934685	127
 
-i9	143.318367	0.15    	219.999999	88
-
-i9	143.318367	0.15    	246.934685	123
+i9	143.318		0.151    	219.999999	88
+i9	143.32		0.15    	246.934685	123
 
 i9	143.454649	0.15    	219.999999	75
-
 i9	143.454649	0.15    	246.934685	110
 
-i9	143.590930	0.14      	219.999999	92
-
+i9	143.590930	0.141     	221.0		92
 i9	143.590930	0.14      	246.934685	123
 
 i9	143.727438	0.15    	219.999999	72
-
 i9	143.727438	0.15    	246.934685	107
 
 i9	143.863719	0.14      	246.934685	127
-
 i9	143.863719	0.14      	219.999999	92
 
 i9	144.000227	0.15    	184.997211	92
+i9	144.0003	0.15    	246.934685	127
 
-i9	144.000227	0.15    	246.934685	127
-
-i9	144.272789	0.14      	184.997211	92
-
-i9	144.272789	0.14      	246.934685	127
+i9	144.272789	0.141     	184.997		92
+i9	144.28		0.14      	246.934685	127
 
 i9	144.545578	0.15    	184.997211	92
-
 i9	144.545578	0.15    	246.934685	127
 
 i9	144.681859	0.14      	184.997211	72
-
 i9	144.681859	0.14      	246.934685	107
 
 i9	144.818367	0.15    	184.997211	92
-
 i9	144.818367	0.15    	246.934685	127
 
 i9	144.954649	0.15    	219.999999	80
-
 i9	144.954649	0.15    	246.934685	115
 
 i9	145.227438	0.15    	219.999999	92
-
 i9	145.227438	0.15    	246.934685	127
 
 i9	145.500227	0.15    	219.999999	92
-
 i9	145.500227	0.15    	246.934685	127
 
 i9	145.636508	0.15    	219.999999	63
-
-i9	145.636508	0.15    	246.934685	98
+i9	145.64		0.152    	246.934685	98
 
 i9	145.772789	0.14      	219.999999	92
 
@@ -2086,12 +1988,10 @@ i9	149.863719	0.14      	219.999999	92
 
 i9	149.863719	0.14      	246.934685	127
 
-i9	150.000227	0.15    	219.999999	63
-
-i9	150.000227	0.15    	246.934685	98
+i9	150.0002	0.15    	219.999999	63
+i9	150.0003	0.15    	246.934685	98
 
 i9	150.15    	0.15    	219.999999	92
-
 i9	150.15    	0.15    	246.934685	127
 
 i9	150.29     	0.14      	219.999999	72
@@ -2172,16 +2072,13 @@ i9	154.909297	0.15    	329.608962	127
 i9	154.909297	0.15    	246.934685	127
 
 i9	155.181859	0.14      	246.934685	122
-
 i9	155.181859	0.14      	329.608962	122
 
 i9	155.454649	0.15    	246.934685	127
-
 i9	155.454649	0.15    	329.608962	127
 
-i9	155.863719	0.14      	329.608962	127
-
-i9	155.863719	0.14      	277.166995	123
+i9	155.86		0.15      	324.6		127
+i9	155.862		0.14      	277.166995	123
 
 i9	156.136508	0.15    	329.608962	119
 
@@ -2210,98 +2107,74 @@ i9	157.363719	0.14      	369.994421	113
 i9	157.363719	0.14      	311.126982	113
 
 i9	157.636508	0.42               	311.126982	119
-
 i9	157.636508	0.42               	369.994421	119
 
 i9	158.045578	0.15    	277.166995	127
-
 i9	158.045578	0.15    	329.608962	123
 
 i9	158.318367	0.15    	277.166995	116
-
 i9	158.318367	0.15    	329.608962	116
 
-i9	158.045578	0.56      	227.0    	127
+i9	158.045578	0.6      	227.0    	127
 
 i9	158.590930	0.28      	329.608962	127
-
 i9	158.590930	0.28      	277.166995	127
-
 i9	158.590930	0.39      	207.646491	123
 
 i9	158.863719	0.14      	329.608962	84
-
 i9	158.863719	0.14      	277.166995	84
 
 i9	159.000227	0.15    	277.166995	127
-
 i9	159.000227	0.15    	329.608962	122
-
 i9	159.000227	0.29     	184.997211	127
 
 i9	159.272789	0.14      	329.608962	122
-
 i9	159.272789	0.14      	246.934685	122
 
 i9	159.545578	0.15    	246.934685	122
-
 i9	159.545578	0.15    	329.608962	122
 
 i9	159.818367	0.15    	246.934685	122
-
 i9	159.818367	0.15    	329.608962	127
 
 i9	160.227438	0.15    	329.608962	127
-
 i9	160.227438	0.15    	277.166995	127
 
 i9	160.500227	0.15    	329.608962	119
-
-i9	160.500227	0.15    	277.166995	119
+i9	160.501		0.16    	275.0	119
 
 i9	160.772789	0.28      	277.166995	127
-
 i9	160.772789	0.28      	329.608962	127
 
 i9	161.045578	0.15    	329.608962	87
-
 i9	161.045578	0.15    	277.166995	87
 
 i9	161.181859	0.14      	329.608962	122
-
-i9	161.181859	0.14      	277.166995	127
+i9	161.2		0.14      	277.166995	127
 
 i9	161.454649	0.14      	311.126982	127
-
 i9	161.454649	0.14      	370.00   	127
 
 i9	161.727438	0.15    	372.00  	113
-
 i9	161.727438	0.15    	311.126982	113
 
 i9	162.000227	0.42               	311.126982	119
-
 i9	162.000227	0.42               	369.994421	119
 
 i9	162.409297	0.15    	277.166995	122
-
 i9	162.409297	0.15    	329.608962	127
 
 i9	162.681859	0.14      	277.166995	116
-
 i9	162.681859	0.14      	329.608962	116
 
-i9	162.409297	0.54      	219.999999	127
+i9	162.7		0.54      	219.999999	127
+i9	162.8		0.29      	329.608962	127
 
-i9	162.954649	0.29       	329.608962	127
-
-i9	162.954649	0.29       	277.166995	122
-
-i9	162.954649	0.42               	207.646491	127
+i9	162.94		0.29      	277.166995	122
+i9	162.95		0.42      	207.646491	127
 
 i9	163.227438	0.15    	329.608962	84
-
-i9	163.227438	0.15    	277.166995	84
+i9	163.23		0.15    	278.1		84
 
 i9	163.363719	0.14      	277.166995	127
 
@@ -2356,26 +2229,19 @@ i9	166.363719	0.43      	312.126982	119
 i9	166.363719	0.42       372.00  	119
 
 i9	166.772789	0.14      	277.166995	127
-
 i9	166.772789	0.14      	329.608962	122
 
 i9	167.045578	0.15    	277.166995	116
-
 i9	167.045578	0.15    	329.608962	116
 
 i9	167.318367	0.28      	329.608962	127
-
 i9	167.318367	0.29      	278.17  	127
 
 i9	167.591156	0.15    	329.608962	84
-
 i9	167.591156	0.15    	277.166995	86
 
 i9	167.727438	0.15    	277.166995	127
-
 i9	167.727438	0.15    	329.608962	127
-
-
 
 ; ins 10
 ; rapid bass drums
@@ -2383,12 +2249,45 @@ i9	167.727438	0.15    	329.608962	127
 ; Include score for i10
 #include "includes/i10sco.sco"
 
-
-
 ; 11:1 starts 63.2 ends 76
 ; 11:2 111.3
 ; ins 11
 #include "includes/i11sco.sco"
+
+; 12:1
+; wav file of rendered i3
+; broken into sections and
+; then slightly speed up
+
+i12 0 	 20		1.0		3
+i12 20	 6		1.0		3
+i12 26	 34		1.005	3
+i12 60	 20		1.012	3
+i12 80	  .		1.001	3
+i12 100	 31		1.001	3
+i12 131	 9		1.02	3
+i12 140	 20		1.03	3
+i12 160	  .		1.015	3
+i12 180	  .		1.0055	3
+i12 200	  .		1.0		3
+
+; 12:2
+; this amplifies the vocal by laying the wav track
+i12	19.5	15		1		4
+i12	26		50		1		4
+i12	36		1		1.01	4
+i12	58		4		1.002	4
+i12	63		2.5		1.012	4
+i12	66		2		1.01	4
+i12	69.1  	20		1		4
+i12	79		3		1.06	4
+i12	85		5.5		1.032	4
+i12	97.1	3		1.05	4
+i12	100.1	30		1		4
+i12	105.1	3.1		1.05	4
+i12	120		50		1		4
+i12	150.2	15.5	1		4
+i12	168		15		1.01	4
 
 e
 </CsScore>
@@ -2598,7 +2497,7 @@ e
   <midicc>0</midicc>
   <minimum>0.00000000</minimum>
   <maximum>4.00000000</maximum>
-  <value>1.16000000</value>
+  <value>0.36000000</value>
   <mode>lin</mode>
   <mouseControl act="jump">continuous</mouseControl>
   <resolution>0.01000000</resolution>
@@ -2650,13 +2549,63 @@ e
     <stringvalue/>
    </bsbDropdownItem>
    <bsbDropdownItem>
-    <name>i11</name>
+    <name>i1</name>
     <value>1</value>
     <stringvalue/>
    </bsbDropdownItem>
    <bsbDropdownItem>
-    <name>i4</name>
+    <name>i2</name>
     <value>2</value>
+    <stringvalue/>
+   </bsbDropdownItem>
+   <bsbDropdownItem>
+    <name>i3</name>
+    <value>3</value>
+    <stringvalue/>
+   </bsbDropdownItem>
+   <bsbDropdownItem>
+    <name>i4</name>
+    <value>4</value>
+    <stringvalue/>
+   </bsbDropdownItem>
+   <bsbDropdownItem>
+    <name>i5</name>
+    <value>5</value>
+    <stringvalue/>
+   </bsbDropdownItem>
+   <bsbDropdownItem>
+    <name>i6</name>
+    <value>6</value>
+    <stringvalue/>
+   </bsbDropdownItem>
+   <bsbDropdownItem>
+    <name>i7</name>
+    <value>7</value>
+    <stringvalue/>
+   </bsbDropdownItem>
+   <bsbDropdownItem>
+    <name>i8</name>
+    <value>8</value>
+    <stringvalue/>
+   </bsbDropdownItem>
+   <bsbDropdownItem>
+    <name>i9</name>
+    <value>9</value>
+    <stringvalue/>
+   </bsbDropdownItem>
+   <bsbDropdownItem>
+    <name>i10</name>
+    <value>10</value>
+    <stringvalue/>
+   </bsbDropdownItem>
+   <bsbDropdownItem>
+    <name>i11</name>
+    <value>11</value>
+    <stringvalue/>
+   </bsbDropdownItem>
+   <bsbDropdownItem>
+    <name>i12</name>
+    <value>12</value>
     <stringvalue/>
    </bsbDropdownItem>
   </bsbDropdownItemList>
