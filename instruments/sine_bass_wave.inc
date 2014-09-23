@@ -5,35 +5,45 @@
 ; a bass sound
 
 idur	= p3
-ifreq 	= (p4 > 15 ? p4 : cpspch(p4))
+ivelcy 	= p4
+ifreq 	= (p5 > 15 ? p5 : cpspch(p5))
+
 
 imyrandom random 0, 9
 irdvd = imyrandom / 4
-iroll = (55 * int(irdvd)) 
-;printks2 "Roll! A fifth of the time it is 110, 2/5 out is 55, and 2/5 out is 0. And the roll is %d!!\n", iroll
-ifreq = ifreq + iroll
+iroll = (30 * int(irdvd)) 
+;printks2 "Roll! A fifth of the time it is 60, 2/5 out is 30, and 2/5 out is 0. And the roll is %d!!\n", iroll
+ifreq = (ifreq + iroll) + 40
 
-iampForKenv = (((p5/127)*(p5/127)))
+iampForKenv = (ivelcy/127)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; http://www.csounds.com/manual/html/adsr.html
 ; 			attTIME		decayTIME	sustVOL		relTIME
 kenv adsr 	0.02, 		0.5, 		iampForKenv, 			0.075
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-iampForLinseg 	= (p5/508)*3
-iseg 			= idur/100
+iampForLinseg 	= ((ivelcy+10)/254)*10
+iseg 			= idur/200
 iX 				= iampForLinseg
-iH 				= iampForLinseg/2
-iQ 				= iampForLinseg/3
+iH 				= iampForLinseg/1.5
+iQ 				= iampForLinseg/2.5
 iTINY 			= 0.003
+
+; kenv expseg \
+;	 	iTINY, 					idur/5, \ 
+;	 	iampForKenv/1.05, 		idur/5, \ 
+;	 	iampForKenv/0.80,		idur/5, \
+;	 	iampForKenv,			idur/5, \
+;	 	iampForKenv/1.01,		idur/5, \	 	 
+;	 	iTINY
 
 klinseg expseg \
 	 	iTINY, 		iseg, \ 
-		iX,			iseg, \ 
-		iQ,			iseg, \ ; 03
-		iQ,			iseg, \ ; 04
-		iQ,			iseg, \ ; 05
-	 	iX, 		iseg, \
+		iTINY,		iseg, \ 
+		iTINY,		iseg, \ ; 03
+		iTINY,		iseg, \ ; 04
+		iTINY,		iseg, \ ; 05
+	 	iH, 		iseg, \
 		iQ,			iseg, \
 		iX,			iseg, \ ; 08
 		iQ,			iseg, \ ; 09
@@ -51,7 +61,7 @@ klinseg expseg \
 	 	iQ, 		iseg, \
 		iX,			iseg, \
 		iQ,			iseg, \
-		iQ,			iseg, \
+		iX,			iseg, \
 		iQ,			iseg, \ ; 25
 	 	iX, 		iseg, \
 		iQ,			iseg, \
@@ -98,36 +108,136 @@ klinseg expseg \
 		iX,			iseg, \ ; 68
 		iQ,			iseg, \
 		iH,			iseg, \ ; 70
+	 	iQ, 		iseg, \
+		iX,			iseg, \
+		iQ,			iseg, \
+		iX,			iseg, \
+		iQ,			iseg, \ ; 75
+	 	iX, 		iseg, \
+		iH,			iseg, \
+		iH,			iseg, \ ; 
+		iH,			iseg, \ ; 
+		iX,			iseg, \ ; 80
+		iH,			iseg, \
+	 	iX, 		iseg, \
+		iH,			iseg, \
+		iH,			iseg, \
+		iH,			iseg, \ ; 85
+		iQ,			iseg, \
+	 	iH, 		iseg, \
+		iX,			iseg, \
+		iH,			iseg, \
+		iQ,			iseg, \ ; 90
+		iH,			iseg, \
+	 	iQ,	 		iseg, \
+		iH,			iseg, \ ; 93
+		iQ,			iseg, \
+		iH,			iseg, \ ; 95
+		iH,			iseg, \
+	 	iH,	 		iseg, \
+		iX,			iseg, \
+		iH,			iseg, \
+		iQ,			iseg, \ ; 100
+	 	iH, 		iseg, \ 
+		iX,			iseg, \ 
+		iQ,			iseg, \ ; 103
+		iQ,			iseg, \ ; 104
+		iQ,			iseg, \ ; 105
+	 	iX, 		iseg, \
+		iQ,			iseg, \
+		iX,			iseg, \ ; 108
+		iQ,			iseg, \ ; 109
+		iX,			iseg, \ ; 110
+	 	iQ, 		iseg, \
+		iX,			iseg, \
+		iQ,			iseg, \
+		iH,			iseg, \
+		iQ,			iseg, \ ; 115
+	 	iX,	 		iseg, \
+		iQ,			iseg, \
+		iX,			iseg, \ ; 118
+		iQ,			iseg, \
+		iH,			iseg, \ ; 120
+	 	iQ, 		iseg, \
+		iX,			iseg, \
+		iQ,			iseg, \
+		iQ,			iseg, \
+		iQ,			iseg, \ ; 125
+	 	iX, 		iseg, \
+		iQ,			iseg, \
+		iH,			iseg, \ ; 128
+		iQ,			iseg, \ ; 129
+		iX,			iseg, \ ; 130
+		iQ,			iseg, \
+	 	iX, 		iseg, \
+		iQ,			iseg, \
+		iH,			iseg, \
+		iQ,			iseg, \ ; 135
+		iH,			iseg, \
+	 	iQ,			iseg, \
+		iX,			iseg, \
+		iQ,			iseg, \
+		iH,			iseg, \ 
+		iQ,			iseg, \
+	 	iH,	 		iseg, \
+		iQ,			iseg, \ 
+		iH,			iseg, \
+		iQ,			iseg, \ 
+		iH,			iseg, \
+	 	iX, 		iseg, \
+		iH,			iseg, \
+		iX,			iseg, \
+		iQ,			iseg, \ ; 150
+	 	iX, 		iseg, \ 
+		iH,			iseg, \ 
+		iQ,			iseg, \ ; 153
+		iX,			iseg, \ ; 154
+		iQ,			iseg, \ ; 155
+	 	iX, 		iseg, \
+		iQ,			iseg, \
+		iX,			iseg, \ ; 158
+		iQ,			iseg, \ ; 159
+		iX,			iseg, \ ; 160
+	 	iQ, 		iseg, \
+		iX,			iseg, \
+		iQ,			iseg, \
+		iH,			iseg, \
+		iQ,			iseg, \ ; 165
+	 	iX,	 		iseg, \
+		iQ,			iseg, \
+		iX,			iseg, \ 
+		iQ,			iseg, \
+		iH,			iseg, \ ; 170
 	 	iTINY, 		iseg, \
 		iX,			iseg, \
 		iTINY,		iseg, \
 		iQ,			iseg, \
-		iTINY,		iseg, \ ; 75
+		iTINY,		iseg, \ ; 175
 	 	iX, 		iseg, \
 		iTINY,		iseg, \
-		iH,			iseg, \ ; 
-		iTINY,		iseg, \ ; 
-		iX,			iseg, \ ; 80
+		iH,			iseg, \  
+		iTINY,		iseg, \  
+		iX,			iseg, \ 
 		iTINY,		iseg, \
 	 	iX, 		iseg, \
 		iTINY,		iseg, \
 		iH,			iseg, \
-		iTINY,		iseg, \ ; 85
+		iTINY,		iseg, \ ; 185
 		iQ,			iseg, \
 	 	iTINY, 		iseg, \
 		iX,			iseg, \
 		iTINY,		iseg, \
-		iQ,			iseg, \ ; 90
+		iQ,			iseg, \ ; 190
 		iTINY,		iseg, \
 	 	iQ,	 		iseg, \
-		iTINY,		iseg, \ ; 93
+		iTINY,		iseg, \ ; 193
 		iQ,			iseg, \
-		iTINY,		iseg, \ ; 95
+		iTINY,		iseg, \ ; 195
 		iH,			iseg, \
 	 	iTINY, 		iseg, \
 		iX,			iseg, \
 		iTINY,		iseg, \
-		iQ,			iseg, \ ; 100
+		iQ,			iseg, \ ; 200
 		iTINY	 
 
 aout init 0
@@ -146,8 +256,18 @@ loopStart:
 ;http://www.csounds.com/manual/html/loop_lt.html
 loop_lt kcount, kincrement, ksmps, loopStart 
 
-aout = ((aout*2) * kenv) ; * (klinseg*0.5) 
+; fuck it
+; if (ivelcy==120) then
+if (1==1) then
+    ;Sfoo    strcpy "SPECIAL SPECIAL SPECIAL SPECIAL"
+    ;puts Sfoo, 1
+	aout = (aout * kenv) 
+	goto theend
+else
+	aout = ((aout*2) * klinseg)
+endif
 
+theend:
 outs aout, aout
 
 ;;;;;;;;;;;;;;;;;;

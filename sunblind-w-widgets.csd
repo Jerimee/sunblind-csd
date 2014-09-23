@@ -51,14 +51,15 @@ gi11on = 1    *gioddon*giLastFive					/* inst 11 sco is */
 gi30on = 1    								/* inst 30 sco is ten 20 second chunks for WavPlayer */
 
 giamp   = 0.35 ; global volume control
+; can we turn it down beyond 0? NO, somehow it actually gets louder if you do that!
 gi01amp = giamp - 0.075
-gi02amp = giamp  + 0.4
+gi02amp = giamp + 0.64
 gi03amp = giamp - 0.1
 gi04amp = giamp - 0.2
 gi05amp = giamp + 0.12
 gi06amp = giamp 
 gi07amp = giamp  
-gi08amp = giamp - 0.2 ; can we turn it down beyond 0? NO, somehow it actually gets louder if you do that!
+gi08amp = giamp - 0.2 
 gi09amp = giamp * 0.15
 gi10amp = giamp + 0.2
 gi11amp = giamp - 0.21
@@ -241,16 +242,16 @@ instr 6, bqdhorn
     kmod	 	invalue "bdqhornmode"
 	if (kmod < 1) then
 	    kModes = 3 		; "jjr"
-	    printk 	5,kmod,20
+	    ;printk 	5,kmod,20
    	elseif ((kmod >= 1) && (kmod < 2)) then
 	   	kModes 	= 1 		; pot lid
-	    printk 	5,kmod,40
+	    ;printk 	5,kmod,40
    	elseif ((kmod >= 2) && (kmod < 3)) then
 	   	kModes 	= 2 		; wood bar
-	    printk 	5,kmod,60
+	    ;printk 	5,kmod,60
 	elseif (kmod >= 3) then
 	   	kModes 	= 4 		; proroxy
-	    printk 	5,kmod,80
+	    ;printk 	5,kmod,80
 	endif
     ifilterw 	= p5
 
@@ -287,8 +288,8 @@ instr 6, bqdhorn
     if4     = icps * 6.984
     if5     = icps * 9.723
     if6     = icps * 12.0
-    Sfoo    strcpy "wood bar"
-    puts Sfoo, 1
+    ;Sfoo    strcpy "wood bar"
+    ;puts Sfoo, 1
     goto nextPart
     
     modes1:
@@ -299,8 +300,8 @@ instr 6, bqdhorn
     if4    = icps * 9.92
     if5    = icps * 14.15
     if6    = icps * 6.23
-    Sfoo    strcpy "pot lid"
-    puts Sfoo, 1
+    ;Sfoo    strcpy "pot lid"
+    ;puts Sfoo, 1
     goto nextPart
 
     modes3:
@@ -311,8 +312,8 @@ instr 6, bqdhorn
     if4     = icps * 1.9
     if5     = icps * 4
     if6     = icps * 1.5
-    Sfoo    strcpy "jjr"
-    puts Sfoo, 1
+    ;Sfoo    strcpy "jjr"
+    ;puts Sfoo, 1
     goto nextPart
     
     modes4:
@@ -322,8 +323,8 @@ instr 6, bqdhorn
     if4     = icps * 9.92
     if5     = icps * 12.5
     if6     = icps * 6.27
-    Sfoo    strcpy "proroxy"
-    puts Sfoo, 1
+    ;Sfoo    strcpy "proroxy"
+    ;puts Sfoo, 1
     goto nextPart
 
     nextPart:
