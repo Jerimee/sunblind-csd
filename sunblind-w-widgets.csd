@@ -56,7 +56,7 @@ gi01amp = giamp - 0.075
 gi02amp = giamp + 0.64
 gi03amp = giamp - 0.1
 gi04amp = giamp - 0.2
-gi05amp = giamp + 0.12
+gi05amp = giamp + 0.18
 gi06amp = giamp 
 gi07amp = giamp  
 gi08amp = giamp - 0.2 
@@ -206,25 +206,31 @@ isus = p3 * isusratio
 
 aenv linseg 0, iatt, 0.99, isus, 0.99, irel, 0 ; end envelope
 
-iindex = 4.1
-icrossfade = 3.1
-ivibedepth = 0.2
-iviberate  = 6
+; temp
+; kmodv 	invalue "bdqhornmode"
+
+iindex = 6
+;p5 is never less than 95
+kcrossfade = (p5-95)/2.5 ;gisine*10 ;kmodv*3 ; 3? 0?
+ivibedepth = 0.015
+kviberate  = 3
 
 ifn1 = gisine
-ifn2 = gicosine
+ifn2 = gisine
 ifn3 = gisine ;giharpsichord
-ifn4 = gisine ;giSigmoFall
+ifn4 = giFmrhode ;giSigmoFall
 
-ivibefn  = gibergeman ;  giSigmoFall;gisine
+ivibefn  = ifn2 ;  giSigmoFall;gisine
 
-asig                 fmrhode                 iamplitude, kHz, iindex, icrossfade, ivibedepth, iviberate, ifn1, ifn2, ifn3, ifn4, ivibefn
+;fmrhode — Uses FM synthesis to create a Fender Rhodes electric piano sound. 
+asig     fmrhode   iamplitude, kHz, iindex, kcrossfade, ivibedepth, kviberate, ifn1, ifn2, ifn3, ifn4, ivibefn
 
+	kon invalue "allexcept"
 	ksecthr invalue "secondthree"
-	#include "includes/kon.inc"
-	if ((gi05on==1) && (ksecthr==1) && (kthisoneon==1)) then  
+	;#include "includes/kon.inc"
+	if ((gi05on==1) && (ksecthr==1) && ((kon==5)||(kon==0))) then  
 		;note that Reverb is high
-		AssignSend		        p1, 0.5, 3, gi05amp
+		AssignSend		        p1, 5, 0.3, gi05amp
 		SendOut			        p1, asig*aenv, asig*aenv
 	endif
 endin ; end ins 5
@@ -2498,7 +2504,7 @@ e
   <midicc>0</midicc>
   <minimum>0.00000000</minimum>
   <maximum>4.00000000</maximum>
-  <value>1.28000000</value>
+  <value>1.32000000</value>
   <mode>lin</mode>
   <mouseControl act="jump">continuous</mouseControl>
   <resolution>0.01000000</resolution>
@@ -2610,7 +2616,7 @@ e
     <stringvalue/>
    </bsbDropdownItem>
   </bsbDropdownItemList>
-  <selectedIndex>0</selectedIndex>
+  <selectedIndex>5</selectedIndex>
   <randomizable group="0">false</randomizable>
  </bsbObject>
 </bsbPanel>

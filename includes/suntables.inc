@@ -1,6 +1,7 @@
 /* suntables.inc */
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; F U N C T I O N   T A B L E S
+; gir ftgen ifn, itime, isize, igen, iarga [, iargb ] [...] 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ; Waveform for the string-pad
@@ -14,6 +15,10 @@ giimpuls20 ftgen 0,0,256,1,"../assets/impuls20.aiff",0,0,0
 
 ; the "marmstk1.wav" audio file for marimba
 gimarmstk1 ftgen 0,0,256,1,"marmstk1.wav",0,0,0
+
+; for ins 5
+; audio file.
+giFmrhode ftgen 0, 0, 256, 1, "../assets/fwavblnk.aiff", 0, 0, 0
 
 ; for ins 8
 itmp  ftgen 4, 0, 16384, 7, 0, 2048, 1, 4096, 1, 4096, -1, 4096, -1, 2048, 0
