@@ -1,11 +1,11 @@
 <CsoundSynthesizer>
 <CsOptions>
 ; Select audio/midi flags here according to platform
- ;-odac     ;;;realtime audio out
+-odac     ;;;realtime audio out
 --env:SSDIR+=assets/ ; needed for instrument 30
 ;-+skip_seconds=9
 ;-iadc    ;;;uncomment -iadc if RT audio input is needed too
--o sunblind-justi5.wav -W ;;; for file output any platform
+;-o sunblind-justi5.wav -W ;;; for file output any platform
 ;-o sunblind-justvocals.ogg --ogg
 </CsOptions>
 
@@ -2616,7 +2616,7 @@ e
     <stringvalue/>
    </bsbDropdownItem>
   </bsbDropdownItemList>
-  <selectedIndex>5</selectedIndex>
+  <selectedIndex>0</selectedIndex>
   <randomizable group="0">false</randomizable>
  </bsbObject>
 </bsbPanel>
