@@ -48,7 +48,7 @@ gi10on = 1     *gievenon*giLastFive					/* inst 10 sco is rapid drums */
 
 gi11on = 1    *gioddon*giLastFive					/* inst 11 sco is */
 
-gi30on = 1    								/* inst 30 sco is ten 20 second chunks for WavPlayer */
+gi12on = 1    								/* inst 30 sco is ten 20 second chunks for WavPlayer */
 
 giamp   = 0.35 ; global volume control
 ; can we turn it down beyond 0? NO, somehow it actually gets louder if you do that!
@@ -63,7 +63,7 @@ gi08amp = giamp - 0.2
 gi09amp = giamp * 0.15
 gi10amp = giamp + 0.2
 gi11amp = giamp - 0.21
-gi30amp = giamp + 0.3
+gi12amp = giamp + 0.3
 
 gicount = 0 ; I don't know how to do a counter without a global var
 
@@ -725,8 +725,8 @@ instr	12 ; WavPlayer
 	;outs      a1*kenv,a2*kenv          ; send audio to outputs
 	kfinthr invalue "finalthree"
 	#include "includes/kon.inc"
-	if ((gi30on==1) && (kfinthr==1) && (kthisoneon==1)) then  
-		AssignSend		        p1, 0.1, 0.15, gi30amp
+	if ((gi12on==1) && (kfinthr==1) && (kthisoneon==1)) then  
+		AssignSend		        p1, 0.1, 0.15, gi12amp
 		SendOut		        p1, a1*kenv, a2*kenv
 	endif
 endin ; end 12
