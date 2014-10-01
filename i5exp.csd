@@ -2,6 +2,7 @@
 <CsOptions>
 -odac
 --env:SSDIR+=assets/ ; needed for instrument 12
+;-+skip_seconds=9
 </CsOptions>
 <CsInstruments>
 
@@ -24,19 +25,31 @@ instr	12 ; WavPlayer
 	iSkip   	init p2           ; inskip into file (in seconds)
 	iLoop  		init 0           ; looping switch (0=off 1=on)
 	iselect    =p5
-				;double volume			
-	kenv     linseg 0, idur*.2, 2, idur*.4, 1, idur*.4, 0
+	ixcf 	=p6
+		
+	kenv     linseg 0, idur*.02, 0.3, idur*.96, 1, idur*.02, 0
 	
 	; read audio from disk using diskin2 opcode
 	if (p5 = 3) then
 		a1,a2     diskin2  "sunblind-justi3.wav", kSpeed, iSkip, iLoop
 	elseif (p5 = 5) then
 		a1,a2     diskin2  "sunblind-justi5.wav", kSpeed, iSkip, iLoop
-		afil fofilter a1, 900, 0.007, 0.04
+		afil fofilter a1, ixcf, 0.005, 0.04
+		afil2 fofilter a2, ixcf-40, 0.01, 0.04
+		
+
+		a1f   = a1*.5		;reduce volume a bit
+		at   tone    a1f, 500	;smooth estimated envelope
+		af   follow  at, 0.005
+		asin poscil3 .5, 440, 1
+		; "provides amplitude for poscil
+		asig balance afil, asin
+		
+		
 	endif
 
-		AssignSend		        p1, 0.1, 0.15, 0.8
-		SendOut		        p1, afil*kenv, a2*kenv
+		AssignSend		        p1, 0.0001, 0.0001, 0.3
+		SendOut		        p1, (a1*0.4)+(asig*0.4), (a2*0.6)+(afil2*kenv)
 
 endin ; end 12
 
@@ -77,8 +90,19 @@ i220   0       -1
 ; broken into sections and
 ; then slightly speed up
 
-i12 0 	 220		1.0		5
-
+i12  0 	 30		1.0		5	600
+i12 +	20	.	.	750
+i12 +	10	.	.	620
+i12 +	.	.	.	<
+i12 +	30	.	.	<
+i12 +	30	.	.	1010
+i12 +	10	.	.	<
+i12 +	.	.	.	<
+i12 +	.	.	.	<
+i12 +	30	.	.	650
+i12 +	10	.	.	<
+i12 +	.	.	.	<
+i12 +	.	.	.	800
 
 </CsScore>
 </CsoundSynthesizer>
