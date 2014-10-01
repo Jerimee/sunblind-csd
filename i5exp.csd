@@ -32,10 +32,11 @@ instr	12 ; WavPlayer
 		a1,a2     diskin2  "sunblind-justi3.wav", kSpeed, iSkip, iLoop
 	elseif (p5 = 5) then
 		a1,a2     diskin2  "sunblind-justi5.wav", kSpeed, iSkip, iLoop
+		afil fofilter a1, 900, 0.007, 0.04
 	endif
 
 		AssignSend		        p1, 0.1, 0.15, 0.8
-		SendOut		        p1, a1*kenv, a2*kenv
+		SendOut		        p1, afil*kenv, a2*kenv
 
 endin ; end 12
 
