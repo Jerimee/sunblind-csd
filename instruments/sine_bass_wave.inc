@@ -15,7 +15,7 @@ iroll = (30 * int(irdvd))
 ;printks2 "Roll! A fifth of the time it is 60, 2/5 out is 30, and 2/5 out is 0. And the roll is %d!!\n", iroll
 ifreq = (ifreq + iroll) + 40
 
-iampForKenv = (ivelcy/127)
+iampForKenv = (ivelcy/127)*1.2
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; http://www.csounds.com/manual/html/adsr.html
 ; 			attTIME		decayTIME	sustVOL		relTIME
