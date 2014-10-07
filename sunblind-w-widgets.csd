@@ -7,8 +7,8 @@
 ;-v ;verbose?
 ;-+skip_seconds=60
 ;-iadc    ;;;uncomment -iadc if RT audio input is needed too
-;-o sunblind-justi5.wav -W ;;; for file output any platform
--o sunblind3.ogg --ogg
+-o sunblind-justi3mfckr.wav -W ;;; for file output any platform
+;-o sunblind3.ogg --ogg
 </CsOptions>
 
 <CsInstruments>
@@ -1249,7 +1249,7 @@ e
     <stringvalue/>
    </bsbDropdownItem>
   </bsbDropdownItemList>
-  <selectedIndex>0</selectedIndex>
+  <selectedIndex>3</selectedIndex>
   <randomizable group="0">false</randomizable>
  </bsbObject>
 </bsbPanel>
