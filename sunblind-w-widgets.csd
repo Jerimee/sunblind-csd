@@ -140,9 +140,10 @@ endin ; end ins 3
 
 instr 4 ; vocal
 ;;;;;;;;;;;;;;;;;;;;;;;;;
-idur 	= p3
+
 kcps 	= (p4 > 15 ? p4 : cpspch(p4))
 ivel 	= p5/127
+idur 	= p3
 iatt 	= idur * 0.05
 irel 	= idur * 0.2
 idec 	= idur * 0.2
@@ -949,7 +950,7 @@ e
   <g>221</g>
   <b>229</b>
  </bgcolor>
- <bsbObject type="BSBCheckBox" version="2">
+ <bsbObject version="2" type="BSBCheckBox">
   <objectName>firstthree</objectName>
   <x>90</x>
   <y>51</y>
@@ -964,7 +965,7 @@ e
   <pressedValue>1</pressedValue>
   <randomizable group="0">false</randomizable>
  </bsbObject>
- <bsbObject type="BSBLabel" version="2">
+ <bsbObject version="2" type="BSBLabel">
   <objectName/>
   <x>15</x>
   <y>50</y>
@@ -993,7 +994,7 @@ e
   <borderradius>1</borderradius>
   <borderwidth>1</borderwidth>
  </bsbObject>
- <bsbObject type="BSBCheckBox" version="2">
+ <bsbObject version="2" type="BSBCheckBox">
   <objectName>secondthree</objectName>
   <x>90</x>
   <y>74</y>
@@ -1008,7 +1009,7 @@ e
   <pressedValue>1</pressedValue>
   <randomizable group="0">false</randomizable>
  </bsbObject>
- <bsbObject type="BSBLabel" version="2">
+ <bsbObject version="2" type="BSBLabel">
   <objectName/>
   <x>15</x>
   <y>76</y>
@@ -1037,7 +1038,7 @@ e
   <borderradius>1</borderradius>
   <borderwidth>1</borderwidth>
  </bsbObject>
- <bsbObject type="BSBLabel" version="2">
+ <bsbObject version="2" type="BSBLabel">
   <objectName/>
   <x>15</x>
   <y>102</y>
@@ -1066,7 +1067,7 @@ e
   <borderradius>1</borderradius>
   <borderwidth>1</borderwidth>
  </bsbObject>
- <bsbObject type="BSBLabel" version="2">
+ <bsbObject version="2" type="BSBLabel">
   <objectName/>
   <x>15</x>
   <y>126</y>
@@ -1095,7 +1096,7 @@ e
   <borderradius>1</borderradius>
   <borderwidth>1</borderwidth>
  </bsbObject>
- <bsbObject type="BSBCheckBox" version="2">
+ <bsbObject version="2" type="BSBCheckBox">
   <objectName>finalthree</objectName>
   <x>92</x>
   <y>127</y>
@@ -1110,7 +1111,7 @@ e
   <pressedValue>1</pressedValue>
   <randomizable group="0">false</randomizable>
  </bsbObject>
- <bsbObject type="BSBCheckBox" version="2">
+ <bsbObject version="2" type="BSBCheckBox">
   <objectName>thirdthree</objectName>
   <x>91</x>
   <y>103</y>
@@ -1125,7 +1126,7 @@ e
   <pressedValue>1</pressedValue>
   <randomizable group="0">false</randomizable>
  </bsbObject>
- <bsbObject type="BSBKnob" version="2">
+ <bsbObject version="2" type="BSBKnob">
   <objectName>bdqhornmode</objectName>
   <x>50</x>
   <y>170</y>
@@ -1143,7 +1144,7 @@ e
   <resolution>0.01000000</resolution>
   <randomizable group="0">false</randomizable>
  </bsbObject>
- <bsbObject type="BSBLabel" version="2">
+ <bsbObject version="2" type="BSBLabel">
   <objectName/>
   <x>148</x>
   <y>20</y>
@@ -1172,7 +1173,7 @@ e
   <borderradius>1</borderradius>
   <borderwidth>1</borderwidth>
  </bsbObject>
- <bsbObject type="BSBDropdown" version="2">
+ <bsbObject version="2" type="BSBDropdown">
   <objectName>allexcept</objectName>
   <x>165</x>
   <y>50</y>
